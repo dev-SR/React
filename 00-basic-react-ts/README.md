@@ -16,6 +16,8 @@
 		- [Typing useState](#typing-usestate)
 		- [Letting a child drive](#letting-a-child-drive)
 		- [Lifting up to the parent](#lifting-up-to-the-parent)
+	- [`useEffect` to Handle Side Effects](#useeffect-to-handle-side-effects)
+		- [What is a side effect?](#what-is-a-side-effect)
 
 ## Introducing the function component
 
@@ -355,7 +357,7 @@ to achieve by looking at the result first:
 ```tsx
 return (
 <ul>
-{[<li>Apple</li>, <li>Orange</li>]}
+	{[<li>Apple</li>, <li>Orange</li>]}
 </ul>
 )
 ```
@@ -363,9 +365,9 @@ return (
 Basically, it wants to output two `li` elements. To get there, we create an array containing two elements with a JavaScript expression. Once it becomes a JavaScript expression wrapped in brackets, `{}`, anything in JavaScript can be refactored and programmed however we want. We can use `arr.map` to form this array:
 
 ```tsx
-{['Apple', 'Orange'].map(v =>
-	<li>{v}</li>
-)}
+{
+	['Apple', 'Orange'].map(v =><li>{v}</li>)
+}
 ```
 
 ### conditional css classes
@@ -391,6 +393,8 @@ const NavItem = ({ label, active, disabled, onClick }: NavItemType) => {
 ```typescript
 const mergeClassNames = (...args: any[]): string =>
 	args.filter((arg) => typeof arg === 'string').join(' ');
+	// 	return args.filter(Boolean).join(' ');
+
 ```
 
 ```typescript
@@ -505,3 +509,81 @@ const Content = ({ count }: { count: number }) => {
 };
 export default App;
 ```
+
+## `useEffect` to Handle Side Effects
+
+### What is a side effect?
+
+The following function has no side effect:
+
+
+```typescript
+function add(a, b) {
+	return a + b
+}
+```
+
+
+This function is quite pure, easy to understand, test, and develop. The reason for this is that the function only depends on the input arguments and has no additional hidden dependency.
+
+We'll intentionally introduce two lines and each will add a hidden dependency:
+
+
+```typescript
+let c = 3
+function add(a, b) {
+	console.log(a, b)
+	eturn a + b + c
+}
+```
+
+The first line adds an external dependency from the `c` variable. Because c is a global variable, it bypasses the input argument list. If we invoke the add(1, 1) function now, it can return any number (or even a non-number). That's because c can be anything at the time when add is invoked. This applies to all global instances. Let's take a look at another hidden dependency. The console.log function could be anything at the runtime. For instance, if console doesn't exist, we could get an error when invoking console.log.
+
+There's one important thing to bear in mind about impure functions – that is, they are prone to errors. For instance, in the preceding example, if someone changed any of the hidden dependencies, it would be difficult for the developer to know that. This can become a nightmare when it comes to refactoring the code.
+
+To make our code robust, we tend to develop strategies to avoid hidden dependencies, either by removing them or containing their impact as much as possible so that we can be confident when developing and maintaining our code. In general, there are two strategies to remedy impurity of functions. One way is to remove it by adding the dependencies to the input arguments so that they are not hidden anymore:
+
+
+```typescript
+function add(a, b, c, log) {
+	log(a, b)
+	return a + b + c
+}
+add(1, 1, 0, console.log)
+```
+
+This can be a very effective approach. The only downside to this approach is that to implement it, you need to know the dependencies and declare them explicitly. This means the list of input arguments could get very long and impact the effectiveness of the function.
+
+This brings us to the second strategy. Instead of removing the impurity, we can package and defer it to a later stage until we actually need to execute it. The following is an example of how we can defer an impurity:
+
+```typescript
+function addFunc(c, log) {
+	function add(a, b) {
+		log(a, b)
+		return a + b + c
+	}
+	return add
+}
+```
+
+
+The addFunc function returns an `add` function. To use the add function,, we invoke `addFunc` to get a handle (also called a callback) of our add function back:
+
+```typescript
+const add = addFunc(c=3, log=console.log)
+```
+
+So, what difference does this make? The dependency for `c` and `log` appears in the input arguments, so `addFunc` is a `pure` function. Essentially, we package any impurities and declare them one level up, so within the context of `addFunc`, the new add function looks and works a bit purer.
+
+In a sense, we keep the original code, but we wrap it up to get a callback function so that we can execute it later. This helps protect the integrity of the main code while relocating the impurity. This deferred strategy is normally referred to as a **side effect**:
+
+
+```typescript
+let c = 1, d = 2
+function add() {
+	c = 2
+	const a = d
+}
+```
+
+In the preceding code, the assignment of the `c` variable inside `add` is a **side effect** because it changes a global value; the assignment of the a variable is another side effect because it reads from a global value. In a loosely connected open system, such as the web, a side effect is unavoidable. If you want to perform a range of actions and one action happens to not be defined by the internal system, then the action involves accessing an external system. Although we cannot avoid the side effect, we can package the side effect so that it accesses the external system at the right time.
