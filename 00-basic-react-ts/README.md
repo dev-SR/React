@@ -9,15 +9,17 @@
 		- [Parent and child](#parent-and-child)
 		- [Writing a function component](#writing-a-function-component)
 		- [conditional css classes](#conditional-css-classes)
-			- [1. Using Ternary operator:](#1-using-ternary-operator)
+			- [1. Using Ternary operator](#1-using-ternary-operator)
 			- [2. reusable function](#2-reusable-function)
-			- [3. Using library:](#3-using-library)
+			- [3. Using library](#3-using-library)
 	- [Crafting States in functions](#crafting-states-in-functions)
 		- [Typing useState](#typing-usestate)
 		- [Letting a child drive](#letting-a-child-drive)
 		- [Lifting up to the parent](#lifting-up-to-the-parent)
 	- [`useEffect` to Handle Side Effects](#useeffect-to-handle-side-effects)
-		- [What is a side effect?](#what-is-a-side-effect)
+		- [Fetching an API resource](#fetching-an-api-resource)
+			- [creating json server](#creating-json-server)
+			- [fetching example:](#fetching-example)
 
 ## Introducing the function component
 
@@ -35,13 +37,12 @@ instance, above figure defines a `Title` component with a `text` prop.
 
 The job of a prop, similar to an input argument, is to pass a value to the function. There is also no limitation in terms of the type of prop. Since each prop is a property of an object, it can be a string, a number, an object, a function, an array, or anything that can be assigned using a JavaScript expression, as in the following example:
 
-
 ```tsx
 const Title = ({ obj }) => {
-	return <h1>{obj.text}</h1>
+ return <h1>{obj.text}</h1>
 }
 const Title = ({ fn }) => {
-	return <h1>{fn()}</h1>
+ return <h1>{fn()}</h1>
 }
 ```
 
@@ -49,7 +50,7 @@ Once a function component has been defined, it can be used as many times as you 
 
 ```tsx
 const App = () => {
-	return <Title text="Hello World" />
+ return <Title text="Hello World" />
 }
 ```
 
@@ -57,17 +58,17 @@ Full example:
 
 ```tsx
 type GreetingProps = {
-	name: string;
+ name: string;
 };
 
 const Greeting = (props: GreetingProps) => {
-	return (
-		<>
-			<div className='h-screen flex justify-center items-center'>
-				<h1 className='text-3xl font-bold'>Hello {props.name}!</h1>
-			</div>
-		</>
-	);
+ return (
+  <>
+   <div className='h-screen flex justify-center items-center'>
+    <h1 className='text-3xl font-bold'>Hello {props.name}!</h1>
+   </div>
+  </>
+ );
 };
 
 const App = () => <Greeting name='Steve' />;
@@ -83,11 +84,9 @@ export default App;
 <img src="img/tvi.jpg" alt="tvi.jpg" width="800px">
 </div>
 
-
 Let's take a moment to look at some of the types that go along with some of the more common props that we tend to see in React applications.
 
 For starters, we have our basic primitives.
-
 
 ```tsx
 type CounterProps = {
@@ -205,17 +204,15 @@ type ContrivedProps = {
 All the props of a function component should be defined explicitly, just like input arguments. But, there's a prop worth knowing early on that isn't apparent to follow this
 rule. This is called a children prop:
 
-
 ```tsx
 const App = () => <Greeting>Hello World</Greeting>;
 ```
 
 You might be using the preceding code without knowing how exactly the "Hello World" string is put under the `Greeting` component. Interestingly, the string is wired to the component via a `children` prop. This will become clear when we get to the definition of the `Greeting` component:
 
-
 ```tsx
 const Greeting = ({ children }) => {
-	return <h1>{children}</h1>
+ return <h1>{children}</h1>
 }
 ```
 
@@ -234,32 +231,31 @@ Example:
 ```tsx
 import React from 'react';
 type ChildProp = {
-	children: React.ReactNode;
+ children: React.ReactNode;
 };
 
 const Box = ({ children }: ChildProp) => {
-	return <section style={{ padding: '1em', border: '5px solid purple' }}>{children}</section>;
+ return <section style={{ padding: '1em', border: '5px solid purple' }}>{children}</section>;
 };
 
 const App = () => {
-	return (
-		<Box>
-			Just a string.
-			<p>Some HTML that is not nested.</p>
-			<Box>
-				<h2>Another React component with one child.</h2>
-			</Box>
-			<Box>
-				<h2>A nested React component with two children.</h2>
-				<p>The second child.</p>
-			</Box>
-		</Box>
-	);
+ return (
+  <Box>
+   Just a string.
+   <p>Some HTML that is not nested.</p>
+   <Box>
+    <h2>Another React component with one child.</h2>
+   </Box>
+   <Box>
+    <h2>A nested React component with two children.</h2>
+    <p>The second child.</p>
+   </Box>
+  </Box>
+ );
 };
 
 export default App;
 ```
-
 
 ### Parent and child
 
@@ -267,15 +263,15 @@ In React, props are the mechanism for components talking to one another. We can 
 a parent and a child, as we have already seen in the previous section.
 
 ```tsx
-type ChildProp = {	text: string;};
+type ChildProp = { text: string;};
 
 const Child = ({ text }: ChildProp) => {
-	return <p>Message From Parent: {text}</p>;
+ return <p>Message From Parent: {text}</p>;
 };
 
 const Parent = () => {
-	const fromParent = 'Hi I"m your parent';
-	return <Child text={fromParent} />;
+ const fromParent = 'Hi I"m your parent';
+ return <Child text={fromParent} />;
 };
 ```
 
@@ -285,21 +281,21 @@ So now comes a big question. **What if we want to reflect the change to a parent
 
 ```tsx
 type ChildProp = {
-	notifyParent: (text: string) => void;
+ notifyParent: (text: string) => void;
 };
 
 const Child = ({ notifyParent }: ChildProp) => {
-	const onChange = () => {
-		const text = 'message from child';
-		notifyParent(text);
-	};
-	return <button onClick={onChange}>Click me</button>;
+ const onChange = () => {
+  const text = 'message from child';
+  notifyParent(text);
+ };
+ return <button onClick={onChange}>Click me</button>;
 };
 const Parent = () => {
-	const notifyParent = (textFromChild: string) => {
-		console.log(`child notify me ${textFromChild}`);
-	};
-	return <Child notifyParent={notifyParent} />;
+ const notifyParent = (textFromChild: string) => {
+  console.log(`child notify me ${textFromChild}`);
+ };
+ return <Child notifyParent={notifyParent} />;
 };
 ```
 
@@ -318,8 +314,8 @@ For instance, if we have a text variable and would like to display it, we could 
 
 ```tsx
 const Title = () => {
-	const text = "Hello World1"
-	return <h1>{text}</h1>
+ const text = "Hello World1"
+ return <h1>{text}</h1>
 }
 ```
 
@@ -327,8 +323,8 @@ Or, if the text is returned from a function, we can do the following:
 
 ```tsx
 const Title = () => {
-	const fn = () => "Hello World"
-	return <h1>{fn()}</h1>
+ const fn = () => "Hello World"
+ return <h1>{fn()}</h1>
 }
 ```
 
@@ -336,28 +332,26 @@ We know that this JavaScript expression is filled in the location where the `chi
 
 The children element does not have to be a single element; it can be an array of elements as well:
 
-
 ```tsx
 const ListComponent = () => {
-	const arr = ['Apple', 'Orange'];
-	return (
-		<ul>
-			{arr.map((v) => (
-				<li>{v}</li>
-			))}
-		</ul>
-	);
+ const arr = ['Apple', 'Orange'];
+ return (
+  <ul>
+   {arr.map((v) => (
+    <li>{v}</li>
+   ))}
+  </ul>
+ );
 };
 ```
 
 It seems a bit complicated in the preceding code, so let's take a look at what the code tries
 to achieve by looking at the result first:
 
-
 ```tsx
 return (
 <ul>
-	{[<li>Apple</li>, <li>Orange</li>]}
+ {[<li>Apple</li>, <li>Orange</li>]}
 </ul>
 )
 ```
@@ -366,51 +360,49 @@ Basically, it wants to output two `li` elements. To get there, we create an arra
 
 ```tsx
 {
-	['Apple', 'Orange'].map(v =><li>{v}</li>)
+ ['Apple', 'Orange'].map(v =><li>{v}</li>)
 }
 ```
 
 ### conditional css classes
 
-#### 1. Using Ternary operator:
-
+#### 1. Using Ternary operator
 
 ```tsx
 const NavItem = ({ label, active, disabled, onClick }: NavItemType) => {
-	return (
-		<li className={`text-xl ${active ? 'font-bold' : ''} ${disabled && 'text-gray-500'}`}>
-			<button disabled={disabled} onClick={onClick}>
-				{label}
-			</button>
-		</li>
-	);
+ return (
+  <li className={`text-xl ${active ? 'font-bold' : ''} ${disabled && 'text-gray-500'}`}>
+   <button disabled={disabled} onClick={onClick}>
+    {label}
+   </button>
+  </li>
+ );
 };
 ```
 
 #### 2. reusable function
 
-
 ```typescript
 const mergeClassNames = (...args: any[]): string =>
-	args.filter((arg) => typeof arg === 'string').join(' ');
-	// 	return args.filter(Boolean).join(' ');
+ args.filter((arg) => typeof arg === 'string').join(' ');
+ //  return args.filter(Boolean).join(' ');
 
 ```
 
 ```typescript
 const NavItem = ({ label, active, disabled, onClick }: NavItemType) => {
-	return (
-		<li
-			className={mergeClassNames(
-				'text-xl',
-				active && 'font-bold border-b-4 border-black',
-				disabled && 'text-gray-400'
-			)}>
-			<button disabled={disabled} onClick={onClick}>
-				{label}
-			</button>
-		</li>
-	);
+ return (
+  <li
+   className={mergeClassNames(
+    'text-xl',
+    active && 'font-bold border-b-4 border-black',
+    disabled && 'text-gray-400'
+   )}>
+   <button disabled={disabled} onClick={onClick}>
+    {label}
+   </button>
+  </li>
+ );
 };
 ```
 
@@ -418,13 +410,12 @@ Could have defined the function easily as 👍
 
 ```typescript
 const mergeClassNames = (...args: string[]): string =>
-	args.join(' ');
+ args.join(' ');
 ```
 
 But this won't allow `active && 'font-bold border-b-4 border-black'` this boolean expression to work in typescript.
 
-
-#### 3. Using library:
+#### 3. Using library
 
 - `classnames` (729 bytes)
 - `clsx` ( 516 bytes)
@@ -432,18 +423,18 @@ But this won't allow `active && 'font-bold border-b-4 border-black'` this boolea
 
 ```tsx
 const NavItem = ({ label, active, disabled, onClick }: NavItemType) => {
-	return (
-		<li
-			className={classnames(
-				'text-xl',
-				active && ' font-bold border-b-4 border-black',
-				disabled && 'text-gray-400'
-			)}>
-			<button disabled={disabled} onClick={onClick}>
-				{label}
-			</button>
-		</li>
-	);
+ return (
+  <li
+   className={classnames(
+    'text-xl',
+    active && ' font-bold border-b-4 border-black',
+    disabled && 'text-gray-400'
+   )}>
+   <button disabled={disabled} onClick={onClick}>
+    {label}
+   </button>
+  </li>
+ );
 };
 ```
 
@@ -466,16 +457,16 @@ It's very common to send a dispatch function from a parent component to a child 
 
 ```tsx
 const App = () => {
-	const [count, setCount] = useState(0);
-	const onClick = () => {
-		console.log('clicked', count);
-		setCount(count + 1);
-	};
-	console.log('rendered', count);
-	return <Title onClick={onClick} />;
+ const [count, setCount] = useState(0);
+ const onClick = () => {
+  console.log('clicked', count);
+  setCount(count + 1);
+ };
+ console.log('rendered', count);
+ return <Title onClick={onClick} />;
 };
 const Title = ({ onClick }: TitleT) => {
-	return <button onClick={onClick}>+</button>;
+ return <button onClick={onClick}>+</button>;
 };
 
 export default App;
@@ -490,100 +481,140 @@ In another way, to share information between two children, the information needs
 ```tsx
 
 const App = () => {
-	const [count, setCount] = useState(0);
-	const onClick = () => {
-		setCount(count + 1);
-	};
-	return (
-		<>
-			<Title onClick={onClick} />
-			<Content count={count} />
-		</>
-	);
+ const [count, setCount] = useState(0);
+ const onClick = () => {
+  setCount(count + 1);
+ };
+ return (
+  <>
+   <Title onClick={onClick} />
+   <Content count={count} />
+  </>
+ );
 };
 const Title = ({ onClick }: TitleT) => {
-	return <button onClick={onClick}>+</button>;
+ return <button onClick={onClick}>+</button>;
 };
 const Content = ({ count }: { count: number }) => {
-	return <div>{count}</div>;
+ return <div>{count}</div>;
 };
 export default App;
 ```
 
 ## `useEffect` to Handle Side Effects
 
-### What is a side effect?
+<div align="center">
+<img src="img/useef.jpg" alt="useef.jpg" width="800px">
+</div>
 
-The following function has no side effect:
+Let's say that we want to know the current browser window size at runtime so that a
+greeting title can fit perfectly onto the screen
 
+<div align="center">
+<img src="img/uef.jpg" alt="uef.jpg" width="500px">
+</div>
 
-```typescript
-function add(a, b) {
-	return a + b
+The useEffect hook is a good fit here. After the component is mounted, we can listen for a resize event provided by the `window` object. Once it starts to listen to the event, every time the window resizes, it kicks off a `handleResize` function that sets the width state to the new window size. We also invoke `handleResize` at the mount to get the initial window size.
+
+```tsx
+const Greeting = () => {
+ const [width, setWidth] = useState(0);
+ useEffect(() => {
+  function handleResize() {
+   setWidth(window.innerWidth);
+  }
+  window.addEventListener('resize', handleResize);
+  handleResize();
+  return () => {
+   window.removeEventListener('resize', handleResize);
+  };
+ }, [setWidth]);
+
+ return (
+  <h1 className=' h-screen flex justify-center items-center text-3xl'>
+   {width > 600 ? 'Hello World' : 'Hello'}
+  </h1>
+ );
+};
+```
+
+In order to prevent a memory leak, we return a destroy function from the useEffect callback where the registered event listener is removed when the component is unmounted.
+
+There's a subtle detail to be aware of here – the dependency array has `setWidth` in it because we reference setWidth inside the useEffect function. We know the setWidth function instance doesn't get changed after the mount, so actually, `[setWidth]` can be optional here. But React insists that we add this because when setWidth changes, the effect needs to be re-created.
+
+### Fetching an API resource
+
+#### creating json server
+
+- [https://github.com/typicode/json-server](https://github.com/typicode/json-server)
+
+`data/db.json`:
+
+```json
+{
+ "items": [
+  {
+   "id": 1,
+   "checked": false,
+   "text": "Learn React"
+  },
+  {
+   "id": 2,
+   "checked": false,
+   "text": "Learn TypeScript"
+  }
+ ]
 }
 ```
 
-
-This function is quite pure, easy to understand, test, and develop. The reason for this is that the function only depends on the input arguments and has no additional hidden dependency.
-
-We'll intentionally introduce two lines and each will add a hidden dependency:
-
-
-```typescript
-let c = 3
-function add(a, b) {
-	console.log(a, b)
-	eturn a + b + c
-}
+```bash
+npx json-server -p 3500 -w data/db.json --delay 2000
+curl http://localhost:3500/items
 ```
 
-The first line adds an external dependency from the `c` variable. Because c is a global variable, it bypasses the input argument list. If we invoke the add(1, 1) function now, it can return any number (or even a non-number). That's because c can be anything at the time when add is invoked. This applies to all global instances. Let's take a look at another hidden dependency. The console.log function could be anything at the runtime. For instance, if console doesn't exist, we could get an error when invoking console.log.
+#### fetching example:
 
-There's one important thing to bear in mind about impure functions – that is, they are prone to errors. For instance, in the preceding example, if someone changed any of the hidden dependencies, it would be difficult for the developer to know that. This can become a nightmare when it comes to refactoring the code.
+```tsx
+import { useEffect, useState } from 'react';
+type Item = {
+ id: number;
+ checked: boolean;
+ text: string;
+};
+const TodoList = () => {
+ const APP_URL = 'http://localhost:3500/items';
+ const [error, setError] = useState<string | null>(null);
+ const [isLoading, setIsLoading] = useState<boolean>(true);
 
-To make our code robust, we tend to develop strategies to avoid hidden dependencies, either by removing them or containing their impact as much as possible so that we can be confident when developing and maintaining our code. In general, there are two strategies to remedy impurity of functions. One way is to remove it by adding the dependencies to the input arguments so that they are not hidden anymore:
-
-
-```typescript
-function add(a, b, c, log) {
-	log(a, b)
-	return a + b + c
-}
-add(1, 1, 0, console.log)
-```
-
-This can be a very effective approach. The only downside to this approach is that to implement it, you need to know the dependencies and declare them explicitly. This means the list of input arguments could get very long and impact the effectiveness of the function.
-
-This brings us to the second strategy. Instead of removing the impurity, we can package and defer it to a later stage until we actually need to execute it. The following is an example of how we can defer an impurity:
-
-```typescript
-function addFunc(c, log) {
-	function add(a, b) {
-		log(a, b)
-		return a + b + c
+ const [items, setItems] = useState<Item[]>([]);
+ useEffect(() => {
+	const fetchItems = async () => {
+	try {
+		const response = await fetch(APP_URL);
+		const data = await response.json();
+		console.log(data);
+		setItems(data);
+		setIsLoading(false);
+	} catch (error) {
+		setError((error as Error).message);
+		setIsLoading(false);
 	}
-	return add
-}
+	};
+	fetchItems();
+
+// 	  (async () => await fetchItems())();
+
+//   setTimeout(() => {
+//    (async () => await fetchItems())();
+//   }, 2000);
+ }, []);
+
+ return (
+  <ul>
+   {error && <li>{error}</li>}
+   {isLoading && <li>Loading...</li>}
+   {!isLoading && !error && items && items.map((item) => <li key={item.id}>{item.text}</li>)}
+  </ul>
+ );
+};
 ```
-
-
-The addFunc function returns an `add` function. To use the add function,, we invoke `addFunc` to get a handle (also called a callback) of our add function back:
-
-```typescript
-const add = addFunc(c=3, log=console.log)
-```
-
-So, what difference does this make? The dependency for `c` and `log` appears in the input arguments, so `addFunc` is a `pure` function. Essentially, we package any impurities and declare them one level up, so within the context of `addFunc`, the new add function looks and works a bit purer.
-
-In a sense, we keep the original code, but we wrap it up to get a callback function so that we can execute it later. This helps protect the integrity of the main code while relocating the impurity. This deferred strategy is normally referred to as a **side effect**:
-
-
-```typescript
-let c = 1, d = 2
-function add() {
-	c = 2
-	const a = d
-}
-```
-
-In the preceding code, the assignment of the `c` variable inside `add` is a **side effect** because it changes a global value; the assignment of the a variable is another side effect because it reads from a global value. In a loosely connected open system, such as the web, a side effect is unavoidable. If you want to perform a range of actions and one action happens to not be defined by the internal system, then the action involves accessing an external system. Although we cannot avoid the side effect, we can package the side effect so that it accesses the external system at the right time.
