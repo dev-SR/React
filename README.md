@@ -1,9 +1,10 @@
 # React exercise
 
 - [React exercise](#react-exercise)
-	- [Resources](#resources)
-	- [Installation 🌼](#installation-)
-		- [Vite+Tailwind 🔥](#vitetailwind-)
+  - [Resources](#resources)
+  - [Installation 🌼](#installation-)
+    - [Vite+Tailwind 🔥](#vitetailwind-)
+  - [VsCode Snippets for React TypeScript](#vscode-snippets-for-react-typescript)
 
 ## Resources
 
@@ -57,3 +58,201 @@ export default App;
 ```
 
 Run your build process with `yarn dev`.
+
+## VsCode Snippets for React TypeScript
+
+<table>
+<thead>
+  <tr>
+    <th>Trigger</th>
+    <th>Content</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td><code>c</code></td>
+    <td>Creates a stateless React component without PropTypes</td>
+  </tr>
+  <tr>
+    <td><code>cp</code></td>
+    <td>Creates a stateless React component with Typed Props using <code>Type</code></td>
+  </tr>
+   <tr>
+    <td><code>cpi</code></td>
+    <td>Creates a stateless React component with Typed Props using <code>interface</code></td>
+  </tr>
+   <tr>
+    <td><code>cm</code></td>
+    <td>Creates a memoized stateless React component without PropTypes</td>
+  </tr>
+
+ <tr>
+    <td><code>cmp</code></td>
+    <td>Creates a memoized stateless React component with PropTypes</td>
+  </tr>
+ <tr>
+    <td><code>us</code></td>
+    <td>Creates <code>useState</code></td>
+  </tr>
+   <tr>
+    <td><code>uf</code>,<code>ufd</code>,<code>ufu</code></td>
+    <td>Adds useEffect</td>
+  </tr>
+   <tr>
+    <td><code>um</code></td>
+    <td>Adds useMemo</td>
+  </tr>
+  <tr>
+    <td><code>ucb</code></td>
+    <td>Adds useCallback</td>
+  </tr>
+   <tr>
+    <td><code>im..</code></td>
+    <td>Imports from React</td>
+  </tr>
+</tbody>
+</table>
+
+Creating Snippets for React:
+
+- Go to `Setting` -> `Configure User Snippets` -> type `typescriptreact`
+- Now paste the following code or create new one from [https://snippet-generator.app/](https://snippet-generator.app/)
+
+```json
+{
+ "importUseState": {
+  "prefix": "imus",
+  "body": ["import React, { useState } from 'react'"],
+  "description": "Import useState"
+ },
+ "importUseStateAndEffect": {
+  "prefix": "imusf",
+  "body": ["import React, { useState, useEffect } from 'react'"],
+  "description": "importUseStateAndEffect"
+ },
+
+ "useState<T>": {
+  "prefix": "us",
+  "body": ["const [${1:state},set${2:State}] =  useState<${3:T}>(${4:init});"],
+  "description": "Creates useState"
+ },
+ "useEffectDidMount": {
+  "prefix": "ufd",
+  "body": ["useEffect(() => {", "  $0", "},[]);"],
+  "description": "Adds use effect"
+ },
+ "useEffectUnMount": {
+  "prefix": "ufu",
+  "body": ["useEffect(() => {", "  $1", "return () => {", "  $2", "}},[$3]);"],
+  "description": "Adds use effect"
+ },
+ "useEffect": {
+  "prefix": "uf",
+  "body": ["useEffect(() => {", "  $1", "},[$2]);"],
+  "description": "Adds use effect"
+ },
+ "useCallback": {
+  "prefix": "ucb",
+  "body": [
+   "const ${1:fn} = useCallback(() => {",
+   "  return ${2:fnbody};",
+   "}, [${3:depd.}]);",
+   ""
+  ],
+  "description": "useCallback"
+ },
+ "useMemo": {
+  "prefix": "um",
+  "body": ["const ${1:fn}= useMemo(() => {", "  return ${2:fnbody};", " }, [${3:depd.}]);"],
+  "description": "useMemo"
+ },
+ "reactStateless": {
+  "prefix": "c",
+  "body": [
+   "import React from 'react';",
+   "",
+   "const ${1:${TM_FILENAME_BASE}} = () => {",
+   "    return (",
+   "      <div>",
+   "        $2",
+   "      </div>",
+   "    );",
+   "};",
+   "",
+   "export default ${1:${TM_FILENAME_BASE}};"
+  ],
+  "description": "Creates a stateless React component without PropTypes"
+ },
+ "reactStatelessWithTypeProps": {
+  "prefix": "cp",
+  "body": [
+   "import React from 'react';",
+   "type ${1:${TM_FILENAME_BASE}}Props = {",
+   "    $2",
+   "};",
+   "const ${1:${TM_FILENAME_BASE}} = ({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
+   "  return (",
+   "    <div>",
+   "      $4",
+   "    </div>",
+   "  );",
+   "};",
+   "export default ${1:${TM_FILENAME_BASE}};"
+  ],
+  "description": "Creates a stateless React component as a named function with Typed Props using Type"
+ },
+ "reactStatelessWithTypePropsUsingInterface": {
+  "prefix": "cpi",
+  "body": [
+   "import React from 'react';",
+   "interface ${1:${TM_FILENAME_BASE}}Props{",
+   "    $2",
+   "};",
+   "const ${1:${TM_FILENAME_BASE}} = ({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
+   "  return (",
+   "    <div>",
+   "      $4",
+   "    </div>",
+   "  );",
+   "};",
+   "export default ${1:${TM_FILENAME_BASE}};"
+  ],
+  "description": "Creates a stateless React component as a named function with Typed Props using interface"
+ },
+ "reactMemo": {
+  "prefix": "cm",
+  "body": [
+   "import React, { memo } from 'react'",
+   "",
+   "const ${1:${TM_FILENAME_BASE}} = memo(() => {",
+   "  return (",
+   "    <div>",
+   "      $2",
+   "    </div>",
+   "  );",
+   "});",
+   "export default ${1:${TM_FILENAME_BASE}};"
+  ],
+  "description": "Creates a memoized stateless React component without PropTypes and ES6 module system"
+ },
+ "reactMemoWithProps": {
+  "prefix": "cmp",
+  "body": [
+   "import React, { memo } from 'react'",
+   "type ${1:${TM_FILENAME_BASE}}Props = {",
+   "    $2",
+   "};",
+   "const ${1:${TM_FILENAME_BASE}} = memo(({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
+   "  return (",
+   "    <div>",
+   "      $4",
+   "    </div>",
+   "  );",
+   "});",
+   "export default ${1:${TM_FILENAME_BASE}};"
+  ],
+  "description": "reactMemo"
+ }
+}
+
+```
