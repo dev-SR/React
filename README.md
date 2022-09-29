@@ -70,11 +70,11 @@ Run your build process with `yarn dev`.
 </thead>
 <tbody>
   <tr>
-    <td><code>c</code></td>
+    <td><code>c</code>,<code>cc</code></td>
     <td>Creates a stateless React component without PropTypes</td>
   </tr>
   <tr>
-    <td><code>cp</code></td>
+    <td><code>cp</code>,<code>ccp</code></td>
     <td>Creates a stateless React component with Typed Props using <code>Type</code></td>
   </tr>
    <tr>
@@ -139,17 +139,17 @@ Creating Snippets for React:
  "useEffectDidMount": {
   "prefix": "ufd",
   "body": ["useEffect(() => {", "  $0", "},[]);"],
-  "description": "Adds use effect"
+  "description": "Adds useEffectDidMount"
  },
  "useEffectUnMount": {
   "prefix": "ufu",
   "body": ["useEffect(() => {", "  $1", "return () => {", "  $2", "}},[$3]);"],
-  "description": "Adds use effect"
+  "description": "Adds useEffectUnMount"
  },
  "useEffect": {
   "prefix": "uf",
   "body": ["useEffect(() => {", "  $1", "},[$2]);"],
-  "description": "Adds use effect"
+  "description": "Adds useEffect"
  },
  "useCallback": {
   "prefix": "ucb",
@@ -183,8 +183,38 @@ Creating Snippets for React:
   ],
   "description": "Creates a stateless React component without PropTypes"
  },
+ "reactStatelessCustomName": {
+  "prefix": "cc",
+  "body": [
+   "const ${1:component} = () => {",
+   "    return (",
+   "      <div>",
+   "        $2",
+   "      </div>",
+   "    );",
+   "};",
+   ""
+  ],
+  "description": "Creates a stateless React component without PropTypes with CustomName"
+ },
  "reactStatelessWithTypeProps": {
   "prefix": "cp",
+  "body": [
+   "type ${1:component}Props = {",
+   "    $2",
+   "};",
+   "const ${1:component} = ({$3}:${1:component}Props) => {",
+   "  return (",
+   "    <div>",
+   "      $4",
+   "    </div>",
+   "  );",
+   "};"
+  ],
+  "description": "Creates a stateless React component as a named function with Typed Props using Type"
+ },
+ "reactStatelessWithTypePropsCustomName": {
+  "prefix": "ccp",
   "body": [
    "import React from 'react';",
    "type ${1:${TM_FILENAME_BASE}}Props = {",
@@ -199,7 +229,7 @@ Creating Snippets for React:
    "};",
    "export default ${1:${TM_FILENAME_BASE}};"
   ],
-  "description": "Creates a stateless React component as a named function with Typed Props using Type"
+  "description": "Creates a stateless React component as a named function with Typed Props using Type with Custom Name"
  },
  "reactStatelessWithTypePropsUsingInterface": {
   "prefix": "cpi",
@@ -251,7 +281,7 @@ Creating Snippets for React:
    "});",
    "export default ${1:${TM_FILENAME_BASE}};"
   ],
-  "description": "reactMemo"
+  "description": "Creates a memoized stateless React component with PropTypes"
  }
 }
 
