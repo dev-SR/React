@@ -1,19 +1,20 @@
 # Animation in React
 
 - [Animation in React](#animation-in-react)
-	- [Framer Motion](#framer-motion)
-		- [motion component](#motion-component)
-			- [`animate` prop](#animate-prop)
-			- [`initial` prop](#initial-prop)
-			- [keyframes](#keyframes)
-			- [transition](#transition)
-		- [Gesture Animations](#gesture-animations)
-		- [Animate on exit: `AnimatePresence`](#animate-on-exit-animatepresence)
-		- [Variants](#variants)
-			- [passing variants to children](#passing-variants-to-children)
-		- [List Items Staggering transition v1 (without exit animation)](#list-items-staggering-transition-v1-without-exit-animation)
-		- [List Items Staggering transition v2 (with exit animation)](#list-items-staggering-transition-v2-with-exit-animation)
-	- [React Spring](#react-spring)
+  - [Framer Motion](#framer-motion)
+    - [motion component](#motion-component)
+      - [`animate` prop](#animate-prop)
+      - [`initial` prop](#initial-prop)
+      - [keyframes](#keyframes)
+      - [transition](#transition)
+    - [Gesture Animations](#gesture-animations)
+    - [Animate on exit: `AnimatePresence`](#animate-on-exit-animatepresence)
+    - [⛳ Page Transitions](#-page-transitions)
+    - [Variants](#variants)
+      - [passing variants to children](#passing-variants-to-children)
+    - [List Items Staggering transition v1 (without exit animation)](#list-items-staggering-transition-v1-without-exit-animation)
+    - [List Items Staggering transition v2 (with exit animation)](#list-items-staggering-transition-v2-with-exit-animation)
+  - [React Spring](#react-spring)
 
 ## Framer Motion
 
@@ -151,6 +152,65 @@ const ListItems = ({ items, handleCheck, handleDelete }: ListItemsProps) => {
  );
 };
 ```
+
+### ⛳ Page Transitions
+
+<div align="center">
+<img src="img/page.gif" alt="page.gif" width="600px">
+</div>
+
+`AnimatePresence` conditional rendering does the trick.
+
+`App.tsx`
+
+```tsx
+const App = () => {
+ return (
+  <>
+   <Navbar />
+   <AnimatedRoutes />
+  </>
+ );
+};
+```
+
+`AnimatedRoutes.tsx`
+
+```tsx
+function AnimatedRoutes() {
+ return (
+  <AnimatePresence >
+   <Routes>
+    <Route path='/' element={<Home />} />
+    <Route path='/about' element={<About />} />
+    <Route path='/contact' element={<Contact />} />
+   </Routes>
+  </AnimatePresence>
+ );
+}
+export default AnimatedRoutes;
+```
+
+`Home/About/Contact.tsx` pages:
+
+```tsx
+function X() {
+	return (
+		<motion.div
+			initial={{ opacity: 0, x: -100 }}
+			animate={{ opacity: 1, x: 0 }}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 1 }}
+			className='text-center p-4'>
+			<h1>Home page</h1>
+			<p>	Lorem		...	</p>
+		</motion.div>
+	);
+}
+```
+
+
+
 
 ### Variants
 
