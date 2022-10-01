@@ -15,6 +15,7 @@
     - [Animated Menu Item: Layout Animation](#animated-menu-item-layout-animation)
     - [List Items Staggering transition v1 (without exit animation)](#list-items-staggering-transition-v1-without-exit-animation)
     - [List Items Staggering transition v2 (with exit animation)](#list-items-staggering-transition-v2-with-exit-animation)
+    - [Modal Animation](#modal-animation)
   - [React Spring](#react-spring)
 
 ## Framer Motion
@@ -495,5 +496,20 @@ const ListItems = ({ items, handleCheck, handleDelete }: ListItemsProps) => {
  );
 };
 ```
+
+### Modal Animation
+
+<div align="center">
+<img src="img/modal.gif" alt="modal.gif" width="800px">
+</div>
+
+- AnimatePresence
+- React Portal from from `@reach/portal` | [Learn React Portal In 12 Minutes By Building A Modal](https://www.youtube.com/watch?v=LyLa7dU5tp8&t)
+- `useOnClickOutside` from `usehooks-ts`
+
+Code in `mini-projects/modal` folder.
+
+
+
 
 ## React Spring
