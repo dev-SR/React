@@ -12,6 +12,7 @@
     - [⛳ Page Transitions](#-page-transitions)
     - [Variants](#variants)
       - [passing variants to children](#passing-variants-to-children)
+    - [Animated Menu Item: Layout Animation](#animated-menu-item-layout-animation)
     - [List Items Staggering transition v1 (without exit animation)](#list-items-staggering-transition-v1-without-exit-animation)
     - [List Items Staggering transition v2 (with exit animation)](#list-items-staggering-transition-v2-with-exit-animation)
   - [React Spring](#react-spring)
@@ -195,22 +196,19 @@ export default AnimatedRoutes;
 
 ```tsx
 function X() {
-	return (
-		<motion.div
-			initial={{ opacity: 0, x: -100 }}
-			animate={{ opacity: 1, x: 0 }}
-			exit={{ opacity: 0 }}
-			transition={{ duration: 1 }}
-			className='text-center p-4'>
-			<h1>Home page</h1>
-			<p>	Lorem		...	</p>
-		</motion.div>
-	);
+ return (
+  <motion.div
+   initial={{ opacity: 0, x: -100 }}
+   animate={{ opacity: 1, x: 0 }}
+   exit={{ opacity: 0 }}
+   transition={{ duration: 1 }}
+   className='text-center p-4'>
+   <h1>Home page</h1>
+   <p> Lorem  ... </p>
+  </motion.div>
+ );
 }
 ```
-
-
-
 
 ### Variants
 
@@ -311,6 +309,75 @@ const Motion = () => {
 ```
 
 Now we have a cleaner code with no repetitions. We turned the container div to a motion component so we could pass in the `ContainerVariants` object we defined. Since we don’t define any animations on the container, we pass in empty objects to initial and animate. Your animation names must be the same in every variant object for the propagation to work.
+
+### Animated Menu Item: Layout Animation
+
+- [https://www.framer.com/docs/layout-group/](https://www.framer.com/docs/layout-group/)
+
+<div align="center">
+<img src="img/amnu0.gif" alt="amnu0.gif" width="400px">
+</div>
+
+In Framer, if you mark two distinct components with the same `layoutId` property and you only show one at a time, when you toggle between them framer will automagically create the animation from one to the other.
+
+Just by magically adding the `layoutId` property to two completely different elements we can animate between them!
+
+
+In our case, we will create a new JSX Component called `Underline` which will be basically a div of small height and a nice gradient background-color.
+
+Then under each `MenuItem` we will conditionally render an instance of `Underline` if the MenuItem is being hovered.
+
+```tsx
+import { motion } from 'framer-motion';
+type MenuItemProps = {
+ text: string;
+ children?: React.ReactNode;
+ style?: React.CSSProperties;
+};
+const Underline = () => (
+ <motion.div
+  className='absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-blue-700 via-pink-500 to-red-500'
+  layout
+  layoutId='underline'
+ />
+);
+
+const MenuItem = ({ text }: MenuItemProps) => {
+ const [isBeingHovered, setIsBeingHovered] = useState(false);
+
+ return (
+  <motion.div
+   className='px-10 relative cursor-pointer'
+   onHoverStart={() => setIsBeingHovered(true)}
+   onHoverEnd={() => setIsBeingHovered(false)}>
+   <span className='relative'>
+    {text}
+    {isBeingHovered && <Underline />}
+   </span>
+  </motion.div>
+ );
+};
+const NiceMenu = () => {
+ return (
+  <div className='w-screen p-20 '>
+   <div className='border p-10 flex justify-center'>
+    <MenuItem text={'Home'}></MenuItem>
+    <MenuItem text={'About us'}></MenuItem>
+    <MenuItem text={'Products'}></MenuItem>
+   </div>
+  </div>
+ );
+};
+export default NiceMenu;
+```
+
+`layoutId` is global, so if multiple instances of MenuItem are rendered, only one with layoutId="underline" will render at a time.
+
+More advance in `mini-projects/menu-animated` folder.
+
+<div align="center">
+<img src="img/amnu.gif" alt="amnu.gif" width="800px">
+</div>
 
 ### List Items Staggering transition v1 (without exit animation)
 
