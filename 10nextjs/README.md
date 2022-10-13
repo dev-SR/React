@@ -10,6 +10,7 @@
 
 ```bash
 yarn create next-app --typescript
+cd...
 yarn add -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
