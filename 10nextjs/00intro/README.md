@@ -12,6 +12,7 @@
   - [Metadata and Image](#metadata-and-image)
     - [Seo Metadata](#seo-metadata)
     - [Image Optimization](#image-optimization)
+      - [src is a url](#src-is-a-url)
   - [Understanding the different rendering methods in next.js](#understanding-the-different-rendering-methods-in-nextjs)
     - [SSG ans ISR](#ssg-ans-isr)
       - [Incremental Static Regeneration](#incremental-static-regeneration)
@@ -261,6 +262,36 @@ More on seo:
 - [https://www.jimraptis.com/blog/seo-component-for-next-js-react](https://www.jimraptis.com/blog/seo-component-for-next-js-react)
 
 ### Image Optimization
+
+#### src is a url
+
+Next.js requires that the url is from the same domain or a subdomain of the current domain. If the url is external, you must add the domain to the `images.domains` array in `next.config.js`:
+
+
+```tsx
+<Image
+  src='https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80'
+  alt={title}
+  width={300}
+  height={150}
+  objectFit='cover'
+/>
+```
+
+
+
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+	reactStrictMode: true,
+	swcMinify: true,
+	images: {
+		domains: ['images.unsplash.com']
+	}
+};
+
+module.exports = nextConfig;
+```
 
 ## Understanding the different rendering methods in next.js
 
