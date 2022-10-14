@@ -11,8 +11,10 @@
 ## Installation
 
 ```bash
-yarn add gray-matter date-fns next-mdx-remote rehype-slug rehype-highlight highlight.js   
+yarn add gray-matter date-fns next-mdx-remote rehype-slug rehype-highlight highlight.js
 ```
+
+- [https://github.com/remarkjs/remark/blob/main/doc/plugins.md](https://github.com/remarkjs/remark/blob/main/doc/plugins.md)
 
 ## Reading FrontMatter from MDX
 

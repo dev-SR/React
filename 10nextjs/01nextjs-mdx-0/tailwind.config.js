@@ -8,9 +8,9 @@ module.exports = {
 			code: ['Fira Code', 'monospace']
 		},
 		extend: {
-			// fontFamily: {
-			// 	sans: ['Inter', 'ui-sans-serif', 'system-ui']
-			// }
+			fontFamily: {
+				sans: ['Inter', ...defaultTheme.fontFamily.sans]
+			}
 		}
 	},
 	plugins: []

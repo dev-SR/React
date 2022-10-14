@@ -1,5 +1,27 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* add custom tailwind css */
+@layer components {
+	::-webkit-scrollbar {
+		@apply w-2;
+	}
+
+	/* Track */
+	::-webkit-scrollbar-track {
+		@apply bg-gray-800;
+	}
+
+	/* Handle */
+	::-webkit-scrollbar-thumb {
+		@apply bg-zinc-500;
+	}
+
+	/* Handle on hover */
+	::-webkit-scrollbar-thumb:hover {
+		@apply bg-zinc-700;
+	}
+}

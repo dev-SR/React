@@ -13,10 +13,12 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 - [Content](#content)
 - [Topic 1](#topic-1)
-  - [Topic 1.1](#topic-11)
+	- [Topic 1.1](#topic-11)
+- [Footnote](#footnote)
+- [Strikethrough](#strikethrough)
+- [Table](#table)
 - [Topic 2](#topic-2)
 - [Topic 3](#topic-3)
-
 
 ## Topic 1
 
@@ -26,44 +28,64 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Diam quam nulla porttitor massa id neque aliquam. Magnis dis parturient montes nascetur ridiculus mus mauris. Sit amet justo donec enim diam vulputate. Id eu nisl nunc mi ipsum faucibus vitae. Id diam maecenas ultricies mi eget mauris pharetra et ultrices. Eu mi bibendum neque egestas congue quisque egestas. Placerat duis ultricies lacus sed turpis tincidunt. Fermentum leo vel orci porta non pulvinar neque. Accumsan in nisl nisi scelerisque eu ultrices vitae. Enim nulla aliquet porttitor lacus luctus accumsan tortor posuere. Vel pharetra vel turpis nunc eget lorem dolor. Sed arcu non odio euismod lacinia at quis risus. Quam adipiscing vitae proin sagittis. Erat pellentesque adipiscing commodo elit at. Congue quisque egestas diam in arcu cursus euismod quis viverra. Mi eget mauris pharetra et ultrices. Gravida neque convallis a cras. Auctor eu augue ut lectus arcu bibendum. Commodo sed egestas egestas fringilla phasellus faucibus scelerisque eleifend donec.
 
-```typescript
-export const getStaticPaths: GetStaticPaths = async () => {
-	const postsPaths = getPostFiles.map((postFile) => {
-		return {
-			params: {
-				slug: postFile.replace('.md', '')
-			}
-		};
-	});
+## Footnote
 
-	return {
-		paths: postsPaths,
-		fallback: false
-	};
+A note[^1]
+
+[^1]: Big note.
+
+## Strikethrough
+
+~one~ or ~~two~~ tildes.
+
+## Table
+
+| Column1 | Column2 |
+| ------- | ------- |
+| Row1    |         |
+| Row2    |         |
+| Row3    |         |
+| Row4    |         |
+
+
+```tsx filename="awesome.js" hl_lines={[1,2,3]}
+export const getStaticPaths: GetStaticPaths = async () => {
+ const postsPaths = getPostFiles.map((postFile) => {
+  return {
+   params: {
+    slug: postFile.replace('.md', '')
+   }
+  };
+ });
+
+ return {
+  paths: postsPaths,
+  fallback: false
+ };
 };
 
 type StaticProps = {
-	slug: string;
+ slug: string;
 };
 
 export const getStaticProps: GetStaticProps<StaticProps> = async (context) => {
-	const slug = context.params?.slug as string;
-	const filePath = path.join(getMdxPath, `${slug}.md`);
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
-	const { data: frontMatter, content } = matter(fileContent);
-	const mdSource = await serialize(content, {
-		mdxOptions: {
-			rehypePlugins: [rehypeHighlight, rehypeSlug]
-		}
-	});
+ const slug = context.params?.slug as string;
+ const filePath = path.join(getMdxPath, `${slug}.md`);
+ const fileContent = fs.readFileSync(filePath, 'utf-8');
+ const { data: frontMatter, content } = matter(fileContent);
+ const mdSource = await serialize(content, {
+  mdxOptions: {
+   rehypePlugins: [rehypeHighlight, rehypeSlug]
+  }
+ });
 
-	return {
-		props: {
-			slug,
-			mdSource,
-			frontMatter: JSON.parse(JSON.stringify(frontMatter))
-		}
-	};
+ return {
+  props: {
+   slug,
+   mdSource,
+   frontMatter: JSON.parse(JSON.stringify(frontMatter))
+  }
+ };
 };
 
 export default SingleBlogPost;
@@ -72,11 +94,9 @@ export default SingleBlogPost;
 
 <HelloWorld text="Hello World"/>
 
-
 ## Topic 2
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Diam quam nulla porttitor massa id neque aliquam. Magnis dis parturient montes nascetur ridiculus mus mauris. Sit amet justo donec enim diam vulputate. Id eu nisl nunc mi ipsum faucibus vitae. Id diam maecenas ultricies mi eget mauris pharetra et ultrices. Eu mi bibendum neque egestas congue quisque egestas. Placerat duis ultricies lacus sed turpis tincidunt. Fermentum leo vel orci porta non pulvinar neque. Accumsan in nisl nisi scelerisque eu ultrices vitae. Enim nulla aliquet porttitor lacus luctus accumsan tortor posuere. Vel pharetra vel turpis nunc eget lorem dolor. Sed arcu non odio euismod lacinia at quis risus. Quam adipiscing vitae proin sagittis. Erat pellentesque adipiscing commodo elit at. Congue quisque egestas diam in arcu cursus euismod quis viverra. Mi eget mauris pharetra et ultrices. Gravida neque convallis a cras. Auctor eu augue ut lectus arcu bibendum. Commodo sed egestas egestas fringilla phasellus faucibus scelerisque eleifend donec.
-
 
 ## Topic 3
 
