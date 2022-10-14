@@ -33,7 +33,7 @@ export default function Home({ posts_metadata }: PostListProps) {
 	return (
 		<div
 			className='flex flex-col space-y-4 h-screen w-screen justify-center
-     items-center bg-zinc-800 '>
+     items-center bg-zinc-800'>
 			<div className={className.flexArea}>
 				{posts_metadata.map((post) => (
 					<div key={post.slug} className={className.cardContainer}>
@@ -56,10 +56,8 @@ export default function Home({ posts_metadata }: PostListProps) {
 							<p className=' text-gray-400'>{format(new Date(post.date), 'PPP')}</p>
 							<div className='flex space-x-2'>
 								{post.tags.map((tag) => (
-									<Link href={`tags/${tag}`}>
-										<p className={className.chips} key={tag}>
-											{tag}
-										</p>
+									<Link href={`tags/${tag}`} key={tag}>
+										<p className={className.chips}>{tag}</p>
 									</Link>
 								))}
 							</div>
@@ -75,13 +73,13 @@ export const getStaticProps: GetStaticProps = async () => {
 	console.log('[getStaticProps]');
 
 	const posts_metadata = getPostFiles.map((postFile) => {
-		// read all the mdx files
+		// read all the md files
 		const content = fs.readFileSync(path.join(getMdxPath, postFile), 'utf-8');
 		// parse the frontmatter
 		const { data: postFrontMatterMetaData } = matter(content);
 		return {
 			...postFrontMatterMetaData,
-			slug: postFile.replace('.mdx', '')
+			slug: postFile.replace('.md', '')
 		};
 	});
 	return {

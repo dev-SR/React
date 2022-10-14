@@ -2,16 +2,16 @@
 # Next.js + MDX
 
 - [Next.js + MDX](#nextjs--mdx)
-	- [Intro](#intro)
-	- [Installation](#installation)
-	- [Reading FrontMatter from MDX](#reading-frontmatter-from-mdx)
+  - [Intro](#intro)
+  - [Installation](#installation)
+  - [Reading FrontMatter from MDX](#reading-frontmatter-from-mdx)
 
 ## Intro
 
 ## Installation
 
 ```bash
-yarn add gray-matter date-fns
+yarn add gray-matter date-fns next-mdx-remote rehype-slug rehype-highlight highlight.js   
 ```
 
 ## Reading FrontMatter from MDX
