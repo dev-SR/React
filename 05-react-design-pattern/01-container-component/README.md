@@ -106,3 +106,5 @@ const App = () => {
 };
 export default App;
 ```
+
+- [Typescript(ing) React.cloneElement or how to type a child element with props injected by the parent](https://medium.com/@cristiansima/typescript-ing-react-cloneelement-or-how-to-type-a-child-element-with-props-injected-by-the-parent-73b6ad485f8b)
