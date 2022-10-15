@@ -1,8 +1,9 @@
+import Dummy from './components/Dummy';
+import printProps from './components/PrintProps';
+
+const HOCDummy = printProps(Dummy);
+
 const App = () => {
-	return (
-		<>
-			<h1 className='text-3xl font-bold underline'>Hello world!</h1>
-		</>
-	);
+	return <HOCDummy username='John' userId={1} />;
 };
 export default App;
