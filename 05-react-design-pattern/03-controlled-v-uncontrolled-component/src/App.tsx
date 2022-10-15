@@ -1,8 +1,6 @@
 // import { useState } from 'react';
 // import ControlledModals from './components/ControlledModals';
 
-import UncontrolledOnboardingFlows from './components/UncontrolledOnboardingFlows';
-
 // const ModalContent = () => {
 // 	return (
 // 		<div className='bg-green-200 h-20'>
@@ -27,103 +25,165 @@ import UncontrolledOnboardingFlows from './components/UncontrolledOnboardingFlow
 // };
 // export default App;
 
-// const StepOne = ({ goToNext }: { goToNext: () => void }) => {
-// 	return (
-// 		<div className='bg-green-200 h-20'>
-// 			<p>Step One</p>
-// 			<button
-// 				onClick={goToNext}
-// 				className='bg-blue-500 hover:bg-blue-700 text-white  py-2 px-4 rounded'>
-// 				Next
-// 			</button>
-// 		</div>
-// 	);
-// };
+import React, { FC, PropsWithChildren, useState } from 'react';
+type AnyObject = {
+	[key: string]: any;
+};
 
-// const StepTwo = ({ goToNext }: { goToNext: () => void }) => {
-// 	return (
-// 		<div className='bg-green-200 h-20'>
-// 			<p>Step Two</p>
-// 			<button
-// 				onClick={goToNext}
-// 				className='bg-blue-500 hover:bg-blue-700 text-white  py-2 px-4 rounded'>
-// 				Next
-// 			</button>
-// 		</div>
-// 	);
-// };
+interface StepProps {
+	index?: number; //<- index must be optional;
+	// as this will be push by `UncontrolledOnboarding` component,
+	childrenLen?: number;
+	goToNext?: (setData: AnyObject, childrenLen: number) => void;
+	goToPrevious?: () => void;
+	header: string;
+}
 
-// const StepThree = ({ goToNext }: { goToNext: () => void }) => {
-// 	return (
-// 		<div className='bg-green-200 h-20'>
-// 			<p>Step Three</p>
-// 			<button
-// 				onClick={goToNext}
-// 				className='bg-blue-500 hover:bg-blue-700 text-white  py-2 px-4 rounded'>
-// 				Next
-// 			</button>
-// 		</div>
-// 	);
-// };
-
-// const App = () => {
-// 	return (
-// 		<UncontrolledOnboardingFlows>
-// 			<StepOne goToNext={undefined as never} />
-// 			<StepTwo goToNext={undefined as never} />
-// 			<StepThree goToNext={undefined as never} />
-// 		</UncontrolledOnboardingFlows>
-// 	);
-// };
-
-// export default App;
-
-import React, { FunctionComponent, PropsWithChildren, useState } from 'react';
+const Step1: FC<StepProps> = ({ index, header, goToNext, goToPrevious, childrenLen }) => {
+	return (
+		<div>
+			<h3>{header}</h3>
+			<h4>{`Step number ${index} `}</h4>
+			<div>
+				{goToNext && goToPrevious && childrenLen && (
+					<Controls
+						onClickPrevious={goToPrevious}
+						onClickNext={() => goToNext({ name: 'A', email: 'A@' }, childrenLen)}
+					/>
+				)}
+			</div>
+			<h5>{`step ${index} out of ${childrenLen}`}</h5>
+		</div>
+	);
+};
+const Step2: FC<StepProps> = ({ index, header, goToNext, goToPrevious, childrenLen }) => {
+	return (
+		<div>
+			<h3>{header}</h3>
+			<h4>{`Step number ${index} `}</h4>
+			<div>
+				{goToNext && goToPrevious && childrenLen && (
+					<Controls
+						onClickPrevious={goToPrevious}
+						onClickNext={() => goToNext({ age: 17, password: 'A@' }, childrenLen)}
+					/>
+				)}
+			</div>
+			<h5>{`step ${index} out of ${childrenLen}`}</h5>
+		</div>
+	);
+};
+const Step3: FC<StepProps> = ({ index, header, goToNext, goToPrevious, childrenLen }) => {
+	return (
+		<div>
+			<h3>{header}</h3>
+			<h4>{`Step number ${index} `}</h4>
+			<div>
+				{goToNext && goToPrevious && childrenLen && (
+					<Controls
+						onClickPrevious={goToPrevious}
+						onClickNext={() => goToNext({ address: 'A', occupation: 'A@' }, childrenLen)}
+					/>
+				)}
+			</div>
+			<h5>{`step ${index} out of ${childrenLen}`}</h5>
+		</div>
+	);
+};
+const AgeRestriction: FC<StepProps> = ({ index, header, goToNext, goToPrevious, childrenLen }) => {
+	return (
+		<div>
+			<h3>{header}</h3>
+			<h4>{`Step number ${index} `}</h4>
+			<div>
+				{goToNext && goToPrevious && childrenLen && (
+					<Controls
+						onClickPrevious={goToPrevious}
+						onClickNext={() => goToNext({ visit: true }, childrenLen)}
+					/>
+				)}
+			</div>
+			<h5>{`step ${index} out of ${childrenLen}`}</h5>
+		</div>
+	);
+};
 
 function App() {
+	const [currentStep, setCurrentStep] = useState(1);
+	const [onboardingData, setOnboardingData] = useState<AnyObject>({});
+
+	const goToNext = (setData: AnyObject, childrenLen: number) => {
+		console.log(setData);
+
+		const updatedData = {
+			...onboardingData,
+			...setData
+		};
+		setOnboardingData(updatedData);
+		if (currentStep < childrenLen) {
+			setCurrentStep((s) => (s === childrenLen ? s : s + 1));
+		} else {
+			// onFinish(onboardingData);
+		}
+	};
+	const goToPrevious = () => {
+		setCurrentStep((s) => (s === 1 ? s : s - 1));
+	};
 	return (
-		<Wizard title={'Welcome to my wizard'}>
-			<WizardStep header={'Welcome to A'} />
-			<WizardStep header={'Welcome to B'} />
-			<WizardStep header={'Welcome to C'} />
-		</Wizard>
+		<ControlledOnboarding
+			title={'Welcome to my uncontrolled onboarding'}
+			goToNext={goToNext}
+			currentStep={currentStep}
+			goToPrevious={goToPrevious}>
+			<Step1 header={'Welcome to A'} />
+			<Step2 header={'Welcome to B'} />
+			{onboardingData.age < 18 && <AgeRestriction header={'Age Restriction'} />}
+			<Step3 header={'Welcome to C'} />
+		</ControlledOnboarding>
 	);
 }
 
 export default App;
-interface WizardProps {
+
+interface OnboardingProps {
 	title: string;
+	goToNext: (setData: AnyObject, childrenLen: number) => void;
+	goToPrevious: () => void;
+	currentStep: number;
 }
 
-const Wizard: FunctionComponent<PropsWithChildren<WizardProps>> = ({ children, title }) => {
-	const [currentStep, setCurrentStep] = useState(1);
+const ControlledOnboarding: FC<PropsWithChildren<OnboardingProps>> = ({
+	children,
+	title,
+	goToNext,
+	currentStep,
+	goToPrevious
+}) => {
 	// Validate
-	React.Children.forEach(children, (c) => {
-		if (!React.isValidElement<WizardStepProps>(c) || c.props['header'] === undefined) {
-			throw new Error('child must have a header prop');
-		}
-	});
+	// React.Children.forEach(children, (child) => {
+	// 	if (!React.isValidElement<StepProps>(child) || child.props['header'] === undefined) {
+	// 		throw new Error('child must have a header prop');
+	// 	}
+	// });
+	//
 	const childrenArray = React.Children.toArray(children);
-	const CurrentStepComponent = React.cloneElement(childrenArray[currentStep - 1] as JSX.Element, {
-		index: currentStep
+	const selectedChild = childrenArray[currentStep - 1] as JSX.Element;
+	const CurrentStepComponent = React.cloneElement(selectedChild, {
+		index: currentStep,
+		goToNext,
+		goToPrevious,
+		childrenLen: childrenArray.length
 	});
 
 	return (
 		<div className='flex justify-center items-center flex-col h-screen space-y-4'>
 			<h1 className='text-3xl font-bold '>{title}</h1>
 			<div className='text-green-500'>{CurrentStepComponent}</div>
-			<div>
-				<Controls
-					onClickPrevious={() => setCurrentStep((s) => (s === 1 ? s : s - 1))}
-					onClickNext={() => setCurrentStep((s) => (s === childrenArray.length ? s : s + 1))}
-				/>
-			</div>
-			<h5>{`step ${currentStep} out of ${childrenArray.length}`}</h5>
 		</div>
 	);
 };
 
-const Controls: FunctionComponent<{ onClickPrevious: () => void; onClickNext: () => void }> = ({
+const Controls: FC<{ onClickPrevious: () => void; onClickNext: () => void }> = ({
 	onClickPrevious,
 	onClickNext
 }) => {
@@ -139,19 +199,6 @@ const Controls: FunctionComponent<{ onClickPrevious: () => void; onClickNext: ()
 				className='bg-blue-500 hover:bg-blue-700text-white  py-2 px-4 rounded text-white'>
 				Next
 			</button>
-		</div>
-	);
-};
-interface WizardStepProps {
-	index?: number;
-	header: string;
-}
-
-const WizardStep: FunctionComponent<WizardStepProps> = ({ index, header }) => {
-	return (
-		<div>
-			<h3>{header}</h3>
-			<h4>{`Step number ${index} `}</h4>
 		</div>
 	);
 };
