@@ -1,0 +1,24 @@
+{
+	"question_set": [
+		{
+			"question": "Using _, the student can solve problems in an unconventional way",
+			"answer": "lateral thinking",
+			"options": [
+				"lateral thinking",
+				"critical thinking",
+				"creative thinking",
+				"analytical thinking"
+			]
+		},
+		{
+			"question": "The student should not rely on _ to solve problems",
+			"answer": "linear thinking",
+			"options": [
+				"linear thinking",
+				"critical thinking",
+				"creative thinking",
+				"analytical thinking"
+			]
+		}
+	]
+}

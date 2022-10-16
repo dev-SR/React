@@ -26,6 +26,7 @@ import { useCopyToClipboard } from 'react-use';
 import { IoCopyOutline } from 'react-icons/io5';
 import toast, { Toaster } from 'react-hot-toast';
 import Container from '../../components/MDXcomponent/Container';
+import Quiz from '../../components/MDXcomponent/Quiz';
 
 const classNames = (...classes: any[]) => {
 	return classes.filter(Boolean).join(' ');
@@ -72,7 +73,8 @@ export const preToCodeBlock = (preProps: any): ProcessedCodeText => {
 };
 const customComponents = {
 	HelloWorld,
-	Container
+	Container,
+	Quiz
 };
 const notify = () =>
 	toast.success('Code copied to clipboard!', {
