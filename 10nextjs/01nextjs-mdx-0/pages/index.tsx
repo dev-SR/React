@@ -33,7 +33,7 @@ export default function Home({ posts_metadata }: PostListProps) {
 	return (
 		<div
 			className='flex flex-col space-y-4 h-screen w-screen justify-center
-     items-center bg-zinc-800'>
+     items-center bg-[#16181d]'>
 			<div className={className.flexArea}>
 				{posts_metadata.map((post) => (
 					<div key={post.slug} className={className.cardContainer}>

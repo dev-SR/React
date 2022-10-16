@@ -10,7 +10,6 @@ import Image from 'next/image';
 import { BiArrowBack } from 'react-icons/bi';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { AiOutlineArrowRight } from 'react-icons/ai';
 import { JSXElementConstructor, ReactElement } from 'react';
 import Highlight, { defaultProps, Language, PrismTheme } from 'prism-react-renderer';
 const HelloWorld = dynamic(() => import('../../components/MDXcomponent/HelloWorld'));
@@ -26,6 +25,7 @@ import { remarkSectionize } from '../../libs/remark-sectionize-fork';
 import { useCopyToClipboard } from 'react-use';
 import { IoCopyOutline } from 'react-icons/io5';
 import toast, { Toaster } from 'react-hot-toast';
+import Container from '../../components/MDXcomponent/Container';
 
 const classNames = (...classes: any[]) => {
 	return classes.filter(Boolean).join(' ');
@@ -71,7 +71,8 @@ export const preToCodeBlock = (preProps: any): ProcessedCodeText => {
 	// }
 };
 const customComponents = {
-	HelloWorld
+	HelloWorld,
+	Container
 };
 const notify = () =>
 	toast.success('Code copied to clipboard!', {
@@ -109,9 +110,9 @@ const HighlightedCodeText = (props: any) => {
 	const [_, copyToClipboard] = useCopyToClipboard();
 
 	return (
-		<div className='flex flex-col w-full rounded-md my-4 shadow shadow-gray-600 '>
-			<div className='flex h-12 bg-gray-900 items-center justify-end border-b-2 rounded-t-lg border-gray-600 px-4  space-x-4'>
-				<p className=' text-gray-500 text-xl '>{filename}</p>
+		<div className='flex flex-col w-full  my-4 rounded-md shadow border border-gray-600'>
+			<div className='flex h-12 bg-gray-900 items-center justify-between border-b-2 rounded-t-lg border-gray-600 px-4  space-x-4'>
+				<p className=' text-white font-bold'>{filename}</p>
 				<div>
 					<Toaster />
 					<IoCopyOutline
@@ -195,57 +196,18 @@ const components = {
 	h2: (props: any) => <h2 {...props} className='text-2xl font-bold text-white py-4' />,
 	h3: (props: any) => <h3 {...props} className='text-xl font-bold text-white py-4' />,
 	h4: (props: any) => <h4 {...props} className='text-lg font-bold text-white py-4' />,
-	ul: (props: any) => <ul {...props} className='list-outside pl-10' />,
-	li: (props: React.HTMLAttributes<HTMLLIElement>) => {
-		const children = props.children as
-			| ReactElement<any, string | JSXElementConstructor<any>>
-			| ReactElement<any, string | JSXElementConstructor<any>>[]
-			| undefined;
-		// default list item
-		if ((children as ReactElement)?.props) {
-			return (
-				<li className='flex items-center space-x-2'>
-					<HiArrowCircleRight className='text-green-400' />
-					<a
-						className=' text-indigo-200 hover:text-indigo-400'
-						href={(children as ReactElement).props.href}>
-						{(children as ReactElement).props.children}
-					</a>
-				</li>
-			);
-		} else {
-			// nested list
-			if (children && typeof children !== 'string') {
-				const children_list = children as ReactElement<
-					any,
-					string | JSXElementConstructor<any>
-				>[];
-				return children_list.map((child, i) => {
-					// nested list parent
-					if (child.props?.href) {
-						return (
-							<li className='flex items-center space-x-2' key={i}>
-								<HiArrowCircleRight className='text-green-400' />
-								<a
-									className=' text-indigo-200 hover:text-indigo-400'
-									href={child.props.href}>
-									{child.props.children}
-								</a>
-							</li>
-						);
-					}
-					// nested list child
-					return (
-						<li key={i} {...props}>
-							{child}
-						</li>
-					);
-				});
-			}
-		}
-	},
+	ul: (props: any) => <ul {...props} className='list-outside pl-10 list-disc' />,
+	li: (props: any) => (
+		<li {...props} className='text-gray-400 text-lg leading-relaxed text-justify' />
+	),
 	a: (props: any) => <a {...props} className='text-indigo-200 hover:text-indigo-400 ' />,
 	pre: HighlightedCodeText,
+	code: (props: any) => (
+		<code
+			{...props}
+			className='text-indigo-300 font-code bg-slate-700 rounded-md shadow-md px-2 border border-gray-700'
+		/>
+	),
 	table: (props: any) => (
 		<table {...props} className='border-collapse border border-slate-500 text-white' />
 	),
@@ -255,7 +217,7 @@ const components = {
 
 const SingleBlogPost = ({ frontMatter, mdSource }: Props) => {
 	return (
-		<div className=' bg-zinc-800  px-72  py-10 flex flex-col '>
+		<div className=' bg-[#16181d]  px-72  py-10 flex flex-col '>
 			<Head>
 				<title>{frontMatter.title}</title>
 				<meta name='description' content={frontMatter.description} />

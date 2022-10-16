@@ -1,6 +1,7 @@
 export let myCustomTheme = {
 	plain: {
-		color: '#d6deeb',
+		// color: '#d6deeb',
+		color: '#94a3b8',
 		backgroundColor: '#011627',
 		// fontFamily: 'var(--font-family-syntax)',
 		fontSize: '16px'
