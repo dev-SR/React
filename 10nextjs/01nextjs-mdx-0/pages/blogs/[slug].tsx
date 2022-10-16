@@ -12,13 +12,17 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import { JSXElementConstructor, ReactElement } from 'react';
-import Highlight, { defaultProps, Language } from 'prism-react-renderer';
-import dracula from 'prism-react-renderer/themes/dracula';
+import Highlight, { defaultProps, Language, PrismTheme } from 'prism-react-renderer';
 const HelloWorld = dynamic(() => import('../../components/MDXcomponent/HelloWorld'));
 import remarkSlug from 'remark-slug';
 import remarkAutolinkHeadings from 'remark-autolink-headings';
 import remarkMdxCodeMeta from 'remark-mdx-code-meta';
 import remarkGfm from 'remark-gfm';
+import { myCustomTheme } from '../../libs/theme';
+// import dracula from 'prism-react-renderer/themes/dracula';
+import { HiArrowCircleRight } from 'react-icons/hi';
+// import remarkSectionize from 'remark-sectionize'; // not working
+import { remarkSectionize } from '../../libs/remark-sectionize-fork';
 
 const classNames = (...classes: any[]) => {
 	return classes.filter(Boolean).join(' ');
@@ -85,7 +89,7 @@ const HighlightedCodeText = (props: any) => {
 			{...defaultProps}
 			code={codeString}
 			language={language as Language}
-			theme={dracula}>
+			theme={myCustomTheme as PrismTheme}>
 			{({ className: defaultClasses, style, tokens, getLineProps, getTokenProps }) => (
 				<pre
 					className={classNames(
@@ -129,7 +133,11 @@ const HighlightedCodeText = (props: any) => {
 
 const components = {
 	...customComponents,
-	p: (props: any) => <p {...props} className='text-white leading-relaxed text-justify' />,
+	p: (props: any) => (
+		<p {...props} className=' text-gray-400 text-lg leading-relaxed text-justify' />
+	),
+	strong: (props: any) => <strong {...props} className='text-gray-200 text-lg' />,
+	em: (props: any) => <em {...props} className='text-gray-200 text-lg italic' />,
 	h2: (props: any) => <h2 {...props} className='text-2xl font-bold text-white py-4' />,
 	h3: (props: any) => <h3 {...props} className='text-xl font-bold text-white py-4' />,
 	ul: (props: any) => <ul {...props} className='list-outside pl-10' />,
@@ -138,11 +146,11 @@ const components = {
 			| ReactElement<any, string | JSXElementConstructor<any>>
 			| ReactElement<any, string | JSXElementConstructor<any>>[]
 			| undefined;
-
+		// default list item
 		if ((children as ReactElement)?.props) {
 			return (
 				<li className='flex items-center space-x-2'>
-					<AiOutlineArrowRight className='text-green-400' />
+					<HiArrowCircleRight className='text-green-400' />
 					<a
 						className=' text-indigo-200 hover:text-indigo-400'
 						href={(children as ReactElement).props.href}>
@@ -151,17 +159,18 @@ const components = {
 				</li>
 			);
 		} else {
+			// nested list
 			if (children && typeof children !== 'string') {
 				const children_list = children as ReactElement<
 					any,
 					string | JSXElementConstructor<any>
 				>[];
 				return children_list.map((child, i) => {
-					console.log(child.props);
+					// nested list parent
 					if (child.props?.href) {
 						return (
 							<li className='flex items-center space-x-2' key={i}>
-								<AiOutlineArrowRight className='text-green-400' />
+								<HiArrowCircleRight className='text-green-400' />
 								<a
 									className=' text-indigo-200 hover:text-indigo-400'
 									href={child.props.href}>
@@ -170,7 +179,12 @@ const components = {
 							</li>
 						);
 					}
-					return <li>{child}</li>;
+					// nested list child
+					return (
+						<li key={i} {...props}>
+							{child}
+						</li>
+					);
 				});
 			}
 		}
@@ -250,8 +264,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
 				remarkMdxCodeMeta,
 				remarkAutolinkHeadings,
 				remarkSlug,
-				remarkGfm
-				// remarkSectionize
+				remarkGfm,
+				remarkSectionize // for interactionOnScroll
 			]
 			// rehypePlugins: []
 		}
