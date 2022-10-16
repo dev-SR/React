@@ -48,7 +48,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 | Row4    |         |
 
 
-```tsx filename="awesome.js" hl_lines={[1,2,3]}
+```tsx filename="Test.tsx" highlight_lines={[1,2,3]} add_highlight_lines={[10,11,12]} remove_highlight_lines={[16,17,18]}
 export const getStaticPaths: GetStaticPaths = async () => {
  const postsPaths = getPostFiles.map((postFile) => {
   return {
