@@ -106,7 +106,7 @@ const HighlightedCodeText = (props: any) => {
 	} = preToCodeBlock(props);
 	// console.log(hl_lines);
 
-	const [state, copyToClipboard] = useCopyToClipboard();
+	const [_, copyToClipboard] = useCopyToClipboard();
 
 	return (
 		<div className='flex flex-col w-full rounded-md my-4 shadow shadow-gray-600 '>
@@ -132,7 +132,7 @@ const HighlightedCodeText = (props: any) => {
 					<pre
 						className={classNames(
 							defaultClasses,
-							'py-4 h-96 overflow-y-scroll text-left scroll-smooth scroll-p-4 font-code min-w-max'
+							'py-4 h-96 overflow-y-scroll text-left scroll-smooth scroll-p-4 font-code min-w-max rounded-b-lg'
 						)}
 						style={style}>
 						{tokens.map((line, i) => {
@@ -145,11 +145,11 @@ const HighlightedCodeText = (props: any) => {
 										className: classNames(
 											className.Line,
 											highlight_lines?.includes(lineNo) &&
-												'bg-sky-500/[.3] border-l-4 border-sky-300 pl-1',
+												'bg-sky-500/[.2] border-l-4 border-sky-300 pl-1',
 											add_highlight_lines?.includes(lineNo) &&
-												'bg-green-500/[.3] border-l-4 border-green-300 pl-1',
+												'bg-green-500/[.2] border-l-4 border-green-300 pl-1',
 											remove_highlight_lines?.includes(lineNo) &&
-												'bg-red-500/[.3] border-l-4 border-red-300 pl-1'
+												'bg-red-500/[.2] border-l-4 border-red-300 pl-1'
 										)
 									})}
 									// className={ }
