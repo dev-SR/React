@@ -41,7 +41,7 @@ const AddEditUser = () => {
 		if (isLoading) {
 			toast.loading('Loading...');
 		}
-		return () => toast.dismiss(); //VERY IMPORTANT TO REMOVE THE LOADING TOAST before moving to the next page
+		return () => toast.dismiss(); //VERY IMPORTANT; or else the toast will stay forever; even in the next page
 	}, [isLoading]);
 
 	const handleSubmit = async (e: any) => {

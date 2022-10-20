@@ -24,7 +24,7 @@ const Home = () => {
 		if (deleteLoading) {
 			toast.loading('Deleting...');
 		}
-		return () => toast.dismiss(); //VERY IMPORTANT TO REMOVE THE LOADING TOAST before moving to the next page
+		return () => toast.dismiss(); //VERY IMPORTANT; or else the toast will stay forever
 	}, [deleteLoading]);
 
 	let content: React.ReactNode = <></>;
