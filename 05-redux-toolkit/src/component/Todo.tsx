@@ -1,47 +1,123 @@
-import React, { useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectTodos, addTodo, toggleTodo, deleteTodo } from '../state/todoSlice';
-const classNames = (...classes: any[]) => classes.filter(Boolean).join(' ');
+import React, { useRef, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useSelector } from 'react-redux';
+import { BeatLoader } from 'react-spinners';
+import { useAppDispatch } from '../state/store';
+import { addTodo, deleteTodo, fetchTodos, selectTodos, updateTodo } from '../state/todoSlice';
+const clsx = (...args: any[]) => {
+	return args.filter(Boolean).join(' ');
+};
 
-const Todo = () => {
-	const todos = useSelector(selectTodos);
+const AddItem = () => {
 	const inputRef = useRef<HTMLInputElement>(null);
-	const dispatch = useDispatch();
-
-	const addTodoHandler = () => {
+	const dispatch = useAppDispatch();
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
 		if (inputRef.current) {
-			dispatch(addTodo(inputRef.current.value));
+			const value = inputRef.current.value;
+			if (value) {
+				dispatch(addTodo(value));
+				inputRef.current.value = '';
+				toast.success('Todo added');
+			}
 		}
 	};
 
 	return (
-		<div className='flex flex-col items-center justify-center min-h-screen py-2'>
-			{todos.map((todo, index) => (
-				<div key={todo.id} className='w-1/2 flex space-x-2'>
-					<p
-						className={classNames(todo.done && 'line-through')}
-						onClick={() => dispatch(toggleTodo(todo.id))}>
-						{index + 1}. {todo.text}
-					</p>
-
-					<div
-						className='flex items-center justify-center w-7 h-7 rounded-full bg-red-500 cursor-pointer text-white'
-						onClick={() => dispatch(deleteTodo(todo.id))}>
-						X
-					</div>
-				</div>
-			))}
-			<input
-				type='text'
-				placeholder='Add todo'
-				ref={inputRef}
-				className='border border-gray-300 rounded-md p-2'
-			/>
-			<button onClick={addTodoHandler} className='bg-blue-500 text-white rounded-md p-2 mt-2'>
-				Add Todo
-			</button>
-		</div>
+		<form onSubmit={handleSubmit}>
+			<label className='block text-gray-700 text-sm font-bold mb-2'> Todo List </label>
+			<div className='flex space-x-2 mb-4'>
+				<input
+					autoFocus
+					ref={inputRef}
+					id='addItem'
+					type='text'
+					placeholder='Add Item'
+					className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight  focus:outline-indigo-400 '
+					required
+				/>
+				<button
+					className=' bg-gray-300 rounded px-4 text-lg'
+					onClick={() => inputRef.current?.focus()}>
+					+
+				</button>
+			</div>
+		</form>
 	);
 };
 
-export default Todo;
+const ListItems = () => {
+	const { items, status, error } = useSelector(selectTodos);
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		dispatch(fetchTodos());
+	}, []);
+
+	let content: React.ReactElement = <div></div>;
+
+	if (status === 'loading') {
+		content = (
+			<div>
+				<BeatLoader color='#36d7b7' />
+			</div>
+		);
+	} else if (status === 'idle' && !error) {
+		content = (
+			<ul className='mt-4'>
+				{items?.length &&
+					items.map((item) => (
+						<li key={item.id} className='flex justify-between  rounded shadow mb-2 space-x-4'>
+							<div className='flex bg-indigo-200 w-full p-2 rounded-md'>
+								<input
+									type='checkbox'
+									checked={item.completed}
+									onChange={() => {
+										dispatch(
+											updateTodo({
+												id: item.id,
+												completed: !item.completed,
+												title: item.title
+											})
+										);
+										toast.success('Todo Updated');
+									}}
+								/>
+								<label
+									className={clsx(
+										'text-lg pl-2',
+										item.completed && 'line-through text-gray-400'
+									)}>
+									{item.title}
+								</label>
+							</div>
+							<button
+								className='text-white font-bold bg-red-500 rounded px-4 text-xl'
+								onClick={() => {
+									dispatch(deleteTodo(item.id));
+									toast.success('Item deleted');
+								}}>
+								X
+							</button>
+						</li>
+					))}
+			</ul>
+		);
+	} else if (error) {
+		content = <div>{error}</div>;
+	}
+
+	return content;
+};
+
+const TodoList = () => {
+	return (
+		<div className='h-screen flex items-center justify-center flex-col'>
+			<div className='w-1/2'>
+				<AddItem />
+				<ListItems />
+			</div>
+		</div>
+	);
+};
+export default TodoList;

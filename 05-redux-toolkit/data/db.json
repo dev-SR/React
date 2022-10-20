@@ -1,0 +1,42 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "productId": 1,
+      "quantity": 1,
+      "unitPrice": 200,
+      "productName": "Product 1"
+    },
+    {
+      "id": 2,
+      "productId": 2,
+      "quantity": 1,
+      "unitPrice": 200,
+      "productName": "Product 2"
+    },
+    {
+      "id": 3,
+      "productId": 3,
+      "quantity": 1,
+      "unitPrice": 200,
+      "productName": "Product 3"
+    }
+  ],
+  "todos": [
+    {
+      "id": 1,
+      "completed": false,
+      "title": "Learn Angular"
+    },
+    {
+      "id": 2,
+      "completed": true,
+      "title": "Learn React"
+    },
+    {
+      "id": 3,
+      "completed": true,
+      "title": "Learn Vue"
+    }
+  ]
+}

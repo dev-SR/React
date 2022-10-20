@@ -1,10 +1,10 @@
 # React exercise
 
 - [React exercise](#react-exercise)
-  - [Resources](#resources)
-  - [Installation 🌼](#installation-)
-    - [Vite+Tailwind 🔥](#vitetailwind-)
-  - [VsCode Snippets for React TypeScript](#vscode-snippets-for-react-typescript)
+	- [Resources](#resources)
+	- [Installation 🌼](#installation-)
+		- [Vite+Tailwind 🔥](#vitetailwind-)
+	- [VsCode Snippets for React TypeScript](#vscode-snippets-for-react-typescript)
 
 ## Resources
 
@@ -120,169 +120,181 @@ Creating Snippets for React:
 
 ```json
 {
- "importUseState": {
-  "prefix": "imus",
-  "body": ["import React, { useState } from 'react'"],
-  "description": "Import useState"
- },
- "importUseStateAndEffect": {
-  "prefix": "imusf",
-  "body": ["import React, { useState, useEffect } from 'react'"],
-  "description": "importUseStateAndEffect"
- },
+	"importUseState": {
+		"prefix": "imus",
+		"body": ["import React, { useState } from 'react'"],
+		"description": "Import useState"
+	},
+	"importUseStateAndEffect": {
+		"prefix": "imusf",
+		"body": ["import React, { useState, useEffect } from 'react'"],
+		"description": "importUseStateAndEffect"
+	},
 
- "useState<T>": {
-  "prefix": "us",
-  "body": ["const [${1:state},set${2:State}] =  useState<${3:T}>(${4:init});"],
-  "description": "Creates useState"
- },
- "useEffectDidMount": {
-  "prefix": "ufd",
-  "body": ["useEffect(() => {", "  $0", "},[]);"],
-  "description": "Adds useEffectDidMount"
- },
- "useEffectUnMount": {
-  "prefix": "ufu",
-  "body": ["useEffect(() => {", "  $1", "return () => {", "  $2", "}},[$3]);"],
-  "description": "Adds useEffectUnMount"
- },
- "useEffect": {
-  "prefix": "uf",
-  "body": ["useEffect(() => {", "  $1", "},[$2]);"],
-  "description": "Adds useEffect"
- },
- "useCallback": {
-  "prefix": "ucb",
-  "body": [
-   "const ${1:fn} = useCallback(() => {",
-   "  return ${2:fnbody};",
-   "}, [${3:depd.}]);",
-   ""
-  ],
-  "description": "useCallback"
- },
- "useMemo": {
-  "prefix": "um",
-  "body": ["const ${1:fn}= useMemo(() => {", "  return ${2:fnbody};", " }, [${3:depd.}]);"],
-  "description": "useMemo"
- },
- "reactStateless": {
-  "prefix": "c",
-  "body": [
-   "import React from 'react';",
-   "",
-   "const ${1:${TM_FILENAME_BASE}} = () => {",
-   "    return (",
-   "      <div>",
-   "        $2",
-   "      </div>",
-   "    );",
-   "};",
-   "",
-   "export default ${1:${TM_FILENAME_BASE}};"
-  ],
-  "description": "Creates a stateless React component without PropTypes"
- },
- "reactStatelessCustomName": {
-  "prefix": "cc",
-  "body": [
-   "const ${1:component} = () => {",
-   "    return (",
-   "      <div>",
-   "        $2",
-   "      </div>",
-   "    );",
-   "};",
-   ""
-  ],
-  "description": "Creates a stateless React component without PropTypes with CustomName"
- },
- "reactStatelessWithTypeProps": {
-  "prefix": "cp",
-  "body": [
-   "type ${1:component}Props = {",
-   "    $2",
-   "};",
-   "const ${1:component} = ({$3}:${1:component}Props) => {",
-   "  return (",
-   "    <div>",
-   "      $4",
-   "    </div>",
-   "  );",
-   "};"
-  ],
-  "description": "Creates a stateless React component as a named function with Typed Props using Type"
- },
- "reactStatelessWithTypePropsCustomName": {
-  "prefix": "ccp",
-  "body": [
-   "import React from 'react';",
-   "type ${1:${TM_FILENAME_BASE}}Props = {",
-   "    $2",
-   "};",
-   "const ${1:${TM_FILENAME_BASE}} = ({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
-   "  return (",
-   "    <div>",
-   "      $4",
-   "    </div>",
-   "  );",
-   "};",
-   "export default ${1:${TM_FILENAME_BASE}};"
-  ],
-  "description": "Creates a stateless React component as a named function with Typed Props using Type with Custom Name"
- },
- "reactStatelessWithTypePropsUsingInterface": {
-  "prefix": "cpi",
-  "body": [
-   "import React from 'react';",
-   "interface ${1:${TM_FILENAME_BASE}}Props{",
-   "    $2",
-   "};",
-   "const ${1:${TM_FILENAME_BASE}} = ({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
-   "  return (",
-   "    <div>",
-   "      $4",
-   "    </div>",
-   "  );",
-   "};",
-   "export default ${1:${TM_FILENAME_BASE}};"
-  ],
-  "description": "Creates a stateless React component as a named function with Typed Props using interface"
- },
- "reactMemo": {
-  "prefix": "cm",
-  "body": [
-   "import React, { memo } from 'react'",
-   "",
-   "const ${1:${TM_FILENAME_BASE}} = memo(() => {",
-   "  return (",
-   "    <div>",
-   "      $2",
-   "    </div>",
-   "  );",
-   "});",
-   "export default ${1:${TM_FILENAME_BASE}};"
-  ],
-  "description": "Creates a memoized stateless React component without PropTypes and ES6 module system"
- },
- "reactMemoWithProps": {
-  "prefix": "cmp",
-  "body": [
-   "import React, { memo } from 'react'",
-   "type ${1:${TM_FILENAME_BASE}}Props = {",
-   "    $2",
-   "};",
-   "const ${1:${TM_FILENAME_BASE}} = memo(({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
-   "  return (",
-   "    <div>",
-   "      $4",
-   "    </div>",
-   "  );",
-   "});",
-   "export default ${1:${TM_FILENAME_BASE}};"
-  ],
-  "description": "Creates a memoized stateless React component with PropTypes"
- }
+	"useState<T>": {
+		"prefix": "us",
+		"body": ["const [${1:state},set${1/(.*)/${1:/capitalize}/}] =  useState<${2:T}>(${3:init});"],
+		"description": "Creates useState"
+	},
+	"useEffectDidMount": {
+		"prefix": "ufd",
+		"body": ["useEffect(() => {", "  $0", "},[]);"],
+		"description": "Adds useEffectDidMount"
+	},
+	"useEffectUnMount": {
+		"prefix": "ufu",
+		"body": ["useEffect(() => {", "  $1", "return () => {", "  $2", "}},[$3]);"],
+		"description": "Adds useEffectUnMount"
+	},
+	"useEffect": {
+		"prefix": "uf",
+		"body": ["useEffect(() => {", "  $1", "},[$2]);"],
+		"description": "Adds useEffect"
+	},
+	"useCallback": {
+		"prefix": "ucb",
+		"body": ["const ${1:fn} = useCallback(() => {", "  ${2:fnbody};", "}, [${3:depd.}]);", ""],
+		"description": "useCallback"
+	},
+	"useMemo": {
+		"prefix": "um",
+		"body": ["const ${1:fn}= useMemo(() => {", "  return ${2:fnbody};", " }, [${3:depd.}]);"],
+		"description": "useMemo"
+	},
+	"RFC": {
+		"prefix": "fc",
+		"body": [
+			"import React from 'react';",
+			"",
+			"const ${1:${TM_FILENAME_BASE}} = () => {",
+			"    return (",
+			"      <div>",
+			"        $2",
+			"      </div>",
+			"    );",
+			"};",
+			"",
+			"export default ${1:${TM_FILENAME_BASE}};"
+		],
+		"description": "Creates a stateless React component without PropTypes"
+	},
+	"RFC capitalize": {
+		"prefix": "fccap",
+		"body": [
+			"import React from 'react';",
+			"",
+			"const ${1:${TM_FILENAME_BASE/(.*)/${1:/capitalize}/}} = () => {",
+			"    return (",
+			"      <div>",
+			"        $2",
+			"      </div>",
+			"    );",
+			"};",
+			"",
+			"export default ${1:${TM_FILENAME_BASE}};"
+		],
+		"description": "Creates a stateless React component without PropTypes"
+	},
+	"RFC CustomName": {
+		"prefix": "fcc",
+		"body": [
+			"const ${1:component} = () => {",
+			"    return (",
+			"      <div>",
+			"        $2",
+			"      </div>",
+			"    );",
+			"};",
+			""
+		],
+		"description": "Creates a stateless React component without PropTypes with CustomName"
+	},
+	"reactStatelessWithTypePropsCustomName": {
+		"prefix": "fccp",
+		"body": [
+			"type ${1:component}Props = {",
+			"    $2",
+			"};",
+			"const ${1:component} = ({$3}:${1:component}Props) => {",
+			"  return (",
+			"    <div>",
+			"      $4",
+			"    </div>",
+			"  );",
+			"};"
+		],
+		"description": "Creates a stateless React component as a named function with Typed Props using Type"
+	},
+	"reactStatelessWithTypeProps": {
+		"prefix": "fcp",
+		"body": [
+			"import React from 'react';",
+			"type ${1:${TM_FILENAME_BASE}}Props = {",
+			"    $2",
+			"};",
+			"const ${1:${TM_FILENAME_BASE}} = ({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
+			"  return (",
+			"    <div>",
+			"      $4",
+			"    </div>",
+			"  );",
+			"};",
+			"export default ${1:${TM_FILENAME_BASE}};"
+		],
+		"description": "Creates a stateless React component as a named function with Typed Props using Type with Custom Name"
+	},
+	"reactStatelessWithTypePropsUsingInterface": {
+		"prefix": "fcpi",
+		"body": [
+			"import React from 'react';",
+			"interface ${1:${TM_FILENAME_BASE}}Props{",
+			"    $2",
+			"};",
+			"const ${1:${TM_FILENAME_BASE}} = ({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
+			"  return (",
+			"    <div>",
+			"      $4",
+			"    </div>",
+			"  );",
+			"};",
+			"export default ${1:${TM_FILENAME_BASE}};"
+		],
+		"description": "Creates a stateless React component as a named function with Typed Props using interface"
+	},
+	"reactMemo": {
+		"prefix": "fcm",
+		"body": [
+			"import React, { memo } from 'react'",
+			"",
+			"const ${1:${TM_FILENAME_BASE}} = memo(() => {",
+			"  return (",
+			"    <div>",
+			"      $2",
+			"    </div>",
+			"  );",
+			"});",
+			"export default ${1:${TM_FILENAME_BASE}};"
+		],
+		"description": "Creates a memoized stateless React component without PropTypes and ES6 module system"
+	},
+	"reactMemoWithProps": {
+		"prefix": "fcmp",
+		"body": [
+			"import React, { memo } from 'react'",
+			"type ${1:${TM_FILENAME_BASE}}Props = {",
+			"    $2",
+			"};",
+			"const ${1:${TM_FILENAME_BASE}} = memo(({$3}:${1:${TM_FILENAME_BASE}}Props) => {",
+			"  return (",
+			"    <div>",
+			"      $4",
+			"    </div>",
+			"  );",
+			"});",
+			"export default ${1:${TM_FILENAME_BASE}};"
+		],
+		"description": "Creates a memoized stateless React component with PropTypes"
+	}
 }
 
 ```
