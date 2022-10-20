@@ -1,69 +1,63 @@
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-
-const data = [
-	{
-		name: 'Adam Marcus',
-		email: 'adam123@gmail.com',
-		contact: '83673677367635',
-		id: 1
-	},
-	{
-		name: 'Tom Cruise',
-		email: 'tom@gmail.com',
-		contact: '83786646476',
-		id: 2
-	},
-	{
-		name: 'James Bond',
-		email: 'james@gmail.com',
-		contact: '9484785787',
-		id: 3
-	}
-];
+import { useDeleteContactMutation, useGetContactsQuery } from '../services/contactsApi';
+import { BeatLoader } from 'react-spinners';
+import { useEffect } from 'react';
 
 const Home = () => {
+	const { data, error, isLoading, isSuccess, isFetching } = useGetContactsQuery();
+	const [deleteContact, { isLoading: deleteLoading }] = useDeleteContactMutation();
+
 	const handleDelete = async (id: any) => {
 		if (window.confirm('Are you sure that you wanted to delete that user ?')) {
-			toast.success('Contact Deleted Successfully');
+			await deleteContact(id);
+			!deleteLoading && toast.success('Contact Deleted Successfully');
 		}
 	};
-	return (
-		<div className='flex flex-col h-screen justify-center items-center'>
-			<h2 className='text-2xl font-bold text-gray-700 mb-4'>
-				Redux Toolkit RTK Query CRUD with React and JSON Server{' '}
-			</h2>
-			<Link to='/add'>
-				<button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
-					Add Contact
-				</button>
-			</Link>
-			<br />
-			<br />
-			<div className='overflow-x-auto relative'>
-				<table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
-					<thead className='ext-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
-						<tr>
-							<th scope='col' className='py-3 px-6 text-center'>
-								ID
-							</th>
-							<th scope='col' className='py-3 px-6 text-center'>
-								Name
-							</th>
-							<th scope='col' className='py-3 px-6 text-center'>
-								Email
-							</th>
-							<th scope='col' className='py-3 px-6 text-center'>
-								Contact
-							</th>
-							<th scope='col' className='py-3 px-6 text-center'>
-								Action
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						{data &&
-							data.map((item: any, index: any) => {
+	useEffect(() => {
+		if (error) {
+			toast.error('Something went wrong');
+		}
+	}, [error]);
+
+	useEffect(() => {
+		if (deleteLoading) {
+			toast.loading('Deleting...');
+		}
+		return () => toast.dismiss(); //VERY IMPORTANT TO REMOVE THE LOADING TOAST before moving to the next page
+	}, [deleteLoading]);
+
+	let content: React.ReactNode = <></>;
+	if (isLoading) {
+		content = <BeatLoader color='#36d7b7' />;
+	} else if (error) {
+		content = <p className='text-center text-2xl text-red-500 font-semibold'>Failed to fetch</p>;
+	} else if (isSuccess && data) {
+		content = (
+			<>
+				<div className='overflow-x-auto relative'>
+					<table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
+						<thead className='ext-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+							<tr>
+								<th scope='col' className='py-3 px-6 text-center'>
+									ID
+								</th>
+								<th scope='col' className='py-3 px-6 text-center'>
+									Name
+								</th>
+								<th scope='col' className='py-3 px-6 text-center'>
+									Email
+								</th>
+								<th scope='col' className='py-3 px-6 text-center'>
+									Contact
+								</th>
+								<th scope='col' className='py-3 px-6 text-center'>
+									Action
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							{data.map((item: any, index: any) => {
 								return (
 									<tr
 										key={item.id}
@@ -98,9 +92,24 @@ const Home = () => {
 									</tr>
 								);
 							})}
-					</tbody>
-				</table>
-			</div>
+						</tbody>
+					</table>
+				</div>
+			</>
+		);
+	}
+
+	return (
+		<div className='flex flex-col h-screen justify-center items-center space-y-4'>
+			<h2 className='text-2xl font-bold text-gray-700 mb-4'>
+				Redux Toolkit RTK Query CRUD with React and JSON Server
+			</h2>
+			<Link to='/add'>
+				<button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
+					Add Contact
+				</button>
+			</Link>
+			{content}
 		</div>
 	);
 };

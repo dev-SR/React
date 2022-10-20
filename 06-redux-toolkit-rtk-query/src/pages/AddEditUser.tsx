@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import {
+	useAddContactMutation,
+	useGetSingleContactQuery,
+	useUpdateContactMutation
+} from '../services/contactsApi';
 
 const initialState = {
 	name: '',
@@ -16,13 +21,28 @@ const AddEditUser = () => {
 	const navigate = useNavigate();
 	const { id } = useParams();
 
+	// redux-toolkit-rtk-query
+	const [addContact, { isLoading }] = useAddContactMutation();
+	const [updateContact, { isLoading: updateLoading }] = useUpdateContactMutation();
+	const { data, error, isSuccess } = useGetSingleContactQuery(Number(id));
+
 	useEffect(() => {
 		if (id) {
 			setEditMode(true);
+			if (isSuccess && data) {
+				setFormValue(data);
+			}
 		} else {
 			setEditMode(false);
 		}
-	}, [id]);
+	}, [id, data, isSuccess]);
+
+	useEffect(() => {
+		if (isLoading) {
+			toast.loading('Loading...');
+		}
+		return () => toast.dismiss(); //VERY IMPORTANT TO REMOVE THE LOADING TOAST before moving to the next page
+	}, [isLoading]);
 
 	const handleSubmit = async (e: any) => {
 		e.preventDefault();
@@ -30,9 +50,12 @@ const AddEditUser = () => {
 			toast.error('Please provide value into each input field');
 		} else {
 			if (!editMode) {
-				navigate('/');
+				// redux-toolkit-rtk-query
+				await addContact({ ...formValue, id: Math.floor(Math.random() * 1000) });
+				!isLoading && navigate('/');
 				toast.success('Contact Added Successfully');
 			} else {
+				await updateContact({ ...formValue, id: Number(id) });
 				navigate('/');
 				setEditMode(false);
 				toast.success('Contact Updated Successfully');
