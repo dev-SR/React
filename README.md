@@ -70,6 +70,12 @@ Run your build process with `yarn dev`.
 		"javascript": "javascriptreact",
 		"typescript": "typescriptreact"
 	},
+	// disable built-in css validation for tailwind specific syntax i.e @apply...
+	"css.validate": false,
+	// for first time triggering inside string
+	"editor.quickSuggestions": {
+		"strings": "on"
+	}
 }
 ```
 
