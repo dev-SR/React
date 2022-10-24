@@ -4,6 +4,7 @@
 	- [Resources](#resources)
 	- [Installation 🌼](#installation-)
 		- [Vite+Tailwind 🔥](#vitetailwind-)
+		- [🏹 Tailwind Css IntelliSense custom config](#-tailwind-css-intellisense-custom-config)
 	- [VsCode Snippets for React TypeScript](#vscode-snippets-for-react-typescript)
 
 ## Resources
@@ -58,6 +59,48 @@ export default App;
 ```
 
 Run your build process with `yarn dev`.
+
+### 🏹 Tailwind Css IntelliSense custom config
+
+```json
+{
+	"tailwindCSS.emmetCompletions": true,
+	"tailwindCSS.includeLanguages": {
+		"html": "html",
+		"javascript": "javascriptreact",
+		"typescript": "typescriptreact"
+	},
+}
+```
+
+Tailwind IntelliSense within objects and variables:
+
+
+```json
+{
+"tailwindCSS.experimental.classRegex": [
+		["Classes \\=([^;]*);", "'([^']*)'"],
+		["Classes \\=([^;]*);", "\"([^\"]*)\""],
+		["Classes \\=([^;]*);", "\\`([^\\`]*)\\`"]
+	]
+}
+```
+
+Tailwind IntelliSense will now recognize all of the following strings:
+
+```typescript
+const defaultClasses = `text-grey`;
+
+const componentClasses = {
+  default: 'text-grey',
+  danger: `text-red`,
+  warning: "text-yellow",
+};
+```
+
+- [https://stackoverflow.com/questions/66614875/how-can-i-enable-tailwind-intellisense-outside-of-classname](https://stackoverflow.com/questions/66614875/how-can-i-enable-tailwind-intellisense-outside-of-classname
+)
+
 
 ## VsCode Snippets for React TypeScript
 
