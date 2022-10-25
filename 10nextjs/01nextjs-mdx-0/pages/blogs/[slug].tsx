@@ -25,7 +25,9 @@ import { remarkSectionize } from '../../libs/remark-sectionize-fork';
 import { useCopyToClipboard } from 'react-use';
 import { IoCopyOutline } from 'react-icons/io5';
 import toast, { Toaster } from 'react-hot-toast';
+import Expandable from '../../components/MDXcomponent/Expandable';
 import Container from '../../components/MDXcomponent/Container';
+import CodeOutput from '../../components/MDXcomponent/CodeOutput';
 import Quiz from '../../components/MDXcomponent/Quiz';
 
 const classNames = (...classes: any[]) => {
@@ -50,8 +52,7 @@ type ProcessedCodeText = {
 };
 
 export const preToCodeBlock = (preProps: any): ProcessedCodeText => {
-	const { filename, highlight_lines, copy, add_highlight_lines, remove_highlight_lines } =
-		preProps;
+	const { filename, highlight_lines, copy, add_highlight_lines, remove_highlight_lines } = preProps;
 	const meta = { filename, highlight_lines, copy, add_highlight_lines, remove_highlight_lines };
 
 	const children = preProps.children as
@@ -72,8 +73,10 @@ export const preToCodeBlock = (preProps: any): ProcessedCodeText => {
 	// }
 };
 const customComponents = {
-	HelloWorld,
 	Container,
+	CodeOutput,
+	HelloWorld,
+	Expandable,
 	Quiz
 };
 const notify = () =>
@@ -107,13 +110,13 @@ const HighlightedCodeText = (props: any) => {
 		remove_highlight_lines,
 		...other
 	} = preToCodeBlock(props);
-	// console.log(hl_lines);
+	console.log(language);
 
 	const [_, copyToClipboard] = useCopyToClipboard();
 
 	return (
-		<div className='flex flex-col w-full  my-4 rounded-md shadow border border-gray-600'>
-			<div className='flex h-12 bg-gray-900 items-center justify-between border-b-2 rounded-t-lg border-gray-600 px-4  space-x-4'>
+		<div className='flex flex-col w-full  my-4 rounded-md shadow border border-white/10'>
+			<div className='flex h-12 bg-gray-900 items-center justify-between border-b-2 rounded-t-lg border-white/10 px-4  space-x-4'>
 				<p className=' text-white font-bold'>{filename}</p>
 				<div>
 					<Toaster />
@@ -135,7 +138,7 @@ const HighlightedCodeText = (props: any) => {
 					<pre
 						className={classNames(
 							defaultClasses,
-							'py-4 h-96 overflow-y-scroll text-left scroll-smooth scroll-p-4 font-code min-w-max rounded-b-lg'
+							'py-4 max-h-80 text-left overflow-y-auto  scroll-smooth scroll-p-4 font-code rounded-b-lg'
 						)}
 						style={style}>
 						{tokens.map((line, i) => {
@@ -170,9 +173,7 @@ const HighlightedCodeText = (props: any) => {
 										)}
 									</div>
 
-									{!highlight_lines?.includes(lineNo) && (
-										<span className='w-2 pr-2 select-none' />
-									)}
+									{!highlight_lines?.includes(lineNo) && <span className='w-2 pr-2 select-none' />}
 									<span className={className.LineContent}>
 										{line.map((token, key) => (
 											<span {...getTokenProps({ token, key })} />
@@ -191,17 +192,16 @@ const HighlightedCodeText = (props: any) => {
 const components = {
 	...customComponents,
 	p: (props: any) => (
-		<p {...props} className=' text-gray-400 text-lg leading-relaxed text-justify' />
+		<p {...props} className=' text-gray-400 text-lg' />
+		//  text-justify
 	),
-	strong: (props: any) => <strong {...props} className='text-gray-200 text-lg' />,
-	em: (props: any) => <em {...props} className='text-gray-200 text-lg italic' />,
-	h2: (props: any) => <h2 {...props} className='text-2xl font-bold text-white py-4' />,
+	strong: (props: any) => <strong {...props} className='text-gray-300 text-lg font-medium' />,
+	em: (props: any) => <em {...props} className='text-gray-300 text-lg font-normal italic' />,
+	h2: (props: any) => <h2 {...props} className='text-2xl font-bold text-white py-4 ' />,
 	h3: (props: any) => <h3 {...props} className='text-xl font-bold text-white py-4' />,
 	h4: (props: any) => <h4 {...props} className='text-lg font-bold text-white py-4' />,
 	ul: (props: any) => <ul {...props} className='list-outside pl-10 list-disc' />,
-	li: (props: any) => (
-		<li {...props} className='text-gray-400 text-lg leading-relaxed text-justify' />
-	),
+	li: (props: any) => <li {...props} className='text-gray-400 text-lg' />,
 	a: (props: any) => <a {...props} className='text-indigo-200 hover:text-indigo-400 ' />,
 	pre: HighlightedCodeText,
 	code: (props: any) => (
@@ -211,15 +211,18 @@ const components = {
 		/>
 	),
 	table: (props: any) => (
-		<table {...props} className='border-collapse border border-slate-500 text-white' />
+		<table {...props} className=' text-gray-300 w-full my-4 rounded-md	shadow shadow-slate-600' />
 	),
-	tr: (props: any) => <tr {...props} className='border border-slate-500' />,
-	td: (props: any) => <td {...props} className='border border-slate-500' />
+	th: (props: any) => (
+		<th {...props} className='text-left text-gray-300 font-bold border-b border-gray-700 p-2' />
+	),
+	tr: (props: any) => <tr {...props} className='p-2' />,
+	td: (props: any) => <td {...props} className='p-2' />
 };
 
 const SingleBlogPost = ({ frontMatter, mdSource }: Props) => {
 	return (
-		<div className=' bg-[#16181d]  px-72  py-10 flex flex-col '>
+		<div className=' bg-[#16181d] py-10 flex flex-col '>
 			<Head>
 				<title>{frontMatter.title}</title>
 				<meta name='description' content={frontMatter.description} />

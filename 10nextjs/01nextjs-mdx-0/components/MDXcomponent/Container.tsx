@@ -1,29 +1,6 @@
 import React from 'react';
-type ContainerProps = {
-	children: React.ReactNode;
-	text: string;
+type ContainerProps = { children: React.ReactNode; px: string };
+const Container = ({ children, px = 'px-72' }: ContainerProps) => {
+	return <div className='max-w-md mx-auto md:max-w-3xl'>{children}</div>;
 };
-const Container = ({ children, text }: ContainerProps) => {
-	const [expanded, setExpanded] = React.useState(false);
-
-	return expanded ? (
-		<div className='bg-slate-800 rounded-lg p-4'>
-			<button
-				onClick={() => setExpanded(false)}
-				className='bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded'>
-				Collapse
-			</button>
-			<div className='pt-2'>{children}</div>
-		</div>
-	) : (
-		<div className='bg-slate-800 rounded-lg p-4'>
-			<button
-				onClick={() => setExpanded(true)}
-				className='bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded'>
-				Expand
-			</button>
-		</div>
-	);
-};
-
 export default Container;
