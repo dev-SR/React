@@ -1,8 +1,8 @@
 ---
-title: 'My first Post'
+title: 'Learning Next.js + MDX stack; Generating static blog content with next.js'
 date: 2019-01-01
 tags: [mdx, next.js]
-description: 'This is my first post on my new blog'
+description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lectus mauris ultrices eros in cursus.'
 author: 'John Doe'
 url: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80'
 ---

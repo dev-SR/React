@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
 @tailwind base;
 @tailwind components;
@@ -7,12 +7,13 @@
 /* add custom tailwind css */
 @layer components {
 	::-webkit-scrollbar {
-		@apply w-2 h-2;
+		@apply w-2 h-2 bg-zinc-800;
 	}
 
 	/* Track */
+	::-webkit-scrollbar-corner,
 	::-webkit-scrollbar-track {
-		@apply bg-gray-800 rounded-md;
+		@apply bg-[#16181d];
 	}
 
 	/* Handle */

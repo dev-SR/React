@@ -30,6 +30,14 @@ import Container from '../../components/MDXcomponent/Container';
 import CodeOutput from '../../components/MDXcomponent/CodeOutput';
 import Quiz from '../../components/MDXcomponent/Quiz';
 
+const customComponents = {
+	Container,
+	CodeOutput,
+	HelloWorld,
+	Expandable,
+	Quiz
+};
+
 const classNames = (...classes: any[]) => {
 	return classes.filter(Boolean).join(' ');
 };
@@ -72,13 +80,7 @@ export const preToCodeBlock = (preProps: any): ProcessedCodeText => {
 	};
 	// }
 };
-const customComponents = {
-	Container,
-	CodeOutput,
-	HelloWorld,
-	Expandable,
-	Quiz
-};
+
 const notify = () =>
 	toast.success('Code copied to clipboard!', {
 		icon: '👏',
@@ -222,7 +224,7 @@ const components = {
 
 const SingleBlogPost = ({ frontMatter, mdSource }: Props) => {
 	return (
-		<div className=' bg-[#16181d] py-10 flex flex-col '>
+		<div className=' bg-[#16181d] py-10 flex flex-col min-h-screen '>
 			<Head>
 				<title>{frontMatter.title}</title>
 				<meta name='description' content={frontMatter.description} />

@@ -1,11 +1,19 @@
 import React from 'react';
 type CodeOutputProps = {
 	children: React.ReactNode;
+	align?: 'left' | 'right' | 'center';
+};
+const classNames = (...classes: any[]) => {
+	return classes.filter(Boolean).join(' ');
 };
 
-const CodeOutput = ({ children }: CodeOutputProps) => {
+const CodeOutput = ({ children, align = 'center' }: CodeOutputProps) => {
 	return (
-		<div className='py-4 rounded-md px-2 m-2 backdrop-blur-sm bg-slate-700/25 border border-white/5'>
+		<div
+			className={classNames(
+				'rounded-md py-4 px-2 my-4 backdrop-blur-sm bg-slate-700/25 border border-white/5 flex',
+				align == 'center' && 'justify-center items-center'
+			)}>
 			{children}
 		</div>
 	);
