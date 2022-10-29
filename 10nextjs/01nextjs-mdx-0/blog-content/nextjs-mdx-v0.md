@@ -37,6 +37,19 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 ~one~ or ~~two~~ tildes.
 
+<span className="text-white">
+Some math on the same line: $T_n = a + (n-1)d$
+
+Or, some math in a block
+
+$$
+T_n = a + (n-1)d
+$$
+
+</span>
+
+<span className="text-white" >My name $x^2+2x+1$</span>
+
 ## Table
 
 | Column1 | Column2 |

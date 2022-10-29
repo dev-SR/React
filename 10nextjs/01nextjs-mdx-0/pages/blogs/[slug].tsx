@@ -30,6 +30,9 @@ import Container from '../../components/MDXcomponent/Container';
 import CodeOutput from '../../components/MDXcomponent/CodeOutput';
 import Quiz from '../../components/MDXcomponent/Quiz';
 import NavBar from '../../components/NavBar';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 const customComponents = {
 	Container,
@@ -220,7 +223,23 @@ const components = {
 		<th {...props} className='text-left text-gray-300 font-bold border-b border-gray-700 p-2' />
 	),
 	tr: (props: any) => <tr {...props} className='p-2' />,
-	td: (props: any) => <td {...props} className='p-2' />
+	td: (props: any) => <td {...props} className='p-2' />,
+	div: (props: any) => {
+		if (props.className && props.className.includes('math math-display')) {
+			return <div {...props} className='text-purple-400 bg-gray-500 rounded-md' />;
+		}
+		// console.log(props.className);
+
+		return <div {...props} />;
+	},
+	span: (props: any) => {
+		console.log(props);
+
+		if (props.className && props.className.includes('math math-inline')) {
+			return <span {...props} className='text-purple-400 bg-gray-500  px-4 py-1 rounded' />;
+		}
+		return <span {...props} />;
+	}
 };
 
 const SingleBlogPost = ({ frontMatter, mdSource }: Props) => {
@@ -293,9 +312,22 @@ export const getStaticProps: GetStaticProps = async (context) => {
 				remarkAutolinkHeadings,
 				remarkSlug,
 				remarkGfm,
-				remarkSectionize // for interactionOnScroll
-			]
-			// rehypePlugins: []
+				remarkSectionize, // for interactionOnScroll,
+				remarkMath // for math
+			],
+			rehypePlugins: [rehypeKatex]
+			/*
+			// https://nickymeuleman.netlify.app/blog/math-gatsby-mdx
+			rendering latex math
+			import remarkMath from 'remark-math';
+			import rehypeKatex from 'rehype-katex';
+			👉 The KaTeX CSS file needs to be imported on a page to render the math correctly.
+			import 'katex/dist/katex.min.css';
+
+
+
+
+			*/
 		}
 	});
 
