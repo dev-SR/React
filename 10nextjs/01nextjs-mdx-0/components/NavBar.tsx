@@ -124,6 +124,10 @@ const ModalContent = () => {
 	return (
 		<div className='bg-green-200 h-20'>
 			<p>Modal Content</p>
+			<input
+				type='text'
+				className='bg-gray-200 border-2 border-gray-300 rounded-lg w-64 h-10 px-4 focus:outline-none focus:border-green-500'
+			/>
 		</div>
 	);
 };
@@ -132,7 +136,7 @@ const NavBar = ({ posts_metadata }: Partial<PostListProps>) => {
 	const { x, y } = useWindowScroll();
 	// const { theme, setTheme } = useTheme();
 	const { theme, setTheme } = useDarkMode();
-	const [show, setShow] = useState<boolean>(false);
+	const [isOpen, setIsOpen] = React.useState(false);
 
 	return (
 		<>
@@ -141,7 +145,7 @@ const NavBar = ({ posts_metadata }: Partial<PostListProps>) => {
 					height: y > 100 ? 60 : 120
 				}}
 				className={classNames(
-					'w-screen fixed top-0 z-50 backdrop-blur dark:bg-[#16181d]/5 transition-colors ease-in-out duration-300',
+					'w-screen fixed top-0 z-10 backdrop-blur dark:bg-[#16181d]/5 transition-colors ease-in-out duration-300',
 					y > 10 ? 'border-b border-black/10 dark:border-white/10 ' : 'border-b border-white/0'
 				)}>
 				<div className='max-w-sm md:max-w-4xl mx-auto flex items-center justify-between h-full py-2'>
@@ -151,7 +155,7 @@ const NavBar = ({ posts_metadata }: Partial<PostListProps>) => {
 							{/* <div className='absolute inset-0 bg-indigo-600 blur opacity-0 group-hover:opacity-100 transition duration-300'></div> */}
 							<button
 								className='w-11 h-11 relative rounded-md p-2 flex justify-center items-center border  border-transparent hover:border-[2px] group-hover:border-[#5685f4] transition ease-in-out duration-300 group-hover:shadow-[0px_0px_30px_1px_rgb(86,133,244,.5)] bg-slate-600/10  dark:bg-slate-600/30'
-								onClick={() => setShow(true)}>
+								onClick={() => setIsOpen((prev) => !prev)}>
 								<CommandIcon className='w-8 h-8  dark:text-gray-200 text-gray-700 group-hover:text-[#5685f4]' />
 							</button>
 						</div>
@@ -186,7 +190,7 @@ const NavBar = ({ posts_metadata }: Partial<PostListProps>) => {
 					</div>
 				</div>
 			</motion.nav>
-			<Modal show={show} onClose={() => setShow(false)}>
+			<Modal isOpen={isOpen} setIsOpen={setIsOpen}>
 				<ModalContent />
 			</Modal>
 		</>
