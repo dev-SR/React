@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useWindowScroll } from 'react-use';
 import { motion } from 'framer-motion';
 import { BsGithub } from 'react-icons/bs';
@@ -9,6 +9,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { PostListProps } from '../pages';
 import Modal from './Modal';
+import { format } from 'date-fns';
 
 export const transition = {
 	type: 'spring',
@@ -75,9 +76,7 @@ export const SunIcon = ({ className }: { className: string }) => {
 			xmlns='http://www.w3.org/2000/svg'
 			fill='none'
 			viewBox='0 0 24 24'
-			width='100'
-			className={className}
-			height='100'>
+			className={className}>
 			<motion.path
 				// animation start state
 				initial={{
@@ -106,28 +105,98 @@ export const SunIcon = ({ className }: { className: string }) => {
 	);
 };
 
-const CommandIcon = ({ className }: { className: string }) => {
+const SearchIcon = ({ className }: { className: string }) => {
 	return (
-		<svg className={className} viewBox='0 0 25 25' fill='none' xmlns='http://www.w3.org/2000/svg'>
-			<path
+		<motion.svg
+			xmlns='http://www.w3.org/2000/svg'
+			fill='none'
+			viewBox='0 0 24 24'
+			className={className}
+			stroke='currentColor'>
+			<motion.path
 				stroke='currentColor'
-				d='M18.0713 3.22449C17.2756 3.22449 16.5126 3.54056 15.95 4.10317C15.3874 4.66578 15.0713 5.42884 15.0713 6.22449V18.2245C15.0713 19.0201 15.3874 19.7832 15.95 20.3458C16.5126 20.9084 17.2756 21.2245 18.0713 21.2245C18.8669 21.2245 19.63 20.9084 20.1926 20.3458C20.7552 19.7832 21.0713 19.0201 21.0713 18.2245C21.0713 17.4288 20.7552 16.6658 20.1926 16.1032C19.63 15.5406 18.8669 15.2245 18.0713 15.2245H6.07129C5.27564 15.2245 4.51258 15.5406 3.94997 16.1032C3.38736 16.6658 3.07129 17.4288 3.07129 18.2245C3.07129 19.0201 3.38736 19.7832 3.94997 20.3458C4.51258 20.9084 5.27564 21.2245 6.07129 21.2245C6.86694 21.2245 7.63 20.9084 8.19261 20.3458C8.75522 19.7832 9.07129 19.0201 9.07129 18.2245V6.22449C9.07129 5.42884 8.75522 4.66578 8.19261 4.10317C7.63 3.54056 6.86694 3.22449 6.07129 3.22449C5.27564 3.22449 4.51258 3.54056 3.94997 4.10317C3.38736 4.66578 3.07129 5.42884 3.07129 6.22449C3.07129 7.02014 3.38736 7.7832 3.94997 8.34581C4.51258 8.90842 5.27564 9.22449 6.07129 9.22449H18.0713C18.8669 9.22449 19.63 8.90842 20.1926 8.34581C20.7552 7.7832 21.0713 7.02014 21.0713 6.22449C21.0713 5.42884 20.7552 4.66578 20.1926 4.10317C19.63 3.54056 18.8669 3.22449 18.0713 3.22449Z'
-				stroke-width='2'
-				stroke-linecap='round'
-				stroke-linejoin='round'
-				stroke-dashoffset='0px'
-				stroke-dasharray='1px 1px'></path>
-		</svg>
+				strokeLinecap='round'
+				strokeLinejoin='round'
+				strokeWidth={2}
+				initial={{
+					opacity: 0,
+					rotate: -45,
+					// animate path
+					pathLength: 0
+				}}
+				// animation end state
+				animate={{
+					opacity: 1,
+					rotate: 0,
+					pathLength: 1
+				}}
+				transition={{
+					duration: 1,
+					ease: 'easeInOut'
+				}}
+				d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z'
+			/>
+		</motion.svg>
 	);
 };
-const ModalContent = () => {
+
+const ModalContent = ({ posts_metadata }: Partial<PostListProps>) => {
+	const [input, setInput] = useState('');
+	const [filteredPosts, setFilteredPosts] = useState(posts_metadata);
+	const inputRef = useRef<HTMLInputElement>(null);
+	useEffect(() => {
+		inputRef.current?.focus();
+	}, []);
+	useEffect(() => {
+		if (posts_metadata) {
+			const filtered = posts_metadata.filter((post) => {
+				return (
+					post.title.toLowerCase().includes(input.toLowerCase()) ||
+					post.tags.some((tag) => tag.toLowerCase().trim().includes(input.toLowerCase())) ||
+					post.description.toLowerCase().includes(input.toLowerCase())
+				);
+			});
+			setFilteredPosts(filtered);
+		}
+	}, [input]);
+
 	return (
-		<div className='bg-green-200 h-20'>
-			<p>Modal Content</p>
+		<div className='flex flex-col space-y-2 w-full'>
 			<input
 				type='text'
-				className='bg-gray-200 border-2 border-gray-300 rounded-lg w-64 h-10 px-4 focus:outline-none focus:border-green-500'
+				className=' rounded-t-2xl  py-2 px-4 w-full focus:outline-none focus:right-0 bg-gray-400 dark:bg-slate-600 dark:text-gray-100'
+				placeholder='Search'
+				ref={inputRef}
+				onChange={(e) => {
+					setInput(e.target.value);
+					if (e.target.value === '') {
+						setFilteredPosts(posts_metadata);
+						return;
+					}
+				}}
 			/>
+
+			<div className='p-2 flex flex-col space-y-2'>
+				{filteredPosts?.map((post) => {
+					return (
+						<div
+							key={post.slug}
+							className='bg-black hover:bg-black/20 rounded-md p-2 cursor-pointer'>
+							<Link href={`/blogs/${post.slug}`}>
+								<div>
+									<h2 className='text-md py-1 text-gray-800 dark:text-gray-200'>{post.title}</h2>
+									<span className='text-sm text-gray-800 dark:text-gray-400'>
+										{post.description} - {}
+									</span>
+									<span className='text-xs text-gray-800 dark:text-gray-500'>
+										{format(new Date(post.date), 'PPP')}
+									</span>
+								</div>
+							</Link>
+						</div>
+					);
+				})}
+			</div>
 		</div>
 	);
 };
@@ -149,18 +218,20 @@ const NavBar = ({ posts_metadata }: Partial<PostListProps>) => {
 					y > 10 ? 'border-b border-black/10 dark:border-white/10 ' : 'border-b border-white/0'
 				)}>
 				<div className='max-w-sm md:max-w-4xl mx-auto flex items-center justify-between h-full py-2'>
-					<div className='text-3xl font-bold dark:text-gray-200 cursor-pointer'>&#60;/&#62;</div>
+					<Link href={'/'}>
+						<div className='text-3xl font-bold dark:text-gray-200 cursor-pointer'>&#60;/&#62;</div>
+					</Link>
 					<div className='h-full flex items-center flex-shrink-0 justify-center space-x-4'>
 						<div className='relative group'>
-							{/* <div className='absolute inset-0 bg-indigo-600 blur opacity-0 group-hover:opacity-100 transition duration-300'></div> */}
 							<button
 								className='w-11 h-11 relative rounded-md p-2 flex justify-center items-center border  border-transparent hover:border-[2px] group-hover:border-[#5685f4] transition ease-in-out duration-300 group-hover:shadow-[0px_0px_30px_1px_rgb(86,133,244,.5)] bg-slate-600/10  dark:bg-slate-600/30'
 								onClick={() => setIsOpen((prev) => !prev)}>
-								<CommandIcon className='w-8 h-8  dark:text-gray-200 text-gray-700 group-hover:text-[#5685f4]' />
+								{!isOpen && (
+									<SearchIcon className='w-8 h-8  dark:text-gray-200 text-gray-700 group-hover:text-[#5685f4]' />
+								)}
 							</button>
 						</div>
 						<div className='relative group'>
-							{/* <div className='absolute inset-0 bg-indigo-600 blur opacity-0 group-hover:opacity-100 transition duration-300'></div> */}
 							<button className='w-11 h-11 relative rounded-md p-2 flex justify-center items-center border  border-transparent hover:border-[2px] group-hover:border-[#5685f4] transition ease-in-out duration-300 group-hover:shadow-[0px_0px_30px_1px_rgb(86,133,244,.5)] bg-slate-600/10  dark:bg-slate-600/30 '>
 								<a href='https://github.com/dev-SR' target='_blank' rel='noopener noreferrer'>
 									<BsGithub
@@ -178,7 +249,6 @@ const NavBar = ({ posts_metadata }: Partial<PostListProps>) => {
 								className={classNames(
 									' w-11 h-11 relative rounded-md p-1 flex justify-center items-center border border-transparent hover:border-[2px] group-hover:border-[#5685f4] transition ease-in-out duration-300 group-hover:shadow-[0px_2px_40px_-4px_rgb(86,133,244,.5)] bg-slate-600/10  dark:bg-slate-600/30 '
 								)}
-								// onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
 								onClick={setTheme}>
 								{theme == 'dark' ? (
 									<SunIcon className='shrink-0 h-8 w-8 dark:text-gray-200 text-gray-700 group-hover:text-[#5685f4] ' />
@@ -191,7 +261,7 @@ const NavBar = ({ posts_metadata }: Partial<PostListProps>) => {
 				</div>
 			</motion.nav>
 			<Modal isOpen={isOpen} setIsOpen={setIsOpen}>
-				<ModalContent />
+				<ModalContent posts_metadata={posts_metadata} />
 			</Modal>
 		</>
 	);

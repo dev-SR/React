@@ -30,9 +30,9 @@ type ModalProps = {
 };
 
 const className = {
-	placeholder: `fixed inset-0  w-screen h-screen m-0 shadow rounded overflow-y-auto flex justify-center items-center  z-50`,
-	overlay: `fixed inset-0 w-screen h-screen bg-black/50 z-40`,
-	modal: `max-h-min max-w-xl bg-white shadow rounded sm:h-1/2 sm:w-1/2`
+	placeholder: `fixed inset-0  w-screen h-screen m-0 shadow rounded overflow-y-auto flex justify-center items-center  z-50 `,
+	overlay: `fixed inset-0 w-screen h-screen bg-black/80 z-40`,
+	modal: `max-h-min max-w-sm md:max-w-xl bg-white shadow dark:bg-zinc-900  rounded-2xl `
 };
 
 const modalVariant = {
@@ -110,11 +110,7 @@ const Modal = ({ isOpen, setIsOpen, children }: ModalProps) => {
 								initial='initial'
 								animate='animate'
 								exit='exit'>
-								<motion.div
-									variants={modalContentVariant}
-									className='flex flex-col space-y-4 h-full p-4'>
-									{children}
-								</motion.div>
+								<motion.div variants={modalContentVariant}>{children}</motion.div>
 							</motion.div>
 						</motion.div>
 					</>
