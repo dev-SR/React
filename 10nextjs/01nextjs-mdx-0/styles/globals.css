@@ -7,22 +7,22 @@
 /* add custom tailwind css */
 @layer components {
 	::-webkit-scrollbar {
-		@apply w-2 h-2 bg-zinc-800;
+		@apply w-2 h-2 dark:bg-zinc-800;
 	}
 
 	/* Track */
 	::-webkit-scrollbar-corner,
 	::-webkit-scrollbar-track {
-		@apply bg-[#16181d];
+		@apply dark:bg-[#16181d];
 	}
 
 	/* Handle */
 	::-webkit-scrollbar-thumb {
-		@apply bg-zinc-500 rounded-md;
+		@apply bg-zinc-400 dark:bg-zinc-500 rounded-md;
 	}
 
 	/* Handle on hover */
 	::-webkit-scrollbar-thumb:hover {
-		@apply bg-zinc-700 rounded-md;
+		@apply dark:bg-zinc-700 rounded-md;
 	}
 }

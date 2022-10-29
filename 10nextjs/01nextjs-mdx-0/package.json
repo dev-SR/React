@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.3",
     "@next/bundle-analyzer": "^12.3.1",
     "@silvenon/remark-smartypants": "^2.0.0",
     "date-fns": "^2.29.3",

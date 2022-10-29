@@ -1,6 +1,6 @@
 ---
 title: 'Basic Response Layout with Tailwind CSS'
-date: 2019-01-01
+date: 2022-10-29
 tags: [tailwind, react-tailwind]
 description: 'This is my first post on my new blog'
 author: 'John Doe'

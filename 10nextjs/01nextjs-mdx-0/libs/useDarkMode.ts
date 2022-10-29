@@ -6,13 +6,13 @@ const getInitialTheme = () => {
 			return storedPrefs;
 		}
 
-		const userMedia = window.matchMedia('(prefers-color-scheme: dark)');
-		if (userMedia.matches) {
-			return 'dark';
-		}
+		// const userMedia = window.matchMedia('(prefers-color-scheme: light)');
+		// if (userMedia.matches) {
+		// 	return 'dark';
+		// }
 	}
 
-	return 'light'; // light theme as the default;
+	return 'dark'; // dark theme as the default;
 };
 export const useDarkMode = () => {
 	const [theme, setTheme] = useState(getInitialTheme());
@@ -29,11 +29,16 @@ export const useDarkMode = () => {
 	};
 
 	useEffect(() => {
-		const root = window.document.documentElement;
-		root.classList.remove(colorTheme);
-		root.classList.add(theme);
-		localStorage.setItem('theme', theme);
+		if (typeof window !== 'undefined' && window.localStorage) {
+			const root = window.document.documentElement;
+			root.classList.remove(colorTheme);
+			root.classList.add(theme);
+			localStorage.setItem('theme', theme);
+		}
 	}, [theme, colorTheme]);
 
-	return [colorTheme, toggleTheme];
+	return {
+		theme: colorTheme,
+		setTheme: toggleTheme
+	};
 };

@@ -1,6 +1,6 @@
 ---
 title: 'Learning Next.js + MDX stack; Generating static blog content with next.js'
-date: 2019-01-01
+date: 2022-09-29
 tags: [mdx, next.js]
 description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lectus mauris ultrices eros in cursus.'
 author: 'John Doe'

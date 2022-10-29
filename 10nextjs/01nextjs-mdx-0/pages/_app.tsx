@@ -3,11 +3,15 @@ import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 
 function MyApp({ Component, pageProps }: AppProps) {
-	return (
-		<ThemeProvider>
+	if (typeof window === 'undefined') {
+		return <></>;
+	} else {
+		return (
+			// <ThemeProvider>
 			<Component {...pageProps} />
-		</ThemeProvider>
-	);
+			// </ThemeProvider>
+		);
+	}
 }
 
 export default MyApp;

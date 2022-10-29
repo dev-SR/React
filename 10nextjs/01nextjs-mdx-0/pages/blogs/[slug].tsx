@@ -29,6 +29,7 @@ import Expandable from '../../components/MDXcomponent/Expandable';
 import Container from '../../components/MDXcomponent/Container';
 import CodeOutput from '../../components/MDXcomponent/CodeOutput';
 import Quiz from '../../components/MDXcomponent/Quiz';
+import NavBar from '../../components/NavBar';
 
 const customComponents = {
 	Container,
@@ -224,7 +225,10 @@ const components = {
 
 const SingleBlogPost = ({ frontMatter, mdSource }: Props) => {
 	return (
-		<div className=' bg-[#16181d] py-10 flex flex-col min-h-screen '>
+		<div className=' dark:bg-[#16181d] py-10 flex flex-col min-h-screen '>
+			<NavBar />
+			<div className='h-32'></div>
+
 			<Head>
 				<title>{frontMatter.title}</title>
 				<meta name='description' content={frontMatter.description} />
