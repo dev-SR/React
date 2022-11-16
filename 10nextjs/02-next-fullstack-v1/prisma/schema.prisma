@@ -21,3 +21,54 @@ model Users {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Products {
+  id            String                @id @default(uuid())
+  name          String
+  price         Int
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  categoryId    String
+  category      Category              @relation(fields: [categoryId], references: [id])
+  ProductFilter ProductFilterOption[]
+}
+
+model Category {
+  id             String           @id @default(uuid())
+  name           String
+  Products       Products[]
+  FilterCategory FilterCategory[]
+}
+
+model Filter {
+  id             String           @id @default(uuid())
+  filter_name    String
+  FilterCategory FilterCategory[]
+  FilterOptions  FilterOptions[]
+}
+
+model FilterCategory {
+  id          String   @id @default(uuid())
+  filter_id   String
+  category_id String
+  filter      Filter   @relation(fields: [filter_id], references: [id])
+  category    Category @relation(fields: [category_id], references: [id])
+}
+
+model FilterOptions {
+  id            String                @id @default(uuid())
+  filter_id     String
+  option_name   String
+  filter        Filter                @relation(fields: [filter_id], references: [id])
+  ProductFilter ProductFilterOption[]
+}
+
+model ProductFilterOption {
+  id               String        @id @default(uuid())
+  product_id       String
+  filter_option_id String
+  product          Products      @relation(fields: [product_id], references: [id])
+  filterOption     FilterOptions @relation(fields: [filter_option_id], references: [id])
+
+  @@unique([product_id, filter_option_id])
+}
