@@ -4,6 +4,7 @@
   - [Routing](#routing)
     - [Create route and navigate between pages](#create-route-and-navigate-between-pages)
     - [create dynamic routes](#create-dynamic-routes)
+      - [Catch All Routes](#catch-all-routes)
   - [Overriding the App Component](#overriding-the-app-component)
   - [Overriding the Document Component](#overriding-the-document-component)
   - [Custom Layouts](#custom-layouts)
@@ -16,6 +17,7 @@
   - [Understanding the different rendering methods in next.js](#understanding-the-different-rendering-methods-in-nextjs)
     - [SSG ans ISR](#ssg-ans-isr)
       - [Incremental Static Regeneration](#incremental-static-regeneration)
+      - [🔥 SSG with catch all dynamic routes](#-ssg-with-catch-all-dynamic-routes)
 
 ## Routing
 
@@ -65,7 +67,7 @@ Defining routes by using predefined paths is not always enough for complex appli
 
 Creating a dynamic route like: `post/[any-post-id]/[any-comment-id]`
 
-`pages\post\[pid]\[comment].tsx`
+`pages\post\[pid]\[commentId].tsx`
 
 ```tsx
 import { useRouter } from 'next/router';
@@ -82,8 +84,26 @@ export default function Comment() {
 
 Now if we visit `http://localhost:3000/post/1/1` , we will see the following result:
 
-```txt
-Comment Details: { "pid": "1", "comment": "1" }
+```json
+Comment Details: { "pid": "1", "commentId": "1" }
+```
+
+#### Catch All Routes
+
+Dynamic routes can be extended to catch all paths by adding three `dots (...)` inside the brackets. For example:
+
+- `pages/post/[...slug].js` matches `/post/a`, but also `/post/a/b`, `/post/a/b/c` and so on.
+
+Matched parameters will be sent as a query parameter (slug in the example) to the page, and it will always be an array, so, the path `/post/a` will have the following query object:
+
+```json
+{ "slug": ["a"] }
+```
+
+And in the case of `/post/a/b`, and any other matching path, new parameters will be added to the array, like so:
+
+```json
+{ "slug": ["a", "b"] }
 ```
 
 ## Overriding the App Component
@@ -267,7 +287,6 @@ More on seo:
 
 Next.js requires that the url is from the same domain or a subdomain of the current domain. If the url is external, you must add the domain to the `images.domains` array in `next.config.js`:
 
-
 ```tsx
 <Image
   src='https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80'
@@ -278,16 +297,14 @@ Next.js requires that the url is from the same domain or a subdomain of the curr
 />
 ```
 
-
-
 ```js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	reactStrictMode: true,
-	swcMinify: true,
-	images: {
-		domains: ['images.unsplash.com']
-	}
+ reactStrictMode: true,
+ swcMinify: true,
+ images: {
+  domains: ['images.unsplash.com']
+ }
 };
 
 module.exports = nextConfig;
@@ -324,9 +341,9 @@ const Home = () => {
   <div>
    <h1 className='text-4xl font-bold'>Welcome to Home Page!</h1>;
    <div className='flex flex-col'>
-    {categories.map((category) => (
-     <Link href={`/${category}`}>
-      <span className='text-blue-500 underline cursor-pointer'>{category}</span>
+    {categories.map((categoryid) => (
+     <Link href={`category/${categoryid}`}>
+      <span className='text-blue-500 underline cursor-pointer'>{categoryid}</span>
      </Link>
     ))}
    </div>
@@ -335,74 +352,203 @@ const Home = () => {
 };
 ```
 
-`pages\[category].tsx`:
+Static Site Generation (SSG):
+
+`pages\category\[id].tsx`:
 
 ```tsx
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import React from 'react';
+// Register dynamic routes statically
+export const getStaticPaths: GetStaticPaths = () => {
+	// which pages to pre-render
+	const routes = ['phones', 'laptops', 'books'];
+	return {
+		/*
+			*path:[
+			*	{ params: { id: 'phones' } }, - /category/phones
+			*	{ params: { id: 'laptops' } }, - /category/laptops
+			*	{ params: { id: 'books' } } - /category/books
+			*]
+			!	object with `id` key because of the file name [id].tsx
+		*/
+		paths: routes.map((id) => ({ params: { id } as Params })),
+		fallback: true
+	};
+};
 type Props = {
-	category: string;
+	data: any;
+};
+type Params = {
+	id: string;
 };
 
-const Category = ({ category }: Props) => {
+// tells how each route should be rendered
+//  and what data should be passed to the page
+export const getStaticProps: GetStaticProps<Props, Params> = (context) => {
+	console.log('Fetching Data in GetStaticProps.....');
+	// Get the id from the context
+	const { id } = context.params!;
+	if (!id) {
+		return {
+			notFound: true
+		};
+	}
+	// prepare the data for the page
+	const propsData: Props = {
+		data: id
+	};
+
+	return {
+		props: {
+			...propsData
+		},
+	};
+};
+
+const Category = ({ data }: Props) => {
 	return (
 		<div>
-			<h1 className=' text-4xl'>{category}</h1>
+			<h1 className=' text-4xl'>{JSON.stringify(data)}</h1>
 			<Link href='/'>
 				<span className='text-blue-500 underline cursor-pointer'>Home</span>
 			</Link>
 		</div>
 	);
 };
-
-// Handle dynamic routes statically
-export const getStaticPaths: GetStaticPaths = () => {
-	// which pages to pre-render
-	const routes = ['phones', 'laptops', 'books'];
-	return {
-		paths: routes.map((category) => ({ params: { category } })),
-		fallback: true
-	};
-};
-
-// tells how each route should be rendered
-//  and what data should be passed to the page
-export const getStaticProps: GetStaticProps<Props> = (context) => {
-	const category = context.params?.['category'] as string;
-	if (!category) {
-		return {
-			notFound: true
-		};
-	}
-	console.log('Fetching Data in GetStaticProps.....');
-
-	return {
-		props: {
-			category
-		}
-	};
-};
 export default Category;
-
 ```
 
 `yarn build` generate these pages at build time:
 
 <div align="center">
-<img src="img/staticbuild.jpg" alt="staticbuild.jpg" width="800px">
+<img src="img/ssgbuild.jpg" alt="ssgbuild.jpg" width="800px">
 </div>
-
 
 #### Incremental Static Regeneration
 
 To use ISR, add the `revalidate` prop to `getStaticProps`:
 
+```tsx
+export const getStaticProps: GetStaticProps<Props, Params> = (context) => {
+	console.log('Fetching Data in GetStaticProps.....');
+	// Get the id from the context
+	const { id } = context.params!;
+	if (!id) {
+		return {
+			notFound: true
+		};
+	}
+	// prepare the data for the page
+	const propsData: Props = {
+		data: id
+	};
+
+	return {
+		props: {
+			...propsData
+		},
+		revalidate: 5
+	};
+};
+```
+
+`yarn build` generate these pages at build time:
+
+<div align="center">
+<img src="img/isrbuild.jpg" alt="isrbuild.jpg" width="800px">
+</div>
+
+
+#### 🔥 SSG with catch all dynamic routes
+
+First See [catch all dynamic routes](#catch-all-routes)
+
+Route: `pages\blogs\[...slug].tsx`:
 
 ```tsx
-export const getStaticProps: GetStaticProps<Props> = (context) => {
-	const category = context.params?.['category'] as string;
-	if (!category) {
+import { GetStaticPaths, GetStaticProps } from 'next';
+import path from 'path';
+// Handle dynamic routes statically
+export const getStaticPaths: GetStaticPaths = () => {
+	// which pages to pre-render
+	const routes = [
+		'post1',
+		'post2',
+		'react/post1',
+		'react/post2',
+		'next/post1',
+		'next/post2',
+		'next/post2',
+		'ai/intro/post1',
+		'ai/intro/post3',
+		'ai/advanced/post1',
+		'ai/advanced/post3'
+	];
+	return {
+		paths: routes.map((slug) => ({ params: { slug: slug.split('/') } })),
+		/*
+			paths =  [
+				{ params: { slug: ['blogs', 'post1'] } }, - /blogs/post1
+				{ params: { slug: ['blogs', 'post2'] } }, - /blogs/post2
+				{ params: { slug: ['blogs', 'react', 'post1'] } }, - /blogs/react/post1
+			 ]
+
+			! object with `slug` key because of the file name [...slug].tsx
+
+		*/
+		fallback: true
+	};
+};
+type Props = {
+	data: any;
+};
+type Params = {
+	slug: string[];
+};
+
+export const getStaticProps: GetStaticProps<Props, Params> = (context) => {
+	const fileContents: {
+		filePath: string;
+		title: string;
+	}[] = [
+		{
+			filePath: 'post1',
+			title: 'Post 1'
+		},
+		{
+			filePath: 'post2',
+			title: 'Post 2'
+		},
+		{
+			filePath: path.join('react', 'post1.md'),
+			title: 'react Post 1'
+		},
+		{
+			filePath: path.join('next', 'post1.md'),
+			title: 'react Post 1'
+		},
+		{
+			filePath: path.join('ai', 'advanced', 'post1.md'),
+			title: 'ai\\advanced\\post1'
+		}
+	];
+
+	let filePath = '';
+	const { slug } = context.params!;
+	if (slug.length === 1) {
+		const p = slug[0];
+		filePath = path.join(`${p}.md`);
+		console.log(filePath);
+	} else if (slug.length > 1) {
+		// upto last element | drop last element
+		const dirs = slug.slice(0, slug.length - 1).join('/');
+		const file = `${slug[slug.length - 1]}.md`;
+		filePath = path.join(dirs, file);
+	}
+
+	if (!slug.length) {
 		return {
 			notFound: true
 		};
@@ -411,10 +557,18 @@ export const getStaticProps: GetStaticProps<Props> = (context) => {
 
 	return {
 		props: {
-			category
-		},
-		revalidate: 5
+			data: fileContents.find((d) => d.filePath === filePath) || {}
+		}
 	};
 };
-export default Category;
+
+const Blogs = ({ data }: Props) => {
+	return (
+		<div>
+			<div>{JSON.stringify(data)}</div>
+		</div>
+	);
+};
+
+export default Blogs;
 ```

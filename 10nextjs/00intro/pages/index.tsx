@@ -14,9 +14,9 @@ const Home = () => {
 		<div>
 			<h1 className='text-4xl font-bold'>Welcome to Home Page!</h1>;
 			<div className='flex flex-col'>
-				{categories.map((category) => (
-					<Link href={`/${category}`}>
-						<span className='text-blue-500 underline cursor-pointer'>{category}</span>
+				{categories.map((categoryid) => (
+					<Link href={`category/${categoryid}`}>
+						<span className='text-blue-500 underline cursor-pointer'>{categoryid}</span>
 					</Link>
 				))}
 			</div>
