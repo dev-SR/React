@@ -12,9 +12,10 @@ Remove `@tailwind/base` to avoid conflicts with Mantine styles:
 
 ```css
 /* @tailwind base; */
-@url ('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 @tailwind components;
 @tailwind utilities;
+
 ```
 
 Create `pages/_document.tsx` file:
@@ -78,13 +79,15 @@ function MyApp(props: AppProps) {
 export default MyApp;
 ```
 
+## Basic Usage with Tailwind.css
+
 `pages/index.tsx`:
 
 ```tsx
 import { Text } from '@mantine/core';
 import { ActionIcon, useMantineColorScheme } from '@mantine/core';
-import { useState } from 'react';
 import { FaMoon, FaSun } from 'react-icons/fa';
+import { classnames } from '../utils/classnames';
 
 export default function Home() {
  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -99,8 +102,144 @@ export default function Home() {
     title='Toggle color scheme'>
     {dark ? <FaSun className='h-8 w-8' /> : <FaMoon className='h-8 w-8' />}
    </ActionIcon>
-   <Text size='xl'>Extra large text</Text>
+   <Text
+    className={classnames('font-normal text-4xl ', dark ? 'text-blue-200' : 'text-blue-800')}>
+    Extra large text
+   </Text>
   </div>
  );
 }
+
+```
+
+## Custom Default Theme
+
+### Define custom colors and use them in components
+
+```tsx
+import {
+ MantineProvider,
+ ColorSchemeProvider,
+ ColorScheme,
+ ButtonProps,
+ ButtonStylesParams
+} from '@mantine/core';
+
+const ButtonDefaultProps: Partial<ButtonProps> = {
+   color: 'brand'
+};
+
+<MantineProvider
+     theme={{
+      colorScheme: colorScheme,
+      fontFamily: 'Inter, sans-serif',
+      colors: {
+       brand: [
+        '#f0f9ff',
+        '#e0f2fe',
+        '#bae6fd',
+        '#38bdf8',
+        '#0ea5e9',
+        '#0284c7',
+        '#0369a1',
+        '#075985',
+        '#0c4a6e'
+       ]
+      },
+      components: {
+       Button: {
+        defaultProps: ButtonDefaultProps
+       }
+      }
+     }}
+     withGlobalStyles
+     withNormalizeCSS
+     >
+      <Button>Click Me</Button>
+   <Button variant='outline'>Click Me</Button>
+</MantineProvider>
+```
+
+#### Changing Color Shades
+
+```tsx
+// 1. using index
+const ButtonDefaultProps: Partial<ButtonProps> = {
+ color: 'brand.3'
+ // color: 'brand'
+};
+
+<MantineProvider
+     theme={{
+      colorScheme: colorScheme,
+      fontFamily: 'Inter, sans-serif',
+      colors: {
+       brand: [...   ]
+      },
+      // 2. defining global shade
+      primaryShade: {
+       dark: 4,
+       light: 6
+      },
+      components: {
+       Button: {
+        defaultProps: ButtonDefaultProps
+       }
+      }
+     }}
+     withGlobalStyles
+     withNormalizeCSS
+     >
+      <Button>Click Me</Button>
+   <Button variant='outline'>Click Me</Button>
+</MantineProvider>
+```
+
+### Define custom styles for components
+
+```tsx
+    <MantineProvider
+     theme={{
+      colorScheme: colorScheme,
+      fontFamily: 'Inter, sans-serif',
+      colors: {
+       brand: [...]
+      },
+      components: {
+       Button: {
+        // defaultProps: ButtonDefaultProps,
+        styles: (theme, params: ButtonStylesParams) => ({
+         root: {
+          fontFamily: 'Poppins, sans-serif',
+          backgroundColor:
+           params.variant === 'filled'
+            ? theme.colorScheme === 'dark'
+             ? theme.colors.brand[5]
+             : theme.colors.brand[3]
+            : undefined,
+          '&:hover': {
+           backgroundColor:
+            params.variant === 'filled'
+             ? theme.colorScheme === 'dark'
+              ? theme.colors.brand[5]
+              : theme.colors.brand[3]
+             : undefined
+          }
+         }
+        })
+       },
+       Text: {
+        styles: (theme, params: TextStylesParams) => ({
+         root: {
+          fontFamily: params.size === 'xl' ? 'Poppins, sans-serif' : undefined
+         }
+        }),
+        classNames: { root: 'text-4xl' }
+       }
+      }
+     }}
+     withGlobalStyles
+     withNormalizeCSS>
+     <Component {...pageProps} />
+</MantineProvider>
 ```
