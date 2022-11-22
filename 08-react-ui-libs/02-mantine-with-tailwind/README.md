@@ -2,11 +2,27 @@
 
 ## Installation
 
-Setup Mantine with Next:
+Next.js + Tailwind:
 
-- [https://mantine.dev/guides/next/](https://mantine.dev/guides/next/)
+```bash
+yarn create next-app --typescript
+cd...
+yarn add -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
 
-Setup Tailwind with Mantine:
+Add the paths to all of your template files in your `tailwind.config.js` file.
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+ content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+ theme: {
+  extend: {}
+ },
+ plugins: []
+};
+```
 
 Remove `@tailwind/base` to avoid conflicts with Mantine styles:
 
@@ -17,6 +33,8 @@ Remove `@tailwind/base` to avoid conflicts with Mantine styles:
 @tailwind utilities;
 
 ```
+
+- [Install Mantine Dependency](https://mantine.dev/guides/next/)
 
 Create `pages/_document.tsx` file:
 
@@ -77,6 +95,21 @@ function MyApp(props: AppProps) {
  );
 }
 export default MyApp;
+```
+
+To resolve `Parsing error : Cannot find module 'next/babel'` error, add the following to your `.eslintrc.json`
+
+```json
+{
+ "extends": ["next", "prettier", "next/core-web-vitals"],
+ "plugins": ["prettier"]
+}
+```
+
+Also install prettier plugin if you don't have it already
+
+```bash
+yarn add -D eslint-config-prettier
 ```
 
 ## Basic Usage with Tailwind.css

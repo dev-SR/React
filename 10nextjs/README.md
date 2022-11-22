@@ -32,8 +32,15 @@ To resolve `Parsing error : Cannot find module 'next/babel'` error, add the foll
 
 ```json
 {
- "extends": ["next/babel", "next/core-web-vitals"]
+ "extends": ["next", "prettier", "next/core-web-vitals"],
+ "plugins": ["prettier"]
 }
+```
+
+Also install prettier plugin if you don't have it already
+
+```bash
+yarn add -D eslint-config-prettier
 ```
 
 Add the `@tailwind` directives for each of Tailwind’s layers to your `./styles/globals.css` file.
