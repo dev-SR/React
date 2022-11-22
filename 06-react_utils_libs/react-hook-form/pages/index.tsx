@@ -1,7 +1,8 @@
 import { TextInput, Checkbox, Button, Group, Box, Flex, Radio } from '@mantine/core';
 import { z } from 'zod';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Layout from '../components/Layout';
 
 const FormSchema = z.object({
 	name: z.string().min(4, 'Name must be at least 4 characters'),
@@ -14,7 +15,7 @@ const FormSchema = z.object({
 		.string({ invalid_type_error: 'Please select option.' })
 		.refine((val) => options.map((option) => option.id).includes(val))
 });
-type FormSchemaType = z.infer<typeof FormSchema>; // Inferred Type
+type FormSchemaType = z.infer<typeof FormSchema>;
 
 const options = [
 	{
@@ -35,6 +36,7 @@ function Demo() {
 		register,
 		handleSubmit,
 		watch,
+		control,
 		formState: { errors }
 	} = useForm<FormSchemaType>({
 		resolver: zodResolver(FormSchema)
@@ -44,7 +46,7 @@ function Demo() {
 		window.alert(JSON.stringify(data, null, 4));
 
 	return (
-		<div className='flex items-center min-h-screen '>
+		<Layout>
 			<form onSubmit={handleSubmit(onSubmit)} className='mx-auto w-full px-4 md:w-1/3'>
 				<Flex direction={'column'} gap='sm'>
 					<TextInput
@@ -68,22 +70,24 @@ function Demo() {
 						{...register('password')}
 						error={errors.password && errors.password.message}
 					/>
-					<Radio.Group
-						label='Select your favorite framework/library'
-						description='This is anonymous'
-						withAsterisk
-						spacing='xs'
+					<Controller
 						name='radio_option'
-						error={errors.radio_option && errors.radio_option.message}>
-						{options.map((option) => (
-							<Radio
-								key={option.id}
-								value={option.id}
-								{...register('radio_option')}
-								label={option.label}
-							/>
-						))}
-					</Radio.Group>
+						control={control}
+						render={({ field }) => (
+							<Radio.Group
+								label='Select your favorite framework/library'
+								description='This is anonymous'
+								withAsterisk
+								spacing='xs'
+								name='radio_option'
+								{...(field as any)}
+								error={errors.radio_option && errors.radio_option.message}>
+								{options.map((option) => (
+									<Radio key={option.id} value={option.id} label={option.label} />
+								))}
+							</Radio.Group>
+						)}
+					/>
 					<Checkbox
 						label='I agree to sell my privacy'
 						{...register('termsOfService')}
@@ -100,7 +104,7 @@ function Demo() {
 					</Group>
 				</Flex>
 			</form>
-		</div>
+		</Layout>
 	);
 }
 
