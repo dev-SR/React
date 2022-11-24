@@ -1,73 +1,15 @@
 import { Users } from '@prisma/client';
 import { GetServerSidePropsContext } from 'next';
 import { prisma } from '../prisma';
-import { useState } from 'react';
-import {
-	AppShell,
-	Navbar,
-	Header,
-	Text,
-	MediaQuery,
-	Burger,
-	useMantineTheme,
-	ActionIcon,
-	useMantineColorScheme
-} from '@mantine/core';
-import { FaMoon, FaSun } from 'react-icons/fa';
+
+import DashboardContent from '../components/DashboardContent';
+import Layout from '../components/Layout';
 
 export default function AppShellDemo() {
-	const theme = useMantineTheme();
-	const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-	const dark = colorScheme === 'dark';
-	const [opened, setOpened] = useState(false);
 	return (
-		<AppShell
-			styles={{
-				main: {
-					background: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0]
-				}
-			}}
-			navbarOffsetBreakpoint='sm'
-			asideOffsetBreakpoint='sm'
-			header={
-				<Header height={{ base: 50, md: 70 }} p='md'>
-					<div className='flex items-center h-full justify-between'>
-						<div className='sm:hidden'>
-							{/*
-								<MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-							 */}
-							<Burger
-								opened={opened}
-								onClick={() => setOpened((o) => !o)}
-								size='sm'
-								color={theme.colors.gray[6]}
-								mr='xl'
-							/>
-						</div>
-						<Text>Header</Text>
-						<ActionIcon
-							color={dark ? 'yellow' : 'blue'}
-							onClick={() => toggleColorScheme()}
-							className='h-10 w-10'
-							title='Toggle color scheme'>
-							{dark ? <FaSun className='h-7 w-7' /> : <FaMoon className='h-7 w-7' />}
-						</ActionIcon>
-					</div>
-				</Header>
-			}
-			navbar={
-				<Navbar p='md' hiddenBreakpoint='sm' hidden={!opened} width={{ sm: 200, lg: 300 }}>
-					<Navbar.Section>First section</Navbar.Section>
-					{/* Grow section will take all available space that is not taken by first and last sections */}
-					<Navbar.Section grow>Grow section</Navbar.Section>
-					{/* Last section with normal height (depends on section content) */}
-					<Navbar.Section>2022</Navbar.Section>
-				</Navbar>
-			}>
-			<div className=''>
-				<Text>Resize app to see responsive navbar in action</Text>
-			</div>
-		</AppShell>
+		<Layout>
+			<DashboardContent />
+		</Layout>
 	);
 }
 
