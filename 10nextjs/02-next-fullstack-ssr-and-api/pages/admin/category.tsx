@@ -1,14 +1,16 @@
-import { Category } from '@prisma/client';
+import { Category, PrismaClient } from '@prisma/client';
 import { GetServerSidePropsContext } from 'next';
 import React, { useState } from 'react';
 import Layout from '../../components/Layout';
 import { prisma } from '../../prisma';
 import { Box, Button, Group, Pagination, Table, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
 	// order category by updatedAt
-	const categories = await prisma.category.findMany({
+	const categories = await prisma!!.category.findMany({
 		orderBy: {
 			updatedAt: 'desc'
 		}
@@ -33,20 +35,29 @@ const Category = ({ categories }: { categories: Category[] }) => {
 		));
 	const form = useForm({
 		initialValues: {
-			email: '',
-			termsOfService: false
+			name: ''
 		}
 	});
+
+	const handleSubmit = async (values: typeof form.values) => {
+		await axios.post('/api/category', values);
+		refreshData();
+	};
+
+	const router = useRouter();
+	const refreshData = () => {
+		router.replace(router.asPath);
+	};
 
 	return (
 		<Layout>
 			<div className='flex flex-col space-y-4'>
 				<Box sx={{ maxWidth: 300 }} mx='auto'>
-					<form onSubmit={form.onSubmit((values) => console.log(values))}>
+					<form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
 						<TextInput
 							label='Add a category'
-							placeholder='your@email.com'
-							{...form.getInputProps('email')}
+							placeholder='Category name'
+							{...form.getInputProps('name')}
 						/>
 						<Group position='right' mt='md'>
 							<Button type='submit'>Submit</Button>

@@ -36,6 +36,13 @@ Open Prisma Studio
 npx prisma studio
 ```
 
+Prisma Client Setup:
+
+```bash
+yarn add @prisma/client
+npx prisma generate
+```
+
 Setup Seeding:
 
 ```bash
@@ -110,12 +117,6 @@ main()
 
 ## SSR in Next.js with Prisma
 
-Prisma Client Setup:
-
-```bash
-yarn add @prisma/client
-npx prisma generate
-```
 
 Instantiating PrismaClient with Next.js:
 
