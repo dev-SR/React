@@ -6,12 +6,8 @@ import { classnames } from '../utils/classnames';
 
 const navdata = [
 	{
-		title: 'Categories',
+		title: 'Category',
 		url: 'category'
-	},
-	{
-		title: 'Add Category',
-		url: 'addcategory'
 	},
 	{
 		title: 'Products',
@@ -21,7 +17,6 @@ const navdata = [
 		title: 'Add Product',
 		url: 'addproduct'
 	},
-
 	{
 		title: 'Filters',
 		url: 'filters'
@@ -46,7 +41,7 @@ const SideNavBar = ({ opened }: { opened: boolean }) => {
 							className={classnames(
 								'cursor-pointer p-4 rounded-lg',
 								dark && 'text-gray-400 hover:bg-gray-500/30',
-								!dark && 'text-black'
+								!dark && 'text-black hover:bg-gray-300/30'
 							)}>
 							{item.title}
 						</Text>

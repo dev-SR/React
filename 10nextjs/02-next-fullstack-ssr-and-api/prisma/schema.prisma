@@ -29,13 +29,15 @@ model Products {
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
   categoryId    String
-  category      Category              @relation(fields: [categoryId], references: [id])
+  category      Category              @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   ProductFilter ProductFilterOption[]
 }
 
 model Category {
   id             String           @id @default(uuid())
   name           String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   Products       Products[]
   FilterCategory FilterCategory[]
 }
@@ -43,6 +45,8 @@ model Category {
 model Filter {
   id             String           @id @default(uuid())
   filter_name    String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
   FilterCategory FilterCategory[]
   FilterOptions  FilterOptions[]
 }
@@ -51,15 +55,19 @@ model FilterCategory {
   id          String   @id @default(uuid())
   filter_id   String
   category_id String
-  filter      Filter   @relation(fields: [filter_id], references: [id])
-  category    Category @relation(fields: [category_id], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  filter      Filter   @relation(fields: [filter_id], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
 }
 
 model FilterOptions {
   id            String                @id @default(uuid())
   filter_id     String
   option_name   String
-  filter        Filter                @relation(fields: [filter_id], references: [id])
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  filter        Filter                @relation(fields: [filter_id], references: [id], onDelete: Cascade)
   ProductFilter ProductFilterOption[]
 }
 
@@ -67,8 +75,10 @@ model ProductFilterOption {
   id               String        @id @default(uuid())
   product_id       String
   filter_option_id String
-  product          Products      @relation(fields: [product_id], references: [id])
-  filterOption     FilterOptions @relation(fields: [filter_option_id], references: [id])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  product          Products      @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  filterOption     FilterOptions @relation(fields: [filter_option_id], references: [id], onDelete: Cascade)
 
   @@unique([product_id, filter_option_id])
 }

@@ -28,8 +28,8 @@ const NavHeader = ({
 			<div className='flex items-center h-full justify-between'>
 				<div className='sm:hidden'>
 					{/*
-								<MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-							 */}
+						<MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+					*/}
 					<Burger
 						opened={opened}
 						onClick={() => setOpened((o) => !o)}
@@ -47,7 +47,7 @@ const NavHeader = ({
 					onClick={() => toggleColorScheme()}
 					className='h-10 w-10'
 					title='Toggle color scheme'>
-					{dark ? <FaSun className='h-7 w-7' /> : <FaMoon className='h-7 w-7' />}
+					{dark ? <FaSun className='h-6 w-6' /> : <FaMoon className='h-6 w-6' />}
 				</ActionIcon>
 			</div>
 		</Header>
