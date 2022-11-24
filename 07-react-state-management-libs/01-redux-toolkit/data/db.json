@@ -25,7 +25,7 @@
   "todos": [
     {
       "id": 1,
-      "completed": false,
+      "completed": true,
       "title": "Learn Angular"
     },
     {

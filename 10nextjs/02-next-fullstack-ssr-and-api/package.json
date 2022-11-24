@@ -12,6 +12,7 @@
 		"seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
 	},
 	"dependencies": {
+		"@emeraldpay/hashicon-react": "^0.5.2",
 		"@emotion/react": "^11.10.5",
 		"@emotion/server": "^11.10.0",
 		"@mantine/core": "^5.8.3",

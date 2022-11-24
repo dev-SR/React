@@ -36,7 +36,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 	const nextPage = total > page * limit ? page + 1 : null;
 	const prevPage = page > 1 ? page - 1 : null;
 	// page count
-	const pageCount = Math.round(total / limit);
+	const pageCount = Math.ceil(total / limit);
 
 	const res = {
 		total,
@@ -88,8 +88,8 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 		setPage(page);
 		router.push(`/admin/category?page=${page}`);
 	};
-	const rows = categories.map((category) => (
-		<tr key={category.name}>
+	const rows = categories.map((category, index) => (
+		<tr key={index}>
 			<td>{category.name}</td>
 			<td>{category._count.Products}</td>
 			<td
@@ -116,7 +116,7 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 			</td>
 		</tr>
 	));
-
+	// register add category form
 	const form = useForm<{
 		name: string;
 	}>({
@@ -127,6 +127,7 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 			name: values.name.length < 2 ? 'Too short name' : null
 		})
 	});
+	// register edit category form
 	const updateForm = useForm<{
 		name_update: string;
 	}>({
@@ -135,7 +136,7 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 		})
 	});
 
-	const handleSubmit = async (values: typeof form.values) => {
+	const handleAdd = async (values: typeof form.values) => {
 		toast.loading('Refreshing...');
 		await axios.post('/api/category', values);
 		form.reset();
@@ -171,6 +172,7 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 	return (
 		<Layout>
 			<Toaster />
+			{/* Product Update Modal */}
 			<Modal
 				opened={opened}
 				onClose={() => {
@@ -197,9 +199,10 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 					</Box>
 				)}
 			</Modal>
+			{/* Content */}
 			<div className='flex flex-col space-y-4'>
 				<Box sx={{ maxWidth: 500, minWidth: 350 }} mx='auto'>
-					<form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
+					<form onSubmit={form.onSubmit((values) => handleAdd(values))}>
 						<TextInput
 							label='Add a category'
 							placeholder='Category name'
@@ -207,11 +210,11 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 							withAsterisk
 						/>
 						<Group position='right' mt='md'>
-							<Button type='submit'>Submit</Button>
+							<Button type='submit'>Add</Button>
 						</Group>
 					</form>
 				</Box>
-
+				{/* table for category list */}
 				<Table fontSize='md'>
 					<thead>
 						<tr>
@@ -222,6 +225,7 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 					</thead>
 					<tbody>{rows}</tbody>
 				</Table>
+				{/* control pagination */}
 				<Pagination
 					page={activePage}
 					onChange={handlePageChange}

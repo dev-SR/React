@@ -8,6 +8,7 @@ const navdata = [
 	{
 		title: 'Category',
 		url: 'category'
+		// random uuidv4
 	},
 	{
 		title: 'Products',
