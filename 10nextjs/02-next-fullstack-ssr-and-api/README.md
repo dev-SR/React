@@ -3,6 +3,7 @@
 - [Fullstack Next.js v1](#fullstack-nextjs-v1)
   - [Database with Prisma](#database-with-prisma)
   - [SSR in Next.js with Prisma](#ssr-in-nextjs-with-prisma)
+  - [SSR crud with Prisma](#ssr-crud-with-prisma)
 
 ## Database with Prisma
 
@@ -176,3 +177,9 @@ export default function Home({ users }: { users: Users[] }) {
  );
 }
 ```
+
+## SSR crud with Prisma
+
+`~/pages/users/index.tsx`
+
+```tsx

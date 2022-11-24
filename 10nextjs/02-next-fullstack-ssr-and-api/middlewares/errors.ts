@@ -6,6 +6,8 @@ export default async function onError(
 	res: NextApiResponse,
 	next: () => void
 ) {
+	console.log(error);
+
 	res.status(500).end(error.toString());
 	next();
 }

@@ -1,6 +1,6 @@
-import catchAsyncErrors from '../middlewares/catchAsyncErrors';
+import catchAsyncErrors from '../../middlewares/catchAsyncErrors';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '../prisma';
+import { prisma } from '../../prisma';
 
 export const createCategory = catchAsyncErrors(
 	async (req: NextApiRequest, res: NextApiResponse) => {

@@ -1,78 +1,233 @@
 import { Category, PrismaClient } from '@prisma/client';
 import { GetServerSidePropsContext } from 'next';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../../components/Layout';
 import { prisma } from '../../prisma';
-import { Box, Button, Group, Pagination, Table, TextInput } from '@mantine/core';
+import { ActionIcon, Box, Button, Group, Modal, Pagination, Table, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { MdDeleteOutline } from 'react-icons/md';
+import { AiOutlineEdit } from 'react-icons/ai';
+import toast, { Toaster } from 'react-hot-toast';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-	// order category by updatedAt
-	const categories = await prisma!!.category.findMany({
-		orderBy: {
-			updatedAt: 'desc'
-		}
-	});
+	// paginate categories
+	const page = context.query.page ? parseInt(context.query.page as string) : 1;
+	const limit = 5;
+	const offset = (page - 1) * limit;
+	const [total, categories] = await prisma.$transaction([
+		prisma.category.count(),
+		prisma.category.findMany({
+			skip: offset,
+			take: limit,
+			orderBy: {
+				updatedAt: 'desc'
+			},
+			include: {
+				_count: {
+					select: {
+						Products: true
+					}
+				}
+			}
+		})
+	]);
+	const nextPage = total > page * limit ? page + 1 : null;
+	const prevPage = page > 1 ? page - 1 : null;
+	// page count
+	const pageCount = Math.round(total / limit);
+
+	const res = {
+		total,
+		categories,
+		nextPage,
+		prevPage,
+		pageCount
+	};
+	console.log('res', JSON.stringify(res, null, 2));
 
 	return {
-		props: {
-			categories: JSON.parse(JSON.stringify(categories))
-		}
+		props: JSON.parse(JSON.stringify(res))
 	};
 }
 
-const Category = ({ categories }: { categories: Category[] }) => {
-	const [activePage, setPage] = useState(1);
-	const pageLimit = 5;
-	const rows = categories
-		.slice((activePage - 1) * pageLimit, activePage * pageLimit)
-		.map((category) => (
-			<tr key={category.name}>
-				<td>{category.name}</td>
-			</tr>
-		));
-	const form = useForm({
-		initialValues: {
-			name: ''
-		}
-	});
-
-	const handleSubmit = async (values: typeof form.values) => {
-		await axios.post('/api/category', values);
-		refreshData();
+type ImprovisedCategory = Category & {
+	_count: {
+		Products: number;
 	};
+};
 
+type CategoryProps = {
+	categories: ImprovisedCategory[];
+	total: number;
+	nextPage: number | null;
+	prevPage: number | null;
+	pageCount: number;
+};
+
+const Category = ({ categories, ...props }: CategoryProps) => {
+	const [isRefreshing, setIsRefreshing] = React.useState(false);
+	// Refreshing Server-Side Props
+	// https://www.joshwcomeau.com/nextjs/refreshing-server-side-props/
 	const router = useRouter();
 	const refreshData = () => {
 		router.replace(router.asPath);
+		setIsRefreshing(true);
+	};
+	React.useEffect(() => {
+		setIsRefreshing(false);
+		toast.dismiss();
+	}, [categories]);
+	const [opened, setOpened] = useState(false);
+
+	// client-side pagination: Not Recommended for large data
+	const [activePage, setPage] = useState(1);
+	// change router as page change
+	const handlePageChange = (page: number) => {
+		setPage(page);
+		router.push(`/admin/category?page=${page}`);
+	};
+	const rows = categories.map((category) => (
+		<tr key={category.name}>
+			<td>{category.name}</td>
+			<td>{category._count.Products}</td>
+			<td
+				style={{
+					width: '10%'
+				}}>
+				<div className='flex space-x-2'>
+					<ActionIcon
+						onClick={async () => {
+							setOpened(true);
+							getCategory(category.id);
+						}}>
+						<AiOutlineEdit className='h-7 w-7 p-1 text-sky-200 bg-sky-600/30 rounded ' />
+					</ActionIcon>
+					<ActionIcon
+						onClick={async () => {
+							toast.loading('Refreshing...');
+							await axios.delete(`/api/category/${category.id}`);
+							refreshData();
+						}}>
+						<MdDeleteOutline className='h-7 w-7 p-1 text-red-200 bg-red-600/30 rounded ' />
+					</ActionIcon>
+				</div>
+			</td>
+		</tr>
+	));
+
+	const form = useForm<{
+		name: string;
+	}>({
+		initialValues: {
+			name: ''
+		},
+		validate: (values) => ({
+			name: values.name.length < 2 ? 'Too short name' : null
+		})
+	});
+	const updateForm = useForm<{
+		name_update: string;
+	}>({
+		validate: (values) => ({
+			name_update: values.name_update.length < 2 ? 'Too short name' : null
+		})
+	});
+
+	const handleSubmit = async (values: typeof form.values) => {
+		toast.loading('Refreshing...');
+		await axios.post('/api/category', values);
+		form.reset();
+		refreshData();
+	};
+
+	const [selectedCategory, setSelectedCategory] = useState<{
+		id: string;
+		data: Category;
+	} | null>(null);
+
+	const getCategory = async (id: string) => {
+		const category = await axios.get(`/api/category/${id}`);
+		setSelectedCategory({
+			id,
+			data: category.data
+		});
+		// initialize form values
+		updateForm.setValues({
+			name_update: category.data.name
+		});
+	};
+
+	const updateCategory = async (id: string, values: typeof updateForm.values) => {
+		toast.loading('Refreshing...');
+		await axios.put(`/api/category/${id}`, {
+			name: values.name_update
+		});
+		form.reset();
+		refreshData();
 	};
 
 	return (
 		<Layout>
+			<Toaster />
+			<Modal
+				opened={opened}
+				onClose={() => {
+					setOpened(false);
+					selectedCategory && setSelectedCategory(null);
+				}}
+				overlayBlur={3}
+				overlayOpacity={0.55}
+				title='Update Product'>
+				{selectedCategory && (
+					<Box sx={{ maxWidth: 500, minWidth: 350 }} mx='auto'>
+						<form
+							onSubmit={updateForm.onSubmit((values) => {
+								updateCategory(selectedCategory.id, values);
+								setOpened(false);
+							})}>
+							<TextInput {...updateForm.getInputProps('name_update')} />
+							<Group position='right' mt='md'>
+								<Button type='submit' color={'yellow'}>
+									Update
+								</Button>
+							</Group>
+						</form>
+					</Box>
+				)}
+			</Modal>
 			<div className='flex flex-col space-y-4'>
-				<Box sx={{ maxWidth: 300 }} mx='auto'>
+				<Box sx={{ maxWidth: 500, minWidth: 350 }} mx='auto'>
 					<form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
 						<TextInput
 							label='Add a category'
 							placeholder='Category name'
 							{...form.getInputProps('name')}
+							withAsterisk
 						/>
 						<Group position='right' mt='md'>
 							<Button type='submit'>Submit</Button>
 						</Group>
 					</form>
 				</Box>
-				<Table fontSize='md' striped highlightOnHover withBorder>
+
+				<Table fontSize='md'>
 					<thead>
 						<tr>
 							<th>Category Name</th>
+							<th>Products</th>
+							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody>{rows}</tbody>
 				</Table>
-				<Pagination page={activePage} onChange={setPage} total={10} position='right' />
+				<Pagination
+					page={activePage}
+					onChange={handlePageChange}
+					total={props.pageCount}
+					position='right'
+				/>
 			</div>
 		</Layout>
 	);
