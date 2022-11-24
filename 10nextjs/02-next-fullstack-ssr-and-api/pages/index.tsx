@@ -6,16 +6,19 @@ import {
 	AppShell,
 	Navbar,
 	Header,
-	Footer,
-	Aside,
 	Text,
 	MediaQuery,
 	Burger,
-	useMantineTheme
+	useMantineTheme,
+	ActionIcon,
+	useMantineColorScheme
 } from '@mantine/core';
+import { FaMoon, FaSun } from 'react-icons/fa';
 
 export default function AppShellDemo() {
 	const theme = useMantineTheme();
+	const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+	const dark = colorScheme === 'dark';
 	const [opened, setOpened] = useState(false);
 	return (
 		<AppShell
@@ -28,7 +31,7 @@ export default function AppShellDemo() {
 			asideOffsetBreakpoint='sm'
 			header={
 				<Header height={{ base: 50, md: 70 }} p='md'>
-					<div className='flex items-center h-full'>
+					<div className='flex items-center h-full justify-between'>
 						<div className='sm:hidden'>
 							{/*
 								<MediaQuery largerThan="sm" styles={{ display: 'none' }}>
@@ -41,8 +44,14 @@ export default function AppShellDemo() {
 								mr='xl'
 							/>
 						</div>
-
-						<Text>Application header</Text>
+						<Text>Header</Text>
+						<ActionIcon
+							color={dark ? 'yellow' : 'blue'}
+							onClick={() => toggleColorScheme()}
+							className='h-10 w-10'
+							title='Toggle color scheme'>
+							{dark ? <FaSun className='h-7 w-7' /> : <FaMoon className='h-7 w-7' />}
+						</ActionIcon>
 					</div>
 				</Header>
 			}
