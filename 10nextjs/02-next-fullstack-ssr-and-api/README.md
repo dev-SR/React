@@ -16,6 +16,7 @@ Prisma Setup [https://www.prisma.io/nextjs](https://www.prisma.io/nextjs)
 
 ```bash
 yarn add -D prisma
+yarn add @prisma/client
 npx prisma init
 ```
 
@@ -34,19 +35,13 @@ Define Models and Push to database
 
 ```bash
 npx prisma db push
+npx prisma generate
 ```
 
 Open Prisma Studio
 
 ```bash
 npx prisma studio
-```
-
-Prisma Client Setup:
-
-```bash
-yarn add @prisma/client
-npx prisma generate
 ```
 
 Setup Seeding:
@@ -118,8 +113,9 @@ main()
 ```
 
 ```bash
- yarn add @faker-js/faker --dev
+npx prisma db seed
 ```
+
 
 ## SSR in Next.js with Prisma
 
