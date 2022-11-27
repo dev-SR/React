@@ -13,15 +13,19 @@ datasource db {
 }
 
 model Post {
-  id      String    @id @default(uuid())
-  title   String
-  content String?
-  Comment Comment[]
+  id        String    @id @default(uuid())
+  title     String
+  content   String?
+  Comment   Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Comment {
-  id      String @id @default(uuid())
-  content String
-  postId  String
-  post    Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  content   String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
