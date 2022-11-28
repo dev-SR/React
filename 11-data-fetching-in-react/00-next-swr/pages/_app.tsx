@@ -28,14 +28,14 @@ function MyApp(props: AppProps) {
 					theme={{ colorScheme: colorScheme, fontFamily: 'Inter, sans-serif' }}
 					withGlobalStyles
 					withNormalizeCSS>
-					{/* <SWRConfig
+					<SWRConfig
 						value={{
 							fetcher,
-							refreshInterval: 5000
-							// revalidateOnFocus: true
-						}}> */}
-					<Component {...pageProps} />
-					{/* </SWRConfig> */}
+							refreshInterval: 10000,
+							revalidateOnFocus: true
+						}}>
+						<Component {...pageProps} />
+					</SWRConfig>
 				</MantineProvider>
 			</ColorSchemeProvider>
 		</>

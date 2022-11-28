@@ -30,13 +30,11 @@ const PostDetail = () => {
 	// 	getPostAndComments();
 	// }, [id]);
 
-	const { data: comments, error: commentsError } = useSWR<Comment[]>(
-		`/api/comments/${id}`,
-		fetcher
-	);
+	const { data: comments, error: commentsError } = useSWR<Comment[]>(`/api/comments/${id}`);
 	if (commentsError) return <div>failed to load</div>;
-	const { data: post, error: postError } = useSWR<Post>(`/api/posts/${id}`, fetcher);
+	const { data: post, error: postError } = useSWR<Post>(`/api/posts/${id}`);
 	if (postError) return <div>failed to load</div>;
+
 	return (
 		<Container>
 			<div>

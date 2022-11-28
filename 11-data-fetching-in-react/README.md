@@ -1,10 +1,11 @@
 # Introduction to data fetching solutions in React
 
 - [Introduction to data fetching solutions in React](#introduction-to-data-fetching-solutions-in-react)
-	- [Data Fetching Problem in React/Nextjs](#data-fetching-problem-in-reactnextjs)
-	- [Problem of Caching](#problem-of-caching)
-		- [With native way of fetching data](#with-native-way-of-fetching-data)
-		- [With SWR](#with-swr)
+  - [Data Fetching Problem in React/Nextjs](#data-fetching-problem-in-reactnextjs)
+  - [Problem of Caching](#problem-of-caching)
+    - [With native way of fetching data](#with-native-way-of-fetching-data)
+    - [With SWR](#with-swr)
+  - [Optimistic Update](#optimistic-update)
 
 ## Data Fetching Problem in React/Nextjs
 
@@ -160,3 +161,31 @@ Now, we can see that we don't fetch the same data again and again in page revisi
 <div align="center">
 <img src="img/works.jpg" alt="works.jpg" width="700px">
 </div>
+
+## Optimistic Update
+
+<div align="center">
+<img src="img/optimistic.gif" alt="optimistic.gif" width="800px">
+</div>
+
+```tsx
+	const { data: posts, error, mutate } = useSWR<OptimisticPost[]>('api/posts');
+	if (error) return <div>failed to load</div>;
+	const addPost = async (values: typeof form.values) => {
+		// Optimistic update
+		const OPTIMISTIC_POST: OptimisticPost = {
+			id: String(Math.random()),
+			title: values.title,
+			content: values.content,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			optimistic: true
+		};
+		mutate([OPTIMISTIC_POST, ...(posts as OptimisticPost[])], false);
+		// Send request to server
+		await axios.post('api/posts', values);
+		// revert optimistic update and revalidate with server data
+		mutate();
+	};
+```
+
