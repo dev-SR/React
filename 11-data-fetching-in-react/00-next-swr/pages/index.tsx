@@ -6,9 +6,21 @@ import { TextInput, Button, Group } from '@mantine/core';
 import { MdDeleteForever } from 'react-icons/md';
 import axios from 'axios';
 import { classnames } from '../utils/classnames';
+import { Pagination } from '@mantine/core';
 
 import { Post } from '@prisma/client';
+import { useState } from 'react';
 type OptimisticPost = Post & { optimistic?: boolean };
+
+type PostResponse = {
+	posts: OptimisticPost[];
+	links: {
+		nextPage: string | null;
+		prevPage: string | null;
+		hasMore: boolean;
+		totalPages: number;
+	};
+};
 
 export default function Home() {
 	// const [posts, setPosts] = useState<Post[] | null>(null);
@@ -31,7 +43,9 @@ export default function Home() {
 			content: (value) => (value.length > 0 ? null : 'Content is required')
 		}
 	});
-	const { data: posts, error, mutate } = useSWR<OptimisticPost[]>('api/posts');
+	const [activePage, setPage] = useState(1);
+
+	const { data, error, mutate } = useSWR<PostResponse>(`/api/posts?page=${activePage}`);
 	if (error) return <div>failed to load</div>;
 	const addPost = async (values: typeof form.values) => {
 		// Optimistic update
@@ -43,17 +57,28 @@ export default function Home() {
 			updatedAt: new Date(),
 			optimistic: true
 		};
-		mutate([OPTIMISTIC_POST, ...(posts as OptimisticPost[])], false);
+		mutate(
+			{
+				posts: [OPTIMISTIC_POST, ...(data?.posts || [])],
+				links: data?.links || {
+					nextPage: null,
+					prevPage: null,
+					hasMore: false,
+					totalPages: 1
+				}
+			},
+			false
+		);
 		// Send request to server
 		await axios.post('api/posts', values);
 		// revert optimistic update and revalidate with server data
 		mutate();
 	};
+	console.log(data);
 
 	return (
 		<Container>
-			<div className='flex flex-col space-y-4 min-h-screen w-full'>
-				<div className='h-20' />
+			<div className='flex flex-col space-y-2 min-h-screen w-full'>
 				<div style={{ minWidth: 400, margin: 'auto' }}>
 					<form onSubmit={form.onSubmit((values) => addPost(values))}>
 						<TextInput
@@ -73,37 +98,46 @@ export default function Home() {
 						</Group>
 					</form>
 				</div>
-				<h1 className='text-4xl font-bold'>Posts</h1>
-				{!posts && (
-					<div className='border-2 border-yellow-500 p-2 rounded border-solid bg-yellow-100 font-bold'>
-						Loading posts...
-					</div>
-				)}
-				{posts?.map((post) => (
-					<div
-						className='flex w-full items-center'
-						key={post.id}
-						style={post.optimistic ? { opacity: 0.5 } : {}}>
-						<Link href={`/posts/${post.id}`} className='no-underline w-full'>
-							<div
-								className={classnames(
-									'flex flex-col space-y-2 p-2 rounded cursor-pointer text-black w-full ',
-									post.optimistic && 'bg-yellow-200',
-									!post.optimistic && 'bg-gray-200 hover:bg-gray-300'
-								)}>
-								<h2 className='text-2xl font-bold '>{post.title}</h2>
-								<p>{post.content?.slice(0, 200)}...</p>
-							</div>
-						</Link>
-						<ActionIcon
-							onClick={async () => {
-								await axios.delete(`api/posts/${post.id}`);
-								mutate();
-							}}>
-							<MdDeleteForever className='h-8 w-8 text-red-500' />
-						</ActionIcon>
-					</div>
-				))}
+				<div className='min-h-[400px]'>
+					<h1 className='text-4xl font-bold m-0'>Posts</h1>
+					{!data?.posts && (
+						<div className='border-2 border-yellow-500 p-2 rounded border-solid bg-yellow-100 font-bold'>
+							Loading posts...
+						</div>
+					)}
+					{data?.posts?.map((post) => (
+						<div
+							className='flex w-full items-center'
+							key={post.id}
+							style={post.optimistic ? { opacity: 0.5 } : {}}>
+							<Link href={`/posts/${post.id}`} className='no-underline w-full'>
+								<div
+									className={classnames(
+										'flex flex-col space-y-2 p-2 rounded cursor-pointer text-black w-full ',
+										post.optimistic && 'bg-yellow-200',
+										!post.optimistic && 'bg-gray-200 hover:bg-gray-300'
+									)}>
+									<h2 className='text-2xl font-bold m-0 '>{post.title?.slice(0, 50)}...</h2>
+									<p>{post.content?.slice(0, 200)}...</p>
+								</div>
+							</Link>
+							<ActionIcon
+								onClick={async () => {
+									await axios.delete(`api/posts/${post.id}`);
+									mutate();
+								}}>
+								<MdDeleteForever className='h-8 w-8 text-red-500' />
+							</ActionIcon>
+						</div>
+					))}
+				</div>
+				<Pagination
+					page={activePage}
+					onChange={setPage}
+					total={data?.links.totalPages as number}
+					withEdges
+				/>
+				;
 			</div>
 		</Container>
 	);

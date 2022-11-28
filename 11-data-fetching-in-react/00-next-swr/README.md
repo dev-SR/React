@@ -17,6 +17,7 @@ Content:
   - [Mutation](#mutation)
     - [Optimistic UI](#optimistic-ui)
       - [Bound Mutate](#bound-mutate)
+  - [Pagination](#pagination)
 
 ## Data Fetching in React
 
@@ -220,5 +221,86 @@ export default function Home() {
   await axios.post('api/posts', values);
   mutate();
  };
+}
+```
+
+## Pagination
+
+- [https://swr.vercel.app/docs/pagination](https://swr.vercel.app/docs/pagination)
+
+Backend: `pages\api\posts\index.ts`
+
+```typescript
+handler.get(async (req: NextApiRequest, res: NextApiResponse) => {
+ const page = Number(req.query.page) || 1;
+ const limit = Number(req.query.limit) || 3;
+ const skip = (page - 1) * limit;
+
+ const [posts, count] = await prisma.$transaction([
+  prisma.post.findMany({
+   skip,
+   take: limit,
+   orderBy: {
+    updatedAt: 'desc'
+   }
+  }),
+  prisma.post.count()
+ ]);
+
+ const totalPages = Math.ceil(count / limit);
+ const hasMore = page < totalPages;
+ const nextPage = hasMore ? page + 1 : null;
+ const prevPage = page > 1 ? page - 1 : null;
+ const links = {
+  nextPage,
+  prevPage,
+  hasMore,
+  totalPages
+ };
+
+ res.json({ posts, links });
+});
+```
+
+Frontend: `pages\index.tsx`
+
+```tsx
+import { Post } from '@prisma/client';
+import { useState } from 'react';
+type OptimisticPost = Post & { optimistic?: boolean };
+
+type PostResponse = {
+ posts: OptimisticPost[];
+ links: {
+  nextPage: string | null;
+  prevPage: string | null;
+  hasMore: boolean;
+  totalPages: number;
+ };
+};
+
+export default function Home() {
+ const [activePage, setPage] = useState(1);
+ const { data, error, mutate } = useSWR<PostResponse>(`/api/posts?page=${activePage}`);
+
+  return (
+    <div>
+     {!data?.posts && (
+      <div >
+       Loading posts...
+      </div>
+     )}
+     {data?.posts?.map((post) => (
+      <div>
+          ....
+      </div>
+     ))}
+     <Pagination
+     page={activePage}
+     onChange={setPage}
+     total={data?.links.totalPages as number}
+     withEdges
+    />
+    </div>)
 }
 ```
