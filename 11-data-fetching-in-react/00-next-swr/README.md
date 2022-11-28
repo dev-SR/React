@@ -18,6 +18,7 @@ Content:
     - [Optimistic UI](#optimistic-ui)
       - [Bound Mutate](#bound-mutate)
   - [Pagination](#pagination)
+  - [SSR - Pre-rendering with Default Data](#ssr---pre-rendering-with-default-data)
 
 ## Data Fetching in React
 
@@ -302,5 +303,96 @@ export default function Home() {
      withEdges
     />
     </div>)
+}
+```
+
+## SSR - Pre-rendering with Default Data
+
+- [https://swr.vercel.app/docs/with-nextjs](https://swr.vercel.app/docs/with-nextjs)
+- [https://swr.vercel.app/docs/with-nextjs#pre-rendering-with-default-data](https://swr.vercel.app/docs/with-nextjs#pre-rendering-with-default-data)
+
+Together with `SWR`, you can pre-render the page for `SEO`, and also have features such as `caching`, `revalidation`, `focus tracking`, `refetching on interval` on the **`client side`**.
+
+You can use the `fallback` option of `SWRConfig` to pass the pre-fetched data as the initial value of all SWR hooks. For example with `getStaticProps`:
+
+`pages\_app.tsx`
+
+```tsx
+import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:3000';
+// axios fetcher
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+
+function MyApp(props: AppProps) {
+ const { Component, pageProps } = props;
+ return (
+  <>
+    <SWRConfig
+      value={{
+       fetcher,
+       refreshInterval: 10000,
+       revalidateOnFocus: true,
+       fallback: pageProps.fallback // every SWR hook will receive this as `initial data`
+      }}>
+    <Component {...pageProps} />
+   </SWRConfig>
+  </>
+ );
+}
+export default MyApp;
+```
+
+`pages\index.tsx`
+
+```tsx
+import { GetServerSidePropsContext } from 'next';
+type OptimisticPost = Post & { optimistic?: boolean };
+
+type PostResponse = {
+ posts: OptimisticPost[];
+ links: {
+  nextPage: string | null;
+  prevPage: string | null;
+  hasMore: boolean;
+  totalPages: number;
+ };
+};
+
+export default function Home() {
+ const [activePage, setPage] = useState(1);
+ const { data, error, mutate } = useSWR<PostResponse>(`/api/posts?page=${activePage}`);
+
+  return (
+    <div>
+     {!data?.posts && (
+      <div >
+       Loading posts...
+      </div>
+     )}
+     {data?.posts?.map((post) => (
+      <div>
+          ....
+      </div>
+     ))}
+     <Pagination
+     page={activePage}
+     onChange={setPage}
+     total={data?.links.totalPages as number}
+     withEdges
+    />
+    </div>
+  )
+}
+
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+ const data = await fetch('http://localhost:3000/api/posts').then((res) => res.json());
+ return {
+  props: {
+   fallback: {
+    '/api/posts?page=1': JSON.parse(JSON.stringify(data))
+   }
+  }
+ };
 }
 ```

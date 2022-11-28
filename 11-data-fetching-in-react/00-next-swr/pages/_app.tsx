@@ -32,7 +32,8 @@ function MyApp(props: AppProps) {
 						value={{
 							fetcher,
 							refreshInterval: 10000,
-							revalidateOnFocus: true
+							revalidateOnFocus: true,
+							fallback: pageProps.fallback
 						}}>
 						<Component {...pageProps} />
 					</SWRConfig>

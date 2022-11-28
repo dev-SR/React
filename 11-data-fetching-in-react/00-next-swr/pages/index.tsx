@@ -7,9 +7,11 @@ import { MdDeleteForever } from 'react-icons/md';
 import axios from 'axios';
 import { classnames } from '../utils/classnames';
 import { Pagination } from '@mantine/core';
+import { prisma } from '../prisma';
 
 import { Post } from '@prisma/client';
 import { useState } from 'react';
+import { GetServerSidePropsContext } from 'next';
 type OptimisticPost = Post & { optimistic?: boolean };
 
 type PostResponse = {
@@ -74,7 +76,7 @@ export default function Home() {
 		// revert optimistic update and revalidate with server data
 		mutate();
 	};
-	console.log(data);
+	// console.log(data);
 
 	return (
 		<Container>
@@ -98,7 +100,7 @@ export default function Home() {
 						</Group>
 					</form>
 				</div>
-				<div className='min-h-[400px]'>
+				<div className='min-h-[400px] flex flex-col space-y-2'>
 					<h1 className='text-4xl font-bold m-0'>Posts</h1>
 					{!data?.posts && (
 						<div className='border-2 border-yellow-500 p-2 rounded border-solid bg-yellow-100 font-bold'>
@@ -137,8 +139,55 @@ export default function Home() {
 					total={data?.links.totalPages as number}
 					withEdges
 				/>
-				;
 			</div>
 		</Container>
 	);
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+	// Problem with axios
+	// const res = await axios.get('http://localhost:3000/api/posts');
+	// console.log(res.data);// data is undefined
+
+	// use fetch instead
+	// const data = await fetch('http://localhost:3000/api/posts').then((res) => res.json());
+	// Or, better not use api routes for this
+	const page = 1;
+	const limit = 3;
+	const skip = (page - 1) * limit;
+
+	const [posts, count] = await prisma.$transaction([
+		prisma.post.findMany({
+			skip,
+			take: limit,
+			orderBy: {
+				updatedAt: 'desc'
+			}
+		}),
+		prisma.post.count()
+	]);
+
+	const totalPages = Math.ceil(count / limit);
+	const hasMore = page < totalPages;
+	const nextPage = hasMore ? page + 1 : null;
+	const prevPage = page > 1 ? page - 1 : null;
+	const links = {
+		nextPage,
+		prevPage,
+		hasMore,
+		totalPages
+	};
+
+	const data = {
+		posts,
+		links
+	};
+
+	return {
+		props: {
+			fallback: {
+				'/api/posts?page=1': JSON.parse(JSON.stringify(data))
+			}
+		}
+	};
 }
