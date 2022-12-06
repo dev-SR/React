@@ -12,6 +12,11 @@
       - [Types](#types)
       - [AuthGuard](#authguard)
       - [Protecting Routes in use](#protecting-routes-in-use)
+  - [Server](#server)
+    - [Protecting API Routes](#protecting-api-routes)
+      - [Define middleware](#define-middleware)
+      - [Protecting API Routes in use](#protecting-api-routes-in-use)
+      - [In `getServerSideProps`](#in-getserversideprops)
 
 ## Getting Started
 
@@ -21,7 +26,7 @@
 Install:
 
 ```bash
-yarn add next-auth
+yarn add next-auth @next-auth/prisma-adapter next-connect
 ```
 
 Create a file with your Prisma Client:
@@ -271,4 +276,81 @@ const Categories: CustomNextPage = () => {
 Categories.auth = true;
 
 export default Categories;
+```
+
+## Server
+
+### Protecting API Routes
+
+- [https://next-auth.js.org/configuration/nextjs#unstable_getserversession](https://next-auth.js.org/configuration/nextjs#unstable_getserversession)
+
+#### Define middleware
+
+`middleware\auth-protect.ts`
+
+```tsx
+import { NextApiRequest, NextApiResponse } from 'next/types';
+import { unstable_getServerSession } from 'next-auth';
+import { authOptions } from 'pages/api/auth/[...nextauth]';
+
+export const protect = async (req: NextApiRequest, res: NextApiResponse, next: any) => {
+ const session = await unstable_getServerSession(req, res, authOptions);
+ if (!session) {
+  res.status(401).json({ message: 'You must be logged in.' });
+  return;
+ }
+ next();
+};
+```
+
+#### Protecting API Routes in use
+
+`pages/api/hello.ts`
+
+```tsx
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+type Data = {
+	name: string;
+};
+
+import { protect } from 'middleware/auth-protect';
+import nc from 'next-connect';
+const handler = nc();
+// protect the route with the middleware
+handler.use(protect);
+// the route is protected
+handler.get((req: NextApiRequest, res: NextApiResponse<Data>) => {
+	res.status(200).json({ name: 'John Doe' });
+});
+
+export default handler;
+```
+
+#### In `getServerSideProps`
+
+`pages\index.tsx`
+
+```tsx
+import { authOptions } from 'pages/api/auth/[...nextauth]'
+import { unstable_getServerSession } from "next-auth/next"
+
+export async function getServerSideProps(context) {
+  const session = await unstable_getServerSession(context.req, context.res, authOptions)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    }
+  }
+
+  return {
+    props: {
+      session,
+    },
+  }
+}
 ```
