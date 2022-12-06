@@ -1,5 +1,5 @@
 import { Button, Center, Group, Stack, Title, Text } from '@mantine/core';
-import { getProviders, signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 
 import React from 'react';
 import { FaGoogle } from 'react-icons/fa';

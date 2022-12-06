@@ -1,20 +1,10 @@
 import '../styles/globals.css';
-import type { AppProps } from 'next/app';
 import { MantineProvider, ColorSchemeProvider, ColorScheme, Center, Loader } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
 import { SessionProvider, useSession } from 'next-auth/react';
-import { NextComponentType, NextPage } from 'next';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-
-export type CustomAppProps = AppProps & {
-	Component: NextComponentType & {
-		auth?: boolean;
-	};
-};
-export type CustomNextPage<P = {}, IP = P> = NextPage<P, IP> & {
-	auth?: boolean;
-};
+import { CustomAppProps } from '../types/CustomNextType';
 
 const AuthGuard = ({ children }: { children: React.ReactNode }): any => {
 	const { data, status } = useSession();

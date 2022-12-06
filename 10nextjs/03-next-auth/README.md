@@ -1,13 +1,17 @@
 # Next-Auth
 
 - [Next-Auth](#next-auth)
-	- [Getting Started](#getting-started)
-		- [Add API route](#add-api-route)
-		- [Google OAuth Provider](#google-oauth-provider)
-	- [Client](#client)
-		- [Session Provider](#session-provider)
-		- [Sign in Page](#sign-in-page)
-		- [Get session](#get-session)
+  - [Getting Started](#getting-started)
+    - [Add API route](#add-api-route)
+    - [Google OAuth Provider](#google-oauth-provider)
+  - [Client](#client)
+    - [Session Provider](#session-provider)
+    - [Sign in Page](#sign-in-page)
+    - [Get session](#get-session)
+    - [Protecting Routes](#protecting-routes)
+      - [Types](#types)
+      - [AuthGuard](#authguard)
+      - [Protecting Routes in use](#protecting-routes-in-use)
 
 ## Getting Started
 
@@ -126,46 +130,35 @@ export default function App({
 
 ```tsx
 import { Button, Center, Group, Stack, Title, Text } from '@mantine/core';
-import { getProviders, signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 
 import React from 'react';
 import { FaGoogle } from 'react-icons/fa';
 
-const Signin = ({ providers }: any) => {
+const Signin = () => {
  return (
   <div>
-   {Object.values(providers).map((provider: any) => (
-    <Center
-     key={provider.name}
-     sx={{
-      width: '100%',
-      height: '100vh'
-     }}>
-     <Stack spacing='xl'>
-      <Title align='center'>Sign in</Title>
-      {provider.name === 'Google' && (
-       <Button onClick={() => signIn(provider.id)} size='lg' sx={{ alignSelf: 'center' }}>
-        <Group>
-         <Text size='md'>Sign in with {provider.name}</Text>
-         <FaGoogle />
-        </Group>
-       </Button>
-      )}
-     </Stack>
-    </Center>
-   ))}
+   <Center
+    sx={{
+     width: '100%',
+     height: '100vh'
+    }}>
+    <Stack spacing='xl'>
+     <Title align='center'>Sign in</Title>
+     <Button onClick={() => signIn('google')} size='lg' sx={{ alignSelf: 'center' }}>
+      <Group>
+       <Text size='md'>Sign in with Google</Text>
+       <FaGoogle />
+      </Group>
+     </Button>
+    </Stack>
+   </Center>
   </div>
  );
 };
 
-export async function getServerSideProps(context: any) {
- const providers = await getProviders();
- return {
-  props: { providers }
- };
-}
-
 export default Signin;
+
 ```
 
 ### Get session
@@ -191,4 +184,91 @@ export default function Home() {
 }
 ```
 
+### Protecting Routes
 
+#### Types
+
+`types\CustomNextType.ts`
+
+```tsx
+import { NextComponentType, NextPage } from 'next';
+import { AppProps } from 'next/app';
+
+export type CustomAppProps = AppProps & {
+ Component: NextComponentType & {
+  auth?: boolean;
+ };
+};
+export type CustomNextPage<P = {}, IP = P> = NextPage<P, IP> & {
+ auth?: boolean;
+};
+```
+
+#### AuthGuard
+
+`pages\_app.tsx`
+
+```tsx
+const AuthGuard = ({ children }: { children: React.ReactNode }): any => {
+ const { data, status } = useSession();
+ const router = useRouter();
+ useEffect(() => {
+  if (status === 'unauthenticated')
+   if (router.pathname !== '/auth/signin') router.push('/auth/signin');
+ }, [data, status]);
+ if (status === 'loading') {
+  return (
+   <Center
+    sx={{
+     height: '100vh',
+     width: '100vw'
+    }}>
+    <Loader size={'lg'} />
+   </Center>
+  );
+ }
+ if (status === 'authenticated') return <>{children}</>;
+};
+
+function MyApp(props: CustomAppProps) {
+ const {
+  Component,
+  pageProps: { session, ...pageProps }
+ } = props;
+
+
+ return (
+  <>
+     <SessionProvider session={session}>
+      {Component.auth ? (
+       <AuthGuard>
+        <Component {...pageProps} />
+       </AuthGuard>
+      ) : (
+       <Component {...pageProps} />
+      )}
+     </SessionProvider>
+  </>
+ );
+}
+export default MyApp;
+```
+
+#### Protecting Routes in use
+
+Let protect the `admin/categories` route.
+
+`pages/admin/categories.tsx`
+
+```tsx
+import React from 'react';
+import { CustomNextPage } from '../_app';
+
+const Categories: CustomNextPage = () => {
+ return <div></div>;
+};
+// set auth to true to protect this page
+Categories.auth = true;
+
+export default Categories;
+```
