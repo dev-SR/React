@@ -46,7 +46,7 @@ function MyApp(props: CustomAppProps) {
 		<>
 			<ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
 				<MantineProvider
-					theme={{ colorScheme: colorScheme, fontFamily: 'Inter, sans-serif' }}
+					theme={{ colorScheme: colorScheme, fontFamily: 'Poppins, sans-serif' }}
 					withGlobalStyles
 					withNormalizeCSS>
 					<SessionProvider session={session}>
