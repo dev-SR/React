@@ -1,12 +1,13 @@
 # Next.js
 
 - [Next.js](#nextjs)
-  - [Installation](#installation)
+  - [Setups](#setups)
     - [TypeScript + Tailwind](#typescript--tailwind)
     - [Must have libraries](#must-have-libraries)
+    - [Prisma with next.js](#prisma-with-nextjs)
     - [Mantine.dev UI + tailwind](#mantinedev-ui--tailwind)
 
-## Installation
+## Setups
 
 ### TypeScript + Tailwind
 
@@ -79,6 +80,131 @@ yarn add react-icons react-hot-toast react-hook-form
 
 ```ts
 export const classnames = (...args: any[]) => args.filter(Boolean).join(' ');
+```
+
+### Prisma with next.js
+
+Prisma Setup [https://www.prisma.io/nextjs](https://www.prisma.io/nextjs)
+
+```bash
+yarn add -D prisma
+yarn add @prisma/client
+npx prisma init
+```
+
+Setup SQLite
+
+```prisma
+datasource db {
+  // provider = "postgresql"
+  // url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+```
+
+Define Models and Push to database
+
+```bash
+npx prisma db push
+npx prisma generate
+```
+
+Open Prisma Studio
+
+```bash
+npx prisma studio
+```
+
+Setup Seeding:
+
+```bash
+yarn add @faker-js/faker --dev
+```
+
+`prisma/seed.ts`
+
+```ts
+import { PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
+const prisma = new PrismaClient();
+async function main() {
+ console.log(`Start seeding ...`);
+ await prisma.products.deleteMany();
+ await prisma.category.deleteMany();
+ for (let i = 0; i < 10; i++) {
+  const category = await prisma.category.create({
+   data: {
+    name: faker.name.firstName()
+   }
+  });
+  for (let j = 0; j < 10; j++) {
+   await prisma.products.create({
+    data: {
+     name: faker.name.firstName(),
+     price: Number(faker.random.numeric(2)),
+     categoryId: category.id
+    }
+   });
+  }
+ }
+ /*
+ await prisma.products.create({
+   data: {
+    name: faker.commerce.productName(),
+    price: Number(faker.random.numeric(2)),
+    category: {
+     create: {
+      name: faker.commerce.department()
+     }
+    }
+   }
+  });
+
+ */
+ console.log(`Seeding finished.`);
+}
+
+main()
+ .catch((e) => {
+  console.error(e);
+  process.exit(1);
+ })
+ .finally(async () => {
+  await prisma.$disconnect();
+ });
+
+```
+
+`package.json`
+
+```json
+ "prisma": {
+  "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+ },
+```
+
+```bash
+npx prisma db seed
+```
+
+Instantiating PrismaClient with Next.js:
+
+- [prisma.io/guides/nextjs-prisma-client-dev-practices](https://www.prisma.io/docs/guides/database/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices)
+
+`~/prisma.ts`
+
+```ts
+import { PrismaClient } from "@prisma/client"
+
+declare global {
+  var prisma: PrismaClient | undefined
+}
+
+const client = globalThis.prisma || new PrismaClient()
+if (process.env.NODE_ENV !== "production") globalThis.prisma = client
+
+export default client
 ```
 
 ### Mantine.dev UI + tailwind
@@ -186,3 +312,4 @@ export default function Home() {
 }
 
 ```
+
