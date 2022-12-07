@@ -31,7 +31,7 @@ yarn add next-auth @next-auth/prisma-adapter next-connect
 
 Create a file with your Prisma Client:
 
-`lib/prismadb.ts`
+`libs/prisma.ts`
 
 ```typescript
 import { PrismaClient } from "@prisma/client"
@@ -54,8 +54,7 @@ export default client
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import prisma from '../../../lib/prismadb';
-import { redirect } from 'next/dist/server/api-utils';
+import prisma from '@libs/prisma';
 
 export const authOptions: NextAuthOptions = {
  adapter: PrismaAdapter(prisma),
@@ -89,6 +88,20 @@ export const authOptions: NextAuthOptions = {
  }
 };
 export default NextAuth(authOptions);
+
+```
+
+Add types for `session.user`
+
+`types\next-auth.d.ts`
+
+```typescript
+import { DefaultUser } from 'next-auth';
+declare module 'next-auth' {
+ interface Session {
+  user?: DefaultUser & { id: string };
+ }
+}
 ```
 
 ### Google OAuth Provider
@@ -311,7 +324,7 @@ export const protect = async (req: NextApiRequest, res: NextApiResponse, next: a
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 type Data = {
-	name: string;
+ name: string;
 };
 
 import { protect } from 'middleware/auth-protect';
@@ -321,7 +334,7 @@ const handler = nc();
 handler.use(protect);
 // the route is protected
 handler.get((req: NextApiRequest, res: NextApiResponse<Data>) => {
-	res.status(200).json({ name: 'John Doe' });
+ res.status(200).json({ name: 'John Doe' });
 });
 
 export default handler;

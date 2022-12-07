@@ -1,8 +1,4 @@
 import { Button, Text } from '@mantine/core';
-import { ActionIcon, useMantineColorScheme } from '@mantine/core';
-import { FaMoon, FaSun } from 'react-icons/fa';
-import { classnames } from '../utils/classnames';
-import { AppShell, Navbar, Header } from '@mantine/core';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import PageLayout from '../components/layout/PageLayout';

@@ -3,6 +3,7 @@
 - [Next.js](#nextjs)
   - [Setups](#setups)
     - [TypeScript + Tailwind](#typescript--tailwind)
+    - [Path aliases](#path-aliases)
     - [Must have libraries](#must-have-libraries)
     - [Prisma with next.js](#prisma-with-nextjs)
     - [Mantine.dev UI + tailwind](#mantinedev-ui--tailwind)
@@ -70,13 +71,27 @@ export default function Home() {
 }
 ```
 
+### Path aliases
+
+```json
+{
+ "compilerOptions": {
+  "baseUrl": ".",
+  "paths": {
+   "@ui/*": ["components/*"],
+   "@libs/*": ["libs/*"]
+  }
+  }
+}
+```
+
 ### Must have libraries
 
 ```bash
 yarn add react-icons react-hot-toast react-hook-form
 ```
 
-`utils/classnames.ts`:
+`libs/classnames.ts`:
 
 ```ts
 export const classnames = (...args: any[]) => args.filter(Boolean).join(' ');
@@ -312,4 +327,3 @@ export default function Home() {
 }
 
 ```
-
