@@ -2,21 +2,25 @@
 
 - [Next-Auth](#next-auth)
   - [Getting Started](#getting-started)
-    - [Add API route](#add-api-route)
-    - [Google OAuth Provider](#google-oauth-provider)
-  - [Client](#client)
-    - [Session Provider](#session-provider)
-    - [Sign in Page](#sign-in-page)
-    - [Get session](#get-session)
-    - [Protecting Routes](#protecting-routes)
-      - [Types](#types)
-      - [AuthGuard](#authguard)
-      - [Protecting Routes in use](#protecting-routes-in-use)
-  - [Server](#server)
-    - [Protecting API Routes](#protecting-api-routes)
-      - [Define middleware](#define-middleware)
-      - [Protecting API Routes in use](#protecting-api-routes-in-use)
-      - [In `getServerSideProps`](#in-getserversideprops)
+  - [Google OAuth Provider](#google-oauth-provider)
+    - [Add API route for next-auth](#add-api-route-for-next-auth)
+    - [Client](#client)
+      - [Session Provider](#session-provider)
+      - [Sign in Page](#sign-in-page)
+      - [Get session](#get-session)
+      - [Protecting Routes](#protecting-routes)
+        - [Types](#types)
+        - [AuthGuard](#authguard)
+        - [Protecting Routes in use](#protecting-routes-in-use)
+    - [Server](#server)
+      - [Protecting API Routes](#protecting-api-routes)
+        - [Define middleware](#define-middleware)
+        - [Protecting API Routes in use](#protecting-api-routes-in-use)
+        - [In `getServerSideProps`](#in-getserversideprops)
+    - [Role-Based Authentication](#role-based-authentication)
+      - [Config Changes](#config-changes)
+      - [AuthGuard Changes](#authguard-changes)
+      - [Protecting Pages](#protecting-pages)
 
 ## Getting Started
 
@@ -46,7 +50,24 @@ if (process.env.NODE_ENV !== "production") globalThis.prisma = client
 export default client
 ```
 
-### Add API route
+## Google OAuth Provider
+
+- [https://next-auth.js.org/providers/google](https://next-auth.js.org/providers/google)
+
+Steps:
+
+1. Create a project in Google Cloud Platform
+2. To configure OAuth consent screen, go to `APIs & Services` > `OAuth consent screen`
+   1. Just give `email` and user type as `External`
+3. To configure OAuth client ID, go to `APIs & Services` > `Credentials`
+   1. Create a new `Create credentials` > `OAuth client ID`
+   2. Select `Web application` as application type
+   3. Give a name
+   4. Provide `http://localhost:3000` as `Authorized JavaScript origins`
+   5. And `http://localhost:3000/api/auth/callback/google` as `Authorized redirect URIs`
+   6. Copy the `Client ID` and `Client secret` and paste it in `.env` file
+
+### Add API route for next-auth
 
 `pages/api/auth/[...nextauth].ts`
 
@@ -104,26 +125,9 @@ declare module 'next-auth' {
 }
 ```
 
-### Google OAuth Provider
+### Client
 
-- [https://next-auth.js.org/providers/google](https://next-auth.js.org/providers/google)
-
-Steps:
-
-1. Create a project in Google Cloud Platform
-2. To configure OAuth consent screen, go to `APIs & Services` > `OAuth consent screen`
-   1. Just give `email` and user type as `External`
-3. To configure OAuth client ID, go to `APIs & Services` > `Credentials`
-   1. Create a new `Create credentials` > `OAuth client ID`
-   2. Select `Web application` as application type
-   3. Give a name
-   4. Provide `http://localhost:3000` as `Authorized JavaScript origins`
-   5. And `http://localhost:3000/api/auth/callback/google` as `Authorized redirect URIs`
-   6. Copy the `Client ID` and `Client secret` and paste it in `.env` file
-
-## Client
-
-### Session Provider
+#### Session Provider
 
 `pages/_app.tsx`
 
@@ -142,7 +146,7 @@ export default function App({
 }
 ```
 
-### Sign in Page
+#### Sign in Page
 
 `pages/auth/signin.tsx`
 
@@ -179,7 +183,7 @@ export default Signin;
 
 ```
 
-### Get session
+#### Get session
 
 `pages/index.tsx`
 
@@ -202,9 +206,9 @@ export default function Home() {
 }
 ```
 
-### Protecting Routes
+#### Protecting Routes
 
-#### Types
+##### Types
 
 `types\CustomNextType.ts`
 
@@ -222,7 +226,7 @@ export type CustomNextPage<P = {}, IP = P> = NextPage<P, IP> & {
 };
 ```
 
-#### AuthGuard
+##### AuthGuard
 
 `pages\_app.tsx`
 
@@ -272,7 +276,7 @@ function MyApp(props: CustomAppProps) {
 export default MyApp;
 ```
 
-#### Protecting Routes in use
+##### Protecting Routes in use
 
 Let protect the `admin/categories` route.
 
@@ -291,13 +295,13 @@ Categories.auth = true;
 export default Categories;
 ```
 
-## Server
+### Server
 
-### Protecting API Routes
+#### Protecting API Routes
 
 - [https://next-auth.js.org/configuration/nextjs#unstable_getserversession](https://next-auth.js.org/configuration/nextjs#unstable_getserversession)
 
-#### Define middleware
+##### Define middleware
 
 `middleware\auth-protect.ts`
 
@@ -316,7 +320,7 @@ export const protect = async (req: NextApiRequest, res: NextApiResponse, next: a
 };
 ```
 
-#### Protecting API Routes in use
+##### Protecting API Routes in use
 
 `pages/api/hello.ts`
 
@@ -340,7 +344,7 @@ handler.get((req: NextApiRequest, res: NextApiResponse<Data>) => {
 export default handler;
 ```
 
-#### In `getServerSideProps`
+##### In `getServerSideProps`
 
 `pages\index.tsx`
 
@@ -366,4 +370,155 @@ export async function getServerSideProps(context) {
     },
   }
 }
+```
+
+### Role-Based Authentication
+
+- [https://next-auth.js.org/tutorials/role-based-login-strategy](https://next-auth.js.org/tutorials/role-based-login-strategy)
+
+To add role based authentication to your application, you must do three things.
+
+1. Update your database schema
+2. Add the `role` to the session object
+3. Check for `role` in your pages/components
+
+#### Config Changes
+
+`/prisma/schema.prisma`
+
+```prisma
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String?  // New Column
+  accounts      Account[]
+  sessions      Session[]
+}
+```
+
+`types\next-auth.d.ts`
+
+```typescript
+import { DefaultUser } from 'next-auth';
+declare module 'next-auth' {
+ interface Session {
+  user?: DefaultUser & { id: string; role: string };
+ }
+ interface User extends DefaultUser {
+  role: string;
+ }
+}
+```
+
+`pages/api/auth/[...nextauth].ts`
+
+```typescript
+export const authOptions: NextAuthOptions = {
+ //......
+ callbacks: {
+  async session({ session, user }) {
+   if (session?.user) {
+    session.user.id = user.id;
+    session.user.role = user.role;
+   }
+   return session;
+  }
+ }
+};
+```
+
+Going forward, when using the getSession hook, check that `session.user.role` matches the required `role`. The example below assumes the role `'admin'` is required.
+
+#### AuthGuard Changes
+
+```typescript
+function MyApp(props: CustomAppProps) {
+ const {
+  Component,
+  pageProps: { session, ...pageProps }
+ } = props;
+
+ return (
+  <>
+       <SessionProvider session={session}>
+        {Component.auth ? (
+         <AuthGuard role={Component.role}>
+          <Component {...pageProps} />
+         </AuthGuard>
+        ) : (
+         <Component {...pageProps} />
+        )}
+        |
+       </SessionProvider>
+  </>
+ );
+}
+const AuthGuard = ({
+ children,
+ role
+}: {
+ children: React.ReactNode;
+ role: string | undefined;
+}): any => {
+ const { data, status } = useSession();
+ console.log(role, data);
+
+ const router = useRouter();
+ useEffect(() => {
+  if (status === 'unauthenticated')
+   if (router.pathname !== '/auth/signin') router.push('/auth/signin');
+ }, [data, status]);
+ if (status === 'loading') {
+  return (
+   <Center
+    sx={{
+     height: '100vh',
+     width: '100vw'
+    }}>
+    <Loader size={'lg'} />
+   </Center>
+  );
+ }
+ if (status === 'authenticated') {
+  if (role) {
+   if (data?.user?.role === role) return children;
+   else
+    return (
+     <Center
+      sx={{
+       height: '100vh',
+       width: '100vw'
+      }}>
+      <h1>Not Authorized</h1>
+     </Center>
+    );
+  }
+  return children;
+ }
+};
+
+export default MyApp;
+```
+
+#### Protecting Pages
+
+```tsx
+const Home: CustomNextPage = () => {
+ const { data, status } = useSession();
+ return (
+  <AdminLayout>
+   <div>
+    {data?.user?.name || <Link href='/auth/signin'>Sign in</Link>}
+    {status === 'loading' && <Text>Loading...</Text>}
+    {status === 'authenticated' && <Button onClick={() => signOut()}>SIGN OUT</Button>}
+   </div>
+  </AdminLayout>
+ );
+};
+Home.auth = true;
+Home.role = 'admin';
+export default Home;
 ```
