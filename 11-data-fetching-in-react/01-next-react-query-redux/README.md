@@ -105,12 +105,17 @@ const PostDetail = () => {
   {
    queryFn: () => fetch(`/api/comments/${id}`).then((res) => res.json()),
    enabled: !!id // only fetch if id is defined
+  //  or safe -> `enabled:id?true:undefined` ; especially when `id` is of type `string|null`
+
   }
  );
 
  const { data: post, isLoading: isPostLoading } = useQuery<Post>([`/api/posts`, id], {
   queryFn: () => fetch(`/api/posts/${id}`).then((res) => res.json()),
   enabled: !!id // only fetch if id is defined
+
+  //  or safe -> enabled:id?true:undefined
+
  });
 
  return (
