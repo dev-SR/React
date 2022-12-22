@@ -5,7 +5,8 @@
   - [SSR in Next.js with Prisma](#ssr-in-nextjs-with-prisma)
   - [SSR crud with Prisma](#ssr-crud-with-prisma)
     - [Page](#page)
-    - [Api Routes for creating, updating and deleting categories](#api-routes-for-creating-updating-and-deleting-categories)
+    - [Api Routes for CRUD](#api-routes-for-crud)
+      - [Dynamic API Routes Definition](#dynamic-api-routes-definition)
       - [Middlewares](#middlewares)
     - [Controllers](#controllers)
     - [Router](#router)
@@ -115,7 +116,6 @@ main()
 ```bash
 npx prisma db seed
 ```
-
 
 ## SSR in Next.js with Prisma
 
@@ -425,7 +425,17 @@ const Category = ({ categories, ...props }: CategoryProps) => {
 export default Category;
 ```
 
-### Api Routes for creating, updating and deleting categories
+### Api Routes for CRUD
+
+#### Dynamic API Routes Definition
+
+- [Caveats](https://nextjs.org/docs/api-routes/dynamic-api-routes#caveats)
+
+Predefined API routes take precedence over dynamic API routes, and dynamic API routes over catch all API routes. Take a look at the following examples:
+
+- `/api/post/create.js` - Will match `/api/post/create`
+- `/api/post/[pid].js`- Will match `/api/post/1`, `/api/post/abc`, etc. **But not `/api/post/create`**
+- `/api/post/[...slug].js` - Will match `/api/post/1/2`, `/api/post/a/b/c`, etc. **But not `/api/post/create`, `/api/post/abc`**
 
 #### Middlewares
 
