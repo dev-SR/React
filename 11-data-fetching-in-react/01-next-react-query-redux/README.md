@@ -8,6 +8,7 @@
   - [Mutation](#mutation)
     - [Invalidation from Mutations](#invalidation-from-mutations)
     - [Optimistic Updates](#optimistic-updates)
+    - [Optimistic Delete (Example)](#optimistic-delete-example)
   - [Dehydration: SSR + CSR with React Query](#dehydration-ssr--csr-with-react-query)
 
 ## Installation
@@ -306,6 +307,52 @@ export default function Home() {
   </div>
   )
 ```
+
+### Optimistic Delete (Example)
+
+```tsx
+	//  Normal Delete
+	const deletePost = async (id: string) => {
+		deleteHandler(id);
+		queryClient.invalidateQueries({ queryKey: ['posts'] });
+	};
+	// Or
+	const deleteMutation1 = useMutation({
+		mutationFn: deleteHandler,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['posts'] });
+		}
+	});
+
+	// Vs: Optimistic Delete
+	const deleteMutation2 = useMutation({
+		mutationFn: deleteHandler,
+		onMutate: async (id: string) => {
+			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+			await queryClient.cancelQueries({ queryKey: ['posts'] });
+			// Snapshot the previous value
+			const previousPosts = queryClient.getQueryData<PostType[]>(['posts']);
+			// Optimistic update the data
+			if (previousPosts) {
+				queryClient.setQueryData(
+					['posts'],
+					previousPosts.filter((post) => post.id !== id)
+				);
+			}
+			// Return the snapshotted value
+			return { previousPosts };
+		},
+		onError: (err, variables, context) => {
+			if (context?.previousPosts) {
+				queryClient.setQueryData(['posts'], context.previousPosts);
+			}
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ['posts'] });
+		}
+	});
+```
+
 
 ## Dehydration: SSR + CSR with React Query
 
