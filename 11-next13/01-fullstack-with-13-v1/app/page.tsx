@@ -7,7 +7,6 @@ import Hydrate from './query/HydrateClient';
 
 const getPosts = async () => {
 	const posts = await prisma.post.findMany();
-
 	return JSON.parse(JSON.stringify(posts));
 	// Warning: Only plain objects can be passed to Client Components from Server Components.
 };
