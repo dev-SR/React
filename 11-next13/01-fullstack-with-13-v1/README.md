@@ -1,13 +1,23 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 - [Setup](#setup)
-	- [prisma](#prisma)
-	- [React Query](#react-query)
-		- [setup](#setup-1)
-		- [Prefetching Data Using Hydration and Dehydration](#prefetching-data-using-hydration-and-dehydration)
-
+  - [common type def](#common-type-def)
+  - [prisma](#prisma)
+  - [React Query](#react-query)
+    - [setup](#setup-1)
+    - [Prefetching Data Using Hydration and Dehydration](#prefetching-data-using-hydration-and-dehydration)
+  - [Next-Themes](#next-themes)
 
 ## Setup
+
+### common type def
+
+`types\common.ts`
+
+```ts
+export type URLParam = { params: { id: string } };
+export type ReactChildren = { children: React.ReactNode };
+```
 
 ### prisma
 
@@ -215,4 +225,81 @@ const Posts = () => {
 };
 
 export default Posts;
+```
+
+### Next-Themes
+
+- [https://github.com/pacocoursey/next-themes](https://github.com/pacocoursey/next-themes)
+
+Installation:
+
+```bash
+yarn add next-themes
+```
+
+`app\ThemeProvider.tsx`
+
+```tsx
+'use client';
+
+import { ThemeProvider } from 'next-themes';
+import { ReactChildren } from '~/types/common';
+
+function ThemeProviders({ children }: ReactChildren) {
+ return (
+  <ThemeProvider defaultTheme='dark' attribute='class'>
+   {children}
+  </ThemeProvider>
+ );
+}
+export default ThemeProviders;
+
+```
+
+Using ThemeProviders:
+
+```tsx
+import { ThemeProviders } from './ThemeProvider';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+ return (
+  <html lang='en' suppressHydrationWarning>
+   <body className={inter.className}>
+    <ThemeProviders>
+      <NavBar />
+      {children}
+    </ThemeProviders>
+   </body>
+  </html>
+ );
+}
+```
+
+useTheme:
+
+```tsx
+import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
+import { useTheme } from 'next-themes';
+
+const NavBar = () => {
+ const { theme, setTheme } = useTheme();
+ return (
+  <div className='w-screen h-16'>
+   <div className='flex items-center space-x-2'>
+    <Switch
+     id='airplane-mode'
+     onCheckedChange={() => {
+      setTheme(theme === 'dark' ? 'light' : 'dark');
+     }}
+    />
+    <Label htmlFor='airplane-mode' className=' text-black dark:text-white'>
+     {theme === 'dark' ? 'Light' : 'Dark'}
+    </Label>
+   </div>
+  </div>
+ );
+};
+
+export default NavBar;
 ```

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '~/lib/prisma';
-import { URLParam } from '~/types/URL';
+import { URLParam } from '~/types/common';
 export async function DELETE(request: NextRequest, { params }: URLParam) {
 	const post = await prisma.post.delete({
 		where: {

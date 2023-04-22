@@ -66,9 +66,9 @@ const Posts = () => {
 	});
 
 	return (
-		<div>
+		<div className='flex flex-col space-y-4'>
 			{posts?.map((post) => (
-				<Card className={cn('w-full', '')} key={post.id}>
+				<Card key={post.id}>
 					<CardHeader>
 						<CardTitle>{post.title}</CardTitle>
 						<CardDescription>{post.content}</CardDescription>

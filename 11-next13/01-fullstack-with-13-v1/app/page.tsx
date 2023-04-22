@@ -22,7 +22,7 @@ export default async function Home() {
 			<Link href={'/dashboard'} className='text-blue-700'>
 				Go to dashboard 🎯
 			</Link>
-			<div className=' space-y-2 w-1/2 mx-auto'>
+			<div className=' space-y-2 w-full sm:w-full md:w-2/3 lg:w-1/2 mx-auto'>
 				<Hydrate state={dehydratedState}>
 					<Posts />
 				</Hydrate>
