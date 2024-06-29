@@ -1,11 +1,11 @@
 {
-  "id": "fc7859da-91d8-43ab-ada6-3d11afd9ad4c",
+  "id": "f7857713-d895-4257-801f-2fe5fe8efd0f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.user": {
-      "name": "user",
+    "public.product": {
+      "name": "product",
       "schema": "",
       "columns": {
         "id": {
@@ -17,29 +17,21 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "email": {
-          "name": "email",
+        "description": {
+          "name": "description",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "password": {
-          "name": "password",
-          "type": "text",
+        "price": {
+          "name": "price",
+          "type": "numeric",
           "primaryKey": false,
-          "notNull": false
-        },
-        "role": {
-          "name": "role",
-          "type": "role",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'user'"
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",

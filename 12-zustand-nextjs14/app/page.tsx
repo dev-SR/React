@@ -1,6 +1,8 @@
-import { db } from '@/db/drizzle';
-
 export default async function Home() {
-	const users = await db.query.User.findMany();
-	return <pre>{JSON.stringify(users, null, 2)}</pre>;
+	return (
+		<div className='flex min-h-screen flex-col items-center justify-center w-full space-y-4'>
+			<div className='mt-4'></div>
+			<div>Home</div>
+		</div>
+	);
 }

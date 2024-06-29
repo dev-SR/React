@@ -1,22 +1,21 @@
 import { faker } from '@faker-js/faker';
-import { User } from './schema';
 import { db } from './drizzle';
 import { exit } from 'process';
+import { Product } from './schema';
 
 const main = async () => {
-	const data: (typeof User.$inferInsert)[] = [];
+	const data: (typeof Product.$inferInsert)[] = [];
 
-	for (let i = 0; i < 2; i++) {
+	for (let i = 0; i < 8; i++) {
 		data.push({
-			name: faker.person.fullName(),
-			email: faker.internet.email(),
-			password: faker.internet.password(),
-			role: 'admin'
+			title: faker.commerce.productName(),
+			description: faker.commerce.productDescription(),
+			price: faker.commerce.price()
 		});
 	}
 
 	console.log('Seed start');
-	await db.insert(User).values(data);
+	await db.insert(Product).values(data);
 	console.log('Seed done');
 	exit(0);
 };

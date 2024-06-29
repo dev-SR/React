@@ -1,146 +1,167 @@
-# Nextjs Basic
+# Zustand
 
-## Installation
+- [Zustand](#zustand)
+  - [Basic](#basic)
+  - [Adding middlewares](#adding-middlewares)
+  - [Simplifying Immutability with Mutable Logic Using Immer in Zustand](#simplifying-immutability-with-mutable-logic-using-immer-in-zustand)
+  - [Advance Pattern](#advance-pattern)
 
-- [https://nextjs.org/docs/app/api-reference/create-next-app](https://nextjs.org/docs/app/api-reference/create-next-app)
-- [https://ui.shadcn.com/docs/installation/next](https://ui.shadcn.com/docs/installation/next)
+## Basic
 
-```bash
-pnpm create next-app@latest --typescript --tailwind --eslint --app
-pnpm dlx shadcn-ui@latest init
+1. First create a store
 
-```
-
-## Drizzle setup
-
-Loading env for drizzle in next.js
-
-Install
-
-```bash
-pnpm install @next/env
-```
-
-`lib\config.ts`
 
 ```typescript
-import { loadEnvConfig } from '@next/env';
-loadEnvConfig(process.cwd());
-```
+import {  create } from 'zustand';
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 
-Install drizzle:
-
-```bash
-pnpm add drizzle-orm postgres @next/env
-pnpm add -D drizzle-kit @faker-js/faker
-```
-
-1. Defile drizzle config
-
-`drizzle.config.ts`
-
-```typescript
-import '@/lib/config';
-import { defineConfig } from 'drizzle-kit';
-// console.log(process.env.DATABASE_URL);
-
-export default defineConfig({
-	schema: './db/schema.ts',
-	out: './drizzle',
-	dialect: 'postgresql',
-	dbCredentials: {
-		url: process.env.DATABASE_URL!
-	},
-	verbose: true,
-	strict: true
-});
-```
-
-2. Define schema:
-
-```typescript
-import { pgTable, pgEnum, varchar, uuid, text, timestamp } from 'drizzle-orm/pg-core';
-
-export const roleEnum = pgEnum('role', ['user', 'admin', 'guest']);
-
-export const User = pgTable('user', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	name: varchar('name', { length: 255 }).notNull(),
-	email: text('email'),
-	password: text('password'),
-	role: roleEnum('role').default('user').notNull(),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-	updatedAt: timestamp('updated_at').notNull().defaultNow()
-});
-```
-
-3. Define query client:
-
-```typescript
-import '@/lib/config';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from './schema';
-
-// for query purposes
-const queryClient = postgres(process.env.DATABASE_URL!);
-export const db = drizzle(queryClient, { schema });
-```
-
-4. Define commands:
-
-```json
-{
-   "scripts": {
-        "pg:push": "drizzle-kit push",
-        "pg:drop": "drizzle-kit drop",
-        "pg:studio": "drizzle-kit studio",
-        "pg:generate-migration": "drizzle-kit generate",
-        "pg:migrate": "drizzle-kit migrate",
-		"pg:seed": "npx tsx db/seed.ts"
-  },
-}
-```
-
-5. Seeding script:
-
-```typescript
-import { faker } from '@faker-js/faker';
-import { User } from './schema';
-import { db } from './drizzle';
-import { exit } from 'process';
-
-const main = async () => {
-	const data: (typeof User.$inferInsert)[] = [];
-
-	for (let i = 0; i < 2; i++) {
-		data.push({
-			name: faker.person.fullName(),
-			email: faker.internet.email(),
-			password: faker.internet.password(),
-			role: 'admin'
-		});
-	}
-
-	console.log('Seed start');
-	await db.insert(User).values(data);
-	console.log('Seed done');
-	exit(0);
+export type Task = {
+	id: string;
+	title: string;
+	status: TaskStatus;
 };
 
-main();
+export type TStore = {
+	tasks: Task[];
+	addTask: (title: string) => void;
+	removeTask: (id: string) => void;
+	updateTitle: (id: string, title: string) => void;
+	updateStatus: (id: string, status: TaskStatus) => void;
+};
+
+export const useTaskStore = create<TStore>()((set) => {
+		return {
+			tasks: [],
+			addTask: (title: string) => {
+				return set((state) => {
+					return {
+						tasks: [...state.tasks, { id: Date.now().toString(), title: title, status: 'TODO' }]
+					};
+				});
+			},
+			removeTask: (id: string) => {
+				return set((state) => {
+					return {
+						tasks: state.tasks.filter((task) => task.id != id)
+					};
+				});
+			},
+			updateStatus: (id: string, status: TaskStatus) => {
+				return set((state) => {
+					return {
+						tasks: state.tasks.map((task) => (task.id == id ? { ...task, status } : task))
+					};
+				});
+			},
+			updateTitle: (id: string, title: string) => {
+				return set((state) => {
+					return {
+						tasks: state.tasks.map((task) => (task.id == id ? { ...task, title } : task))
+					};
+				});
+			}
+		};
+    }
+);
+```
+
+Concisely,
+
+```typescript
+export const useTaskStore = create<TStore>()((set) => ({
+		tasks: [],
+		addTask: (title) =>
+			set((state) => ({
+				tasks: [...state.tasks, { id: Math.random().toString(), title, status: 'TODO' }]
+			})),
+		removeTask: (id) => set((state) => ({ tasks: state.tasks.filter((task) => task.id !== id) })),
+		updateTitle: (id, title) =>
+			set((state) => ({
+				tasks: state.tasks.map((task) => (task.id === id ? { ...task, title } : task))
+			})),
+		updateStatus: (id, status) =>
+			set((state) => ({
+				tasks: state.tasks.map((task) => (task.id === id ? { ...task, status } : task))
+			}))
+	    }
+    )
+);
 
 ```
 
-Usage:
 
-```tsx
-import { db } from '@/db/drizzle';
 
-export default async function Home() {
-	const users = await db.query.User.findMany();
-	return <pre>{JSON.stringify(users, null, 2)}</pre>;
-}
+2. Then bind your components, and that's it!
 
+
+```typescript
+    const tasks = useTaskStore((state) => state.tasks);
+	const addTask = useTaskStore((state) => state.addTask);
+	const updateStatus = useTaskStore((state) => state.updateStatus);
+	const updateTitle = useTaskStore((state) => state.updateTitle);
+	const removeTask = useTaskStore((state) => state.removeTask);
 ```
 
+
+
+
+
+## Adding middlewares
+
+
+```typescript
+import { devtools, persist } from 'zustand/middleware';
+
+const myMiddlewares = (stateCreator: StateCreator<TStore>) =>
+	devtools(persist(stateCreator, { name: 'task_data' }), { enabled: true });
+
+export const useTaskStore = create<TStore>()(myMiddlewares(set =>({}) ));
+```
+
+
+## Simplifying Immutability with Mutable Logic Using Immer in Zustand
+
+Using `immer` with `zustand` can simplify state management by allowing you to write mutative logic in your state updates while ensuring that the underlying state remains immutable. `immer` takes a base state, applies changes to it in a mutative manner, and then produces a new immutable state. Here are some reasons and benefits of using `immer` with `zustand`:
+
+```bash
+pnpm install immer
+```
+
+```typescript
+import { immer } from 'zustand/middleware/immer';
+
+const myMiddlewares = (
+	stateCreator: StateCreator<TStore, [['zustand/immer', never]], [], TStore>
+) => devtools(persist(immer(stateCreator), { name: 'task_data' }), { enabled: true });
+
+export const useTaskStore = create<TStore>()(
+	myMiddlewares((set) => ({
+		tasks: [],
+		addTask: (title: string) =>
+			set((state) => {
+				state.tasks.push({ id: Math.random().toString(), title, status: 'TODO' });
+			}),
+		removeTask: (id: string) =>
+			set((state: TStore) => {
+				state.tasks = state.tasks.filter((task) => task.id != id);
+			}),
+
+		updateTitle: (id: string, title: string) =>
+			set((state: TStore) => {
+				const taskFound = state.tasks.find((task) => task.id == id);
+				if (taskFound) {
+					taskFound.title = title;
+				}
+			}),
+		updateStatus: (id: string, status: TaskStatus) =>
+			set((state: TStore) => {
+				const taskFound = state.tasks.find((task) => task.id == id);
+				if (taskFound) {
+					taskFound.status = status;
+				}
+			})
+	}))
+);
+```
+
+## Advance Pattern

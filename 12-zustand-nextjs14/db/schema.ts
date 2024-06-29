@@ -1,13 +1,12 @@
-import { pgTable, pgEnum, varchar, uuid, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, pgEnum, uuid, text, timestamp, decimal } from 'drizzle-orm/pg-core';
 
 export const roleEnum = pgEnum('role', ['user', 'admin', 'guest']);
 
-export const User = pgTable('user', {
+export const Product = pgTable('product', {
 	id: uuid('id').primaryKey().defaultRandom(),
-	name: varchar('name', { length: 255 }).notNull(),
-	email: text('email'),
-	password: text('password'),
-	role: roleEnum('role').default('user').notNull(),
+	title: text('name').notNull(),
+	description: text('description'),
+	price: decimal('price').notNull(),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
