@@ -1,3 +1,4 @@
+'use client';
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -9,8 +10,11 @@ import {
 	SheetTrigger
 } from '@/components/ui/sheet';
 import Cart from '@/app/products/Cart';
+import { useMyStore } from '@/store/store';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function NavBar() {
+	const products = useMyStore(useShallow((state) => state.products));
 	return (
 		<div className='bg-primary h-16 w-full flex items-center flex-row-reverse'>
 			<div className='flex space-x-4 mr-20 items-center'>
@@ -28,7 +32,7 @@ export default function NavBar() {
 					<SheetTrigger>
 						<div className='relative'>
 							<span className=' absolute -top-2 right-0  w-4 h-4  rounded-full bg-red-500 text-xs text-white text-center'>
-								1
+								{products.length}
 							</span>
 							<ShoppingCart className='text-white' />
 						</div>

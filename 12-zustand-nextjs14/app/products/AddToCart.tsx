@@ -3,14 +3,29 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useMyStore } from '@/store/store';
 import { useShallow } from 'zustand/react/shallow';
+import { useEffect } from 'react';
 
 const AddToCart = ({ id }: { id: string }) => {
-	const { addProduct, getProductById } = useMyStore(
+	const { addProduct, getProductById, setTotalPrice } = useMyStore(
 		useShallow((state) => ({
 			addProduct: state.addProduct,
-			getProductById: state.getProductById
+			getProductById: state.getProductById,
+			setTotalPrice: state.setTotalPrice
 		}))
 	);
+
+	useEffect(() => {
+		const unsubscribe = useMyStore.subscribe(
+			(state) => state.products,
+			(products) => {
+				setTotalPrice(products.reduce((acc, item) => acc + Number(item.price) * item.qty, 0));
+			},
+			{ fireImmediately: true }
+		);
+
+		return unsubscribe;
+	}, [setTotalPrice]);
+
 	return (
 		<Button
 			size={'sm'}

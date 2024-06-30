@@ -2,25 +2,18 @@
 
 import { useMyStore } from '@/store/store';
 import { useShallow } from 'zustand/react/shallow';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle
-} from '@/components/ui/card';
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
 const Cart = () => {
-	const { products, removeProduct, increaseQty, decreaseQty, total, reset } = useMyStore(
+	const { products, removeProduct, increaseQty, decreaseQty, totalPrice } = useMyStore(
 		useShallow((state) => ({
 			products: state.products,
 			removeProduct: state.removeProduct,
 			increaseQty: state.increaseQty,
 			decreaseQty: state.decreaseQty,
-			total: state.total,
+			totalPrice: state.totalPrice,
 			reset: state.reset
 		}))
 	);
@@ -34,7 +27,7 @@ const Cart = () => {
 					</CardHeader>
 					<CardFooter>
 						<div className='flex justify-between items-center w-full'>
-							<div>Price: {product.price}</div>
+							<div>Price: ${product.price}</div>
 							<div className='flex space-x-2  items-center'>
 								<Button onClick={() => decreaseQty(product.id)}>-</Button>
 								<p className='text-2xl'>{product.qty}</p>
@@ -48,6 +41,7 @@ const Cart = () => {
 				</Card>
 			))}
 			{products.length == 0 && <p className='text-2xl text-center'>Cart is empty</p>}
+			{products.length != 0 && <p className='text-2xl'> Total price: ${totalPrice}</p>}
 		</div>
 	);
 };

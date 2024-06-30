@@ -8,7 +8,7 @@ export type CartProduct = ProductType & { qty: number };
 
 export type CartState = {
 	products: CartProduct[];
-	total: number;
+	totalPrice: number;
 };
 export type CartActions = {
 	addProduct: (product: CartProduct) => 'new' | 'existing';
@@ -16,7 +16,7 @@ export type CartActions = {
 	increaseQty: (productId: string) => void;
 	decreaseQty: (productId: string) => void;
 	getProductById: (productId: string) => Promise<CartProduct | undefined>;
-	getTotal: (total: number) => void;
+	setTotalPrice: (total: number) => void;
 	reset: () => void;
 };
 
@@ -24,7 +24,7 @@ export type CartSlice = CartState & CartActions;
 
 const initialState: CartState = {
 	products: [],
-	total: 0
+	totalPrice: 0
 };
 
 export const createCartSlice: StateCreator<CartSlice, [['zustand/immer', never]], [], CartSlice> = (
@@ -86,9 +86,9 @@ export const createCartSlice: StateCreator<CartSlice, [['zustand/immer', never]]
 			return undefined;
 		}
 	},
-	getTotal: (total: number) =>
+	setTotalPrice: (total: number) =>
 		set((state) => {
-			state.total = total;
+			state.totalPrice = total;
 		}),
 	reset: () => set(() => initialState)
 });
