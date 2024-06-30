@@ -1,6 +1,9 @@
-import { StateCreator, create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
+import {
+	StateCreator
+	// create
+} from 'zustand';
+// import { devtools, persist } from 'zustand/middleware';
+// import { immer } from 'zustand/middleware/immer';
 
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 
@@ -10,46 +13,116 @@ export type Task = {
 	status: TaskStatus;
 };
 
-export type TStore = {
+export type TaskState = {
 	tasks: Task[];
+};
+export type TaskAction = {
 	addTask: (title: string) => void;
 	removeTask: (id: string) => void;
 	updateTitle: (id: string, title: string) => void;
 	updateStatus: (id: string, status: TaskStatus) => void;
 };
 
-const myMiddlewares = (
-	stateCreator: StateCreator<TStore, [['zustand/immer', never]], [], TStore>
-) => devtools(persist(immer(stateCreator), { name: 'task_data' }), { enabled: true });
+export type TaskSlice = TaskState & TaskAction;
 
-export const useTaskStore = create<TStore>()(
-	myMiddlewares((set) => ({
-		tasks: [],
-		addTask: (title: string) =>
-			set((state) => {
-				state.tasks.push({ id: Math.random().toString(), title, status: 'TODO' });
-			}),
-		removeTask: (id: string) =>
-			set((state: TStore) => {
-				state.tasks = state.tasks.filter((task) => task.id != id);
-			}),
+const initialState: TaskState = {
+	tasks: []
+};
 
-		updateTitle: (id: string, title: string) =>
-			set((state: TStore) => {
-				const taskFound = state.tasks.find((task) => task.id == id);
-				if (taskFound) {
-					taskFound.title = title;
-				}
-			}),
-		updateStatus: (id: string, status: TaskStatus) =>
-			set((state: TStore) => {
-				const taskFound = state.tasks.find((task) => task.id == id);
-				if (taskFound) {
-					taskFound.status = status;
-				}
-			})
-	}))
-);
+export const createTaskSlice: StateCreator<TaskSlice, [['zustand/immer', never]], [], TaskSlice> = (
+	set
+) => ({
+	...initialState,
+	addTask: (title: string) =>
+		set((state) => {
+			state.tasks.push({ id: Math.random().toString(), title, status: 'TODO' });
+		}),
+	removeTask: (id: string) =>
+		set((state) => {
+			state.tasks = state.tasks.filter((task) => task.id != id);
+		}),
+
+	updateTitle: (id: string, title: string) =>
+		set((state) => {
+			const taskFound = state.tasks.find((task) => task.id == id);
+			if (taskFound) {
+				taskFound.title = title;
+			}
+		}),
+	updateStatus: (id: string, status: TaskStatus) =>
+		set((state) => {
+			const taskFound = state.tasks.find((task) => task.id == id);
+			if (taskFound) {
+				taskFound.status = status;
+			}
+		})
+});
+
+// const myMiddlewares = (
+// 	stateCreator: StateCreator<TStore, [['zustand/immer', never]], [], TStore>
+// ) => devtools(persist(immer(stateCreator), { name: 'task_data' }), { enabled: true });
+
+// export const useTaskStore = create<TStore>()(
+// 	myMiddlewares((set) => ({
+// 		tasks: [],
+// 		addTask: (title: string) =>
+// 			set((state) => {
+// 				state.tasks.push({ id: Math.random().toString(), title, status: 'TODO' });
+// 			}),
+// 		removeTask: (id: string) =>
+// 			set((state: TStore) => {
+// 				state.tasks = state.tasks.filter((task) => task.id != id);
+// 			}),
+
+// 		updateTitle: (id: string, title: string) =>
+// 			set((state: TStore) => {
+// 				const taskFound = state.tasks.find((task) => task.id == id);
+// 				if (taskFound) {
+// 					taskFound.title = title;
+// 				}
+// 			}),
+// 		updateStatus: (id: string, status: TaskStatus) =>
+// 			set((state: TStore) => {
+// 				const taskFound = state.tasks.find((task) => task.id == id);
+// 				if (taskFound) {
+// 					taskFound.status = status;
+// 				}
+// 			})
+// 	}))
+// );
+
+// const myMiddlewares = (
+// 	stateCreator: StateCreator<TStore, [['zustand/immer', never]], [], TStore>
+// ) => devtools(persist(immer(stateCreator), { name: 'task_data' }), { enabled: true });
+
+// export const useTaskStore = create<TStore>()(
+// 	myMiddlewares((set) => ({
+// 		tasks: [],
+// 		addTask: (title: string) =>
+// 			set((state) => {
+// 				state.tasks.push({ id: Math.random().toString(), title, status: 'TODO' });
+// 			}),
+// 		removeTask: (id: string) =>
+// 			set((state: TStore) => {
+// 				state.tasks = state.tasks.filter((task) => task.id != id);
+// 			}),
+
+// 		updateTitle: (id: string, title: string) =>
+// 			set((state: TStore) => {
+// 				const taskFound = state.tasks.find((task) => task.id == id);
+// 				if (taskFound) {
+// 					taskFound.title = title;
+// 				}
+// 			}),
+// 		updateStatus: (id: string, status: TaskStatus) =>
+// 			set((state: TStore) => {
+// 				const taskFound = state.tasks.find((task) => task.id == id);
+// 				if (taskFound) {
+// 					taskFound.status = status;
+// 				}
+// 			})
+// 	}))
+// );
 
 // const myMiddlewares = (stateCreator: StateCreator<TStore>) =>
 // 	devtools(persist(stateCreator, { name: 'task_data' }), { enabled: true });

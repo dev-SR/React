@@ -27,7 +27,7 @@ import {
 	DropdownMenuSubContent,
 	DropdownMenuPortal
 } from '@/components/ui/dropdown-menu';
-import { Task, TaskStatus, useTaskStore } from '@/store/task-store';
+import { Task, TaskStatus } from '@/store/task-store';
 import { ColumnDef } from '@tanstack/react-table';
 import { Edit2, MoreHorizontal, Trash2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,6 +35,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { formSchema } from './page';
+import { useMyStore } from '@/store/store';
 export const columns: ColumnDef<Task>[] = [
 	{
 		accessorKey: 'id',
@@ -65,9 +66,9 @@ export const columns: ColumnDef<Task>[] = [
 			const rowId = row.getValue('id') as string;
 			const currentTitle = row.getValue('title') as string;
 			const [statusValue, setStatusValue] = useState<TaskStatus>('TODO');
-			const updateStatus = useTaskStore((state) => state.updateStatus);
-			const updateTitle = useTaskStore((state) => state.updateTitle);
-			const removeTask = useTaskStore((state) => state.removeTask);
+			const updateStatus = useMyStore((state) => state.updateStatus);
+			const updateTitle = useMyStore((state) => state.updateTitle);
+			const removeTask = useMyStore((state) => state.removeTask);
 			const [open, setOpen] = useState<boolean>(false);
 
 			// 1. Define your form.

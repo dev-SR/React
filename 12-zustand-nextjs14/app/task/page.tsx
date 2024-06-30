@@ -16,7 +16,7 @@ import {
 	FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useTaskStore } from '@/store/task-store';
+import { useMyStore } from '@/store/store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -32,8 +32,8 @@ import { columns } from './columns';
 
 export default function Task() {
 	const [open, setOpen] = useState<boolean>(false);
-	const tasks = useTaskStore((state) => state.tasks);
-	const addTask = useTaskStore((state) => state.addTask);
+	const tasks = useMyStore((state) => state.tasks);
+	const addTask = useMyStore((state) => state.addTask);
 	// 1. Define your form.
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),

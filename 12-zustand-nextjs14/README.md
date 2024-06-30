@@ -142,19 +142,19 @@ export const useTaskStore = create<TStore>()(
 				state.tasks.push({ id: Math.random().toString(), title, status: 'TODO' });
 			}),
 		removeTask: (id: string) =>
-			set((state: TStore) => {
+			set((state) => {
 				state.tasks = state.tasks.filter((task) => task.id != id);
 			}),
 
 		updateTitle: (id: string, title: string) =>
-			set((state: TStore) => {
+			set((state) => {
 				const taskFound = state.tasks.find((task) => task.id == id);
 				if (taskFound) {
 					taskFound.title = title;
 				}
 			}),
 		updateStatus: (id: string, status: TaskStatus) =>
-			set((state: TStore) => {
+			set((state) => {
 				const taskFound = state.tasks.find((task) => task.id == id);
 				if (taskFound) {
 					taskFound.status = status;
@@ -165,3 +165,5 @@ export const useTaskStore = create<TStore>()(
 ```
 
 ## Advance Pattern
+
+
