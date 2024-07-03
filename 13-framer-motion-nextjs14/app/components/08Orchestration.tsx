@@ -1,7 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, Variant } from 'framer-motion';
+const container = {
+	hidden: { opacity: 0, y: 50 },
+	show: {
+		opacity: 1,
+		y: 0,
+		transition: {
+			delayChildren: 0.2,
+			staggerChildren: 0.1
+		}
+	}
+};
+
+const item = {
+	hidden: { opacity: 0 },
+	show: { opacity: 1 }
+};
 
 const Modal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
 	return (
@@ -17,15 +33,19 @@ const Modal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) =>
 					onClick={onClose}>
 					<motion.div
 						key='modalContent'
-						initial={{ opacity: 0, y: 50 }}
-						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: 50 }}
-						transition={{ duration: 0.3 }}
-						className='bg-white p-8 rounded-lg shadow-lg'
-						onClick={(e) => e.stopPropagation()} // Prevents closing when clicking inside the modal
-					>
-						<h2 className='text-xl font-bold mb-4 text-gray-500'>Modal Title</h2>
-						<p className='mb-4 text-gray-500'>This is a modal message.</p>
+						variants={container}
+						initial='hidden'
+						animate='show'
+						className='bg-white p-8 rounded-lg shadow-lg overflow-hidden'
+						onClick={(e) => e.stopPropagation()}>
+						<motion.h2 variants={item} className='text-xl font-bold mb-4 text-gray-500'>
+							Modal Title
+						</motion.h2>
+						<motion.p variants={item} className='mb-4 text-gray-500'>
+							This is a modal message.
+						</motion.p>
+
 						<button
 							onClick={onClose}
 							className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700'>
@@ -38,7 +58,7 @@ const Modal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) =>
 	);
 };
 
-const AnimatePresenceExit2 = () => {
+const Orchestration = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const openModal = () => setIsModalOpen(true);
@@ -56,4 +76,4 @@ const AnimatePresenceExit2 = () => {
 	);
 };
 
-export default AnimatePresenceExit2;
+export default Orchestration;
