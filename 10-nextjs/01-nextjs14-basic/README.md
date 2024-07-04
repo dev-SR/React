@@ -1,6 +1,13 @@
 # Nextjs Basic
 
-## Installation
+
+- [Nextjs Basic](#nextjs-basic)
+	- [Next with shadcn](#next-with-shadcn)
+	- [Drizzle setup](#drizzle-setup)
+	- [Dynamic Route](#dynamic-route)
+
+
+## Next with shadcn
 
 - [https://nextjs.org/docs/app/api-reference/create-next-app](https://nextjs.org/docs/app/api-reference/create-next-app)
 - [https://ui.shadcn.com/docs/installation/next](https://ui.shadcn.com/docs/installation/next)
@@ -18,7 +25,8 @@ Loading env for drizzle in next.js
 Install
 
 ```bash
-pnpm install @next/env
+pnpm add drizzle-orm postgres @next/env
+pnpm add -D drizzle-kit @faker-js/faker
 ```
 
 `lib\config.ts`
@@ -26,13 +34,6 @@ pnpm install @next/env
 ```typescript
 import { loadEnvConfig } from '@next/env';
 loadEnvConfig(process.cwd());
-```
-
-Install drizzle:
-
-```bash
-pnpm add drizzle-orm postgres @next/env
-pnpm add -D drizzle-kit @faker-js/faker
 ```
 
 1. Defile drizzle config
@@ -144,3 +145,31 @@ export default async function Home() {
 
 ```
 
+## Dynamic Route
+
+- [https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes)
+- [https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts)
+- [https://nextjs.org/docs/app/api-reference/file-conventions/page#props](https://nextjs.org/docs/app/api-reference/file-conventions/page#props)
+
+props type def:
+
+```typescript
+export type ServerParamsProps = {
+ // https://nextjs.org/docs/app/api-reference/file-conventions/page#props
+ params: { id: string };
+ searchParams: { [key: string]: string | string[] | undefined };
+};
+```
+
+`app\product\[id]\page.tsx`
+
+```tsx
+import { ServerParamsProps } from '@/lib/types/common';
+export default function Product(params: ServerParamsProps) {
+ return (
+  <div>
+     Product {params.params.id}
+  </div>
+ );
+}
+```
