@@ -1,13 +1,17 @@
-import { pgTable, pgEnum, varchar, uuid, text, timestamp } from 'drizzle-orm/pg-core';
+import { InferModel } from 'drizzle-orm';
+import { pgTable, pgEnum, varchar, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-export const roleEnum = pgEnum('role', ['user', 'admin', 'guest']);
+// Define an enum for the status of the todo item
+export const TodoStatus = pgEnum('todo_status', ['pending', 'in_progress', 'completed']);
 
-export const User = pgTable('user', {
+export const Todo = pgTable('todo', {
 	id: uuid('id').primaryKey().defaultRandom(),
-	name: varchar('name', { length: 255 }).notNull(),
-	email: text('email'),
-	password: text('password'),
-	role: roleEnum('role').default('user').notNull(),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-	updatedAt: timestamp('updated_at').notNull().defaultNow()
+	title: varchar('title', { length: 255 }).notNull(),
+	description: text('description'),
+	status: TodoStatus('status').default('pending'),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+	completed: boolean('completed').default(false)
 });
+
+export type TodoType = typeof Todo.$inferSelect;
