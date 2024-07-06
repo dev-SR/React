@@ -8,6 +8,7 @@
 	- [Loading ui and suspense](#loading-ui-and-suspense)
 	- [Server Action](#server-action)
 		- [Server action inside client components](#server-action-inside-client-components)
+		- [Server action inside client components with - `next-safe-action`](#server-action-inside-client-components-with---next-safe-action)
 
 
 ## Next with shadcn
@@ -397,4 +398,202 @@ export default ClientForm;
 ```
 
 > It's important to note that zod `formSchema` is being used in both server and client component, hence kept in a separate file. Otherwise, defining `formSchema` in the client component,`ClientForm` and using in server action `createTask` would have resulted in errors.
->
+
+### Server action inside client components with - `next-safe-action`
+
+define client in `lib\safe-action.ts`
+
+
+```typescript
+import { createSafeActionClient } from 'next-safe-action';
+
+export const AC = createSafeActionClient({
+	// Can also be an async function.
+	handleServerErrorLog(originalError, utils) {
+		// And also log it to the console.
+		console.error('Action error:', originalError.message);
+	},
+	// Can also be an async function.
+	handleReturnedServerError(e, utils) {
+		if (e.cause == 'custom') {
+			return e.message;
+		}
+
+		return 'Oh no, something went wrong!';
+	}
+});
+```
+
+Changes in Action:
+
+```typescript
+'use server';
+
+import { db } from '@/db/drizzle';
+import { Todo } from '@/db/schema';
+import { addTaskSchema, TAddTaskSchema } from '@/lib/formSchema';
+import { AC } from '@/lib/safe-action';
+
+export const createTask = AC.schema(addTaskSchema).action(async ({ parsedInput }) => {
+	await new Promise((resolve) => setTimeout(resolve, 500));
+
+	const taskExists = await db.query.Todo.findFirst({
+		where: (Todo, { eq }) => eq(Todo.title, parsedInput.title)
+	});
+
+	if (taskExists) {
+		throw new Error('Task already exists', {
+			cause: 'custom'
+		});
+	}
+
+	const [task] = await db.insert(Todo).values(parsedInput).returning({
+		id: Todo.id,
+		title: Todo.title
+	});
+
+	return task;
+});
+```
+
+Changes in Component:
+
+```tsx
+import { useAction } from 'next-safe-action/hooks';
+
+const ClientForm = () => {
+	const [open, setOpen] = useState<boolean>(false);
+	const form = useForm<TAddTaskSchema>({
+		// resolver: zodResolver(addTaskSchema), //client side form validation
+		mode: 'onTouched'
+	});
+	const router = useRouter();
+
+	const { execute, isExecuting } = useAction(createTask, {
+		onError: ({ error }) => {
+			console.log(error);
+			if (error.serverError) {
+				form.setError('root.serverError', {
+					message: error.serverError
+				});
+			}
+			if (error.validationErrors) {
+				for (const [key, _] of Object.entries(error.validationErrors)) {
+					if (key == 'title' || key == 'description')
+						form.setError(key, {
+							message: error.validationErrors[key]?._errors?.join(',')
+						});
+				}
+			}
+		},
+		onSuccess: (res) => {
+			router.refresh();
+			toast.success(`Task: '${res?.data?.title}' added`);
+			setOpen(false);
+			form.reset();
+		}
+	});
+	const onSubmit = async (values: TAddTaskSchema) => {
+		await execute(values);
+		// const result = await createTask(values);
+		// if (result.status === 'success') {
+		// 	router.refresh();
+		// 	toast.success(`Task: '${result.data.title}' added`);
+		// 	setOpen(false);
+		// 	form.reset();
+		// } else {
+		// 	// server side form validation
+		// 	if (Array.isArray(result.error)) {
+		// 		result.error.forEach((e) => {
+		// 			const fieldName = e.path.join('.') as 'title' | 'description';
+		// 			form.setError(fieldName, {
+		// 				message: e.message
+		// 			});
+		// 		});
+		// 	} else {
+		// 		form.setError('root.serverError', {
+		// 			message: result.error
+		// 		});
+		// 	}
+		// }
+	};
+	return (
+		<div className='flex flex-col'>
+			<Dialog open={open} onOpenChange={setOpen}>
+				<DialogTrigger asChild>
+					<Button className='w-min'>+ Add Task</Button>
+				</DialogTrigger>
+				<DialogContent className='sm:max-w-[425px]'>
+					<DialogHeader>
+						<DialogTitle> Add Task</DialogTitle>
+					</DialogHeader>
+					<div>
+						<Form {...form}>
+							<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+								<FormField
+									control={form.control}
+									name='title'
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Title</FormLabel>
+											<FormControl>
+												<Input placeholder='Add new task' {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name='description'
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Title</FormLabel>
+											<FormControl>
+												<Textarea placeholder='Add description' {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								{form.formState.errors.root?.serverError && (
+									<Alert variant='destructive'>
+										<AlertCircle className='h-4 w-4' />
+										<AlertTitle>Error</AlertTitle>
+										<AlertDescription>
+											{form.formState.errors.root?.serverError.message}
+										</AlertDescription>
+									</Alert>
+								)}
+								{/* <Button type='submit' disabled={form.formState.isSubmitting}>
+									{form.formState.isSubmitting ? (
+										<span className='flex items-center'>
+											<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+											Submitting
+										</span>
+									) : (
+										'Submit'
+									)}
+								</Button> */}
+
+								<Button type='submit' disabled={isExecuting}>
+									{isExecuting ? (
+										<span className='flex items-center'>
+											<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+											Submitting
+										</span>
+									) : (
+										'Submit'
+									)}
+								</Button>
+							</form>
+						</Form>
+					</div>
+				</DialogContent>
+			</Dialog>
+		</div>
+	);
+};
+
+export default ClientForm;
+```

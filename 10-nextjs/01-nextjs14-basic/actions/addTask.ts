@@ -3,6 +3,7 @@
 import { db } from '@/db/drizzle';
 import { Todo } from '@/db/schema';
 import { addTaskSchema, TAddTaskSchema } from '@/lib/formSchema';
+import { AC } from '@/lib/safe-action';
 import { ZodIssue } from 'zod';
 
 export type ActionResult<T> =
@@ -15,7 +16,7 @@ export type ActionResult<T> =
 			error: string | ZodIssue[];
 	  };
 
-export async function createTask(data: TAddTaskSchema): Promise<ActionResult<TAddTaskSchema>> {
+/* export async function createTask(data: TAddTaskSchema): Promise<ActionResult<TAddTaskSchema>> {
 	try {
 		await new Promise((resolve) => setTimeout(resolve, 500));
 		const validation = addTaskSchema.safeParse(data);
@@ -51,4 +52,25 @@ export async function createTask(data: TAddTaskSchema): Promise<ActionResult<TAd
 			error: 'Something went wrong'
 		};
 	}
-}
+} */
+
+export const createTask = AC.schema(addTaskSchema).action(async ({ parsedInput }) => {
+	await new Promise((resolve) => setTimeout(resolve, 500));
+
+	const taskExists = await db.query.Todo.findFirst({
+		where: (Todo, { eq }) => eq(Todo.title, parsedInput.title)
+	});
+
+	if (taskExists) {
+		throw new Error('Task already exists', {
+			cause: 'custom'
+		});
+	}
+
+	const [task] = await db.insert(Todo).values(parsedInput).returning({
+		id: Todo.id,
+		title: Todo.title
+	});
+
+	return task;
+});

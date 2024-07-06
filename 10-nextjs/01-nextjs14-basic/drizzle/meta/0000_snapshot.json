@@ -1,11 +1,11 @@
 {
-  "id": "fc7859da-91d8-43ab-ada6-3d11afd9ad4c",
+  "id": "74dc0dca-91da-49f1-ba31-5fba61cb9838",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.user": {
-      "name": "user",
+    "public.todo": {
+      "name": "todo",
       "schema": "",
       "columns": {
         "id": {
@@ -15,31 +15,25 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "name": {
-          "name": "name",
+        "title": {
+          "name": "title",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
-        "email": {
-          "name": "email",
+        "description": {
+          "name": "description",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "role": {
-          "name": "role",
-          "type": "role",
+        "status": {
+          "name": "status",
+          "type": "todo_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'user'"
+          "notNull": false,
+          "default": "'pending'"
         },
         "created_at": {
           "name": "created_at",
@@ -54,6 +48,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "completed": {
+          "name": "completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {},
@@ -63,13 +64,13 @@
     }
   },
   "enums": {
-    "public.role": {
-      "name": "role",
+    "public.todo_status": {
+      "name": "todo_status",
       "schema": "public",
       "values": [
-        "user",
-        "admin",
-        "guest"
+        "pending",
+        "in_progress",
+        "completed"
       ]
     }
   },

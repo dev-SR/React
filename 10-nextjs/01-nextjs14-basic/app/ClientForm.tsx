@@ -30,37 +30,63 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useAction } from 'next-safe-action/hooks';
 
 const ClientForm = () => {
 	const [open, setOpen] = useState<boolean>(false);
 	const form = useForm<TAddTaskSchema>({
-		resolver: zodResolver(addTaskSchema), //client side form validation
+		// resolver: zodResolver(addTaskSchema), //client side form validation
 		mode: 'onTouched'
 	});
 	const router = useRouter();
 
-	const onSubmit = async (values: TAddTaskSchema) => {
-		const result = await createTask(values);
-		if (result.status === 'success') {
-			router.refresh();
-			toast.success(`Task: '${result.data.title}' added`);
-			setOpen(false);
-			form.reset();
-		} else {
-			// server side form validation
-			if (Array.isArray(result.error)) {
-				result.error.forEach((e) => {
-					const fieldName = e.path.join('.') as 'title' | 'description';
-					form.setError(fieldName, {
-						message: e.message
-					});
-				});
-			} else {
+	const { execute, isExecuting } = useAction(createTask, {
+		onError: ({ error }) => {
+			console.log(error);
+			if (error.serverError) {
 				form.setError('root.serverError', {
-					message: result.error
+					message: error.serverError
 				});
 			}
+			if (error.validationErrors) {
+				for (const [key, _] of Object.entries(error.validationErrors)) {
+					if (key == 'title' || key == 'description')
+						form.setError(key, {
+							message: error.validationErrors[key]?._errors?.join(',')
+						});
+				}
+			}
+		},
+		onSuccess: (res) => {
+			router.refresh();
+			toast.success(`Task: '${res?.data?.title}' added`);
+			setOpen(false);
+			form.reset();
 		}
+	});
+	const onSubmit = async (values: TAddTaskSchema) => {
+		await execute(values);
+		// const result = await createTask(values);
+		// if (result.status === 'success') {
+		// 	router.refresh();
+		// 	toast.success(`Task: '${result.data.title}' added`);
+		// 	setOpen(false);
+		// 	form.reset();
+		// } else {
+		// 	// server side form validation
+		// 	if (Array.isArray(result.error)) {
+		// 		result.error.forEach((e) => {
+		// 			const fieldName = e.path.join('.') as 'title' | 'description';
+		// 			form.setError(fieldName, {
+		// 				message: e.message
+		// 			});
+		// 		});
+		// 	} else {
+		// 		form.setError('root.serverError', {
+		// 			message: result.error
+		// 		});
+		// 	}
+		// }
 	};
 	return (
 		<div className='flex flex-col'>
@@ -74,10 +100,7 @@ const ClientForm = () => {
 					</DialogHeader>
 					<div>
 						<Form {...form}>
-							<form
-								// action={action}
-								onSubmit={form.handleSubmit(onSubmit)}
-								className='space-y-8'>
+							<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
 								<FormField
 									control={form.control}
 									name='title'
@@ -113,8 +136,19 @@ const ClientForm = () => {
 										</AlertDescription>
 									</Alert>
 								)}
-								<Button type='submit' disabled={form.formState.isSubmitting}>
+								{/* <Button type='submit' disabled={form.formState.isSubmitting}>
 									{form.formState.isSubmitting ? (
+										<span className='flex items-center'>
+											<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+											Submitting
+										</span>
+									) : (
+										'Submit'
+									)}
+								</Button> */}
+
+								<Button type='submit' disabled={isExecuting}>
+									{isExecuting ? (
 										<span className='flex items-center'>
 											<Loader2 className='mr-2 h-4 w-4 animate-spin' />
 											Submitting
