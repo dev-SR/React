@@ -18,6 +18,12 @@ import { loginSchema, LoginSchema } from '@/lib/schemas/auth';
 import { PasswordInput } from '@/components/ui/password-input';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { loginAction } from '@/actions/auth/loginUser';
+import { useAction } from 'next-safe-action/hooks';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const LoginUser = () => {
 	// 1. Define your form.
@@ -25,13 +31,35 @@ const LoginUser = () => {
 		resolver: zodResolver(loginSchema)
 	});
 
-	// 2. Define a submit handler.
-	function onSubmit(values: LoginSchema) {
-		// Do something with the form values.
-		// ✅ This will be type-safe and validated.
-		alert(JSON.stringify(values, null, 2));
-	}
+	const router = useRouter();
 
+	const { execute, isExecuting } = useAction(loginAction, {
+		onError: ({ error }) => {
+			console.log(error);
+			if (error.serverError) {
+				form.setError('root.serverError', {
+					message: error.serverError
+				});
+			}
+			if (error.validationErrors) {
+				for (const [key, _] of Object.entries(error.validationErrors)) {
+					if (key == 'email' || key == 'password')
+						form.setError(key, {
+							message: error.validationErrors[key]?._errors?.join(',')
+						});
+				}
+			}
+		},
+		onSuccess: (res) => {
+			toast.success(res?.data?.message);
+			router.replace('/');
+			router.refresh();
+		}
+	});
+
+	const onSubmit = (values: LoginSchema) => {
+		execute(values);
+	};
 	useEffect(() => {
 		form.setFocus('email');
 	}, [form]);
@@ -45,6 +73,15 @@ const LoginUser = () => {
 			<CardContent>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
+						{form.formState.errors.root?.serverError && (
+							<Alert variant='destructive'>
+								<AlertCircle className='h-4 w-4' />
+								<AlertTitle>Error</AlertTitle>
+								<AlertDescription>
+									{form.formState.errors.root?.serverError.message}
+								</AlertDescription>
+							</Alert>
+						)}
 						<FormField
 							control={form.control}
 							name='email'
@@ -82,7 +119,16 @@ const LoginUser = () => {
 							</Link>
 						</p>
 
-						<Button type='submit'>Login</Button>
+						<Button type='submit' disabled={isExecuting}>
+							{isExecuting ? (
+								<span className='flex items-center'>
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+									Logging in
+								</span>
+							) : (
+								'Login'
+							)}
+						</Button>
 					</form>
 				</Form>
 			</CardContent>

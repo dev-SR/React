@@ -1,3 +1,4 @@
+import { AuthError } from 'next-auth';
 import { createSafeActionClient } from 'next-safe-action';
 
 // Define a reusable custom error class
@@ -13,14 +14,13 @@ export const AC = createSafeActionClient({
 	// Can also be an async function.
 	handleServerErrorLog(originalError, utils) {
 		// And also log it to the console.
+		// console.log(originalError.cause);
+
 		console.error('Action error:', originalError.message);
 	},
 	// Can also be an async function.
 	handleReturnedServerError(e, utils) {
-		// if (e instanceof ActionError) {
-		// 	return e.message;
-		// }
-		if (e.cause == 'MyActionError') {
+		if (e instanceof ActionError || e instanceof AuthError) {
 			return e.message;
 		}
 

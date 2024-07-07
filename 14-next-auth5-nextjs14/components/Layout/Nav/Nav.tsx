@@ -2,8 +2,9 @@ import { auth } from '@/auth';
 import { Button } from '../../ui/button';
 import Link from 'next/link';
 import { LogIn } from 'lucide-react';
+import UserButton from './UserButton';
 
-const Nav = async () => {
+const NavBar = async () => {
 	const session = await auth();
 	return (
 		<header className='h-16 bg-secondary'>
@@ -17,11 +18,11 @@ const Nav = async () => {
 						</Link>
 					</Button>
 				) : (
-					<div>li</div>
+					<UserButton session={session} />
 				)}
 			</nav>
 		</header>
 	);
 };
 
-export default Nav;
+export default NavBar;

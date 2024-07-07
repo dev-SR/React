@@ -1,3 +1,10 @@
-export default function Home() {
-	return <main>Home</main>;
+import { auth } from '@/auth';
+
+export default async function Home() {
+	const session = await auth();
+	return (
+		<main>
+			<pre>{JSON.stringify(session, null, 4)}</pre>
+		</main>
+	);
 }

@@ -50,8 +50,9 @@ const RegisterUser = () => {
 			}
 		},
 		onSuccess: (res) => {
+			form.reset();
 			toast.success(res?.data?.message);
-			router.replace('/');
+			router.replace('/auth/login');
 		}
 	});
 

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
-import Nav from '@/components/Layout/Nav/Nav';
+import NavBar from '@/components/Layout/Nav/Nav';
 import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -21,7 +21,7 @@ export default function RootLayout({
 		<html lang='en' suppressHydrationWarning>
 			<head />
 			<body className={cn('min-h-screen bg-background font-sans antialiased', inter.variable)}>
-				<Nav />
+				<NavBar />
 				{children}
 				<Toaster richColors expand />
 			</body>
