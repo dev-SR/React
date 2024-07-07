@@ -8,7 +8,7 @@ const Nav = async () => {
 	return (
 		<header className='h-16 bg-secondary'>
 			<nav className='flex justify-between h-full items-center px-10'>
-				<div>Logo</div>
+				<Link href={'/'}>Logo</Link>
 				{!session ? (
 					<Button asChild size={'sm'}>
 						<Link className='flex gap-2' href={'/auth/login'}>
