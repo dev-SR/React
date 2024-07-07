@@ -17,9 +17,19 @@ export const registerSchema = loginSchema
 			message: 'Password must be at least 5 characters'
 		})
 	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: 'Passwords do not match',
-		path: ['confirmPassword']
+	.superRefine(({ password, confirmPassword }, ctx) => {
+		if (password !== confirmPassword) {
+			ctx.addIssue({
+				code: 'custom',
+				message: 'Passwords do not match',
+				path: ['password']
+			});
+			ctx.addIssue({
+				code: 'custom',
+				message: 'Passwords do not match',
+				path: ['confirmPassword']
+			});
+		}
 	});
 
 export type RegisterSchema = z.infer<typeof registerSchema>;

@@ -1,15 +1,7 @@
 'use client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -26,19 +18,46 @@ import { RegisterSchema, registerSchema } from '@/lib/schemas/auth';
 import { PasswordInput } from '@/components/ui/password-input';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { registerAction } from '@/actions/auth/registerUser';
+import { useAction } from 'next-safe-action/hooks';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const RegisterUser = () => {
 	// 1. Define your form.
 	const form = useForm<RegisterSchema>({
 		resolver: zodResolver(registerSchema)
 	});
+	const router = useRouter();
 
-	// 2. Define a submit handler.
-	function onSubmit(values: RegisterSchema) {
-		// Do something with the form values.
-		// ✅ This will be type-safe and validated.
-		alert(JSON.stringify(values, null, 2));
-	}
+	const { execute, isExecuting } = useAction(registerAction, {
+		onError: ({ error }) => {
+			console.log(error);
+			if (error.serverError) {
+				form.setError('root.serverError', {
+					message: error.serverError
+				});
+			}
+			if (error.validationErrors) {
+				for (const [key, _] of Object.entries(error.validationErrors)) {
+					if (key == 'name' || key == 'password' || key == 'confirmPassword')
+						form.setError(key, {
+							message: error.validationErrors[key]?._errors?.join(',')
+						});
+				}
+			}
+		},
+		onSuccess: (res) => {
+			toast.success(res?.data?.message);
+			router.replace('/');
+		}
+	});
+
+	const onSubmit = (values: RegisterSchema) => {
+		execute(values);
+	};
 
 	useEffect(() => {
 		form.setFocus('name');
@@ -53,6 +72,15 @@ const RegisterUser = () => {
 			<CardContent>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
+						{form.formState.errors.root?.serverError && (
+							<Alert variant='destructive'>
+								<AlertCircle className='h-4 w-4' />
+								<AlertTitle>Error</AlertTitle>
+								<AlertDescription>
+									{form.formState.errors.root?.serverError.message}
+								</AlertDescription>
+							</Alert>
+						)}
 						<FormField
 							control={form.control}
 							name='name'
@@ -119,7 +147,16 @@ const RegisterUser = () => {
 							</Link>
 						</p>
 
-						<Button type='submit'>Register</Button>
+						<Button type='submit' disabled={isExecuting}>
+							{isExecuting ? (
+								<span className='flex items-center'>
+									<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+									Registering
+								</span>
+							) : (
+								'Register'
+							)}
+						</Button>
 					</form>
 				</Form>
 			</CardContent>
