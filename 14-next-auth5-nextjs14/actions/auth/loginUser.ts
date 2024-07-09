@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn } from '@/auth';
+import { MyAuthError, signIn } from '@/auth';
 import { AC, ActionError } from '@/lib/safe-action';
 import { loginSchema } from '@/lib/schemas/auth';
 import { sleep } from '@/lib/utils';
@@ -18,9 +18,14 @@ export const loginAction = AC.schema(loginSchema).action(
 			});
 		} catch (error) {
 			if (error instanceof AuthError) {
-				throw new ActionError(error.message.split('.')[0] || 'Something went wrong');
+				if (error.type == 'CredentialsSignin' && error instanceof MyAuthError) {
+					throw new ActionError(error.my_message);
+				}
+				if (!(error instanceof MyAuthError)) {
+					throw new ActionError(error.message.split('.')[0] || 'Something went wrong');
+				}
 			}
-			throw error;
+			throw new ActionError('Something went wrong');
 		}
 
 		return {

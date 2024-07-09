@@ -1,5 +1,6 @@
 'use server';
 
+import { sendVerificationEmail } from '@/components/email';
 import { db } from '@/db/drizzle';
 import { users } from '@/db/schema';
 import { hashPassword } from '@/lib/hashing';
@@ -22,8 +23,13 @@ export const registerAction = AC.schema(registerSchema).action(
 			email,
 			password: hashedPassword
 		});
+
+		// send verification email
+		const { data, error } = await sendVerificationEmail(email);
+		if (error) throw new ActionError('Error while sending verification email');
+
 		return {
-			message: 'User registered successfully'
+			message: 'Verification email sent'
 		};
 	}
 );

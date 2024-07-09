@@ -5,7 +5,8 @@ import {
 	text,
 	primaryKey,
 	integer,
-	pgEnum
+	pgEnum,
+	uuid
 } from 'drizzle-orm/pg-core';
 import type { AdapterAccountType } from 'next-auth/adapters';
 
@@ -87,6 +88,22 @@ export const authenticators = pgTable(
 	(authenticator) => ({
 		compositePK: primaryKey({
 			columns: [authenticator.userId, authenticator.credentialID]
+		})
+	})
+);
+/* END: auth-next */
+
+export const EmailVerificationToken = pgTable(
+	'email_verification_toke',
+	{
+		id: uuid('id').notNull().defaultRandom(),
+		token: text('token').notNull(),
+		email: text('email').notNull(),
+		expires: timestamp('expires', { mode: 'date' }).notNull()
+	},
+	(t) => ({
+		pk: primaryKey({
+			columns: [t.id, t.token]
 		})
 	})
 );

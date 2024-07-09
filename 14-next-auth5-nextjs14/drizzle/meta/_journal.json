@@ -15,6 +15,13 @@
       "when": 1720364563288,
       "tag": "0001_nebulous_wasp",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1720472570522,
+      "tag": "0002_bouncy_husk",
+      "breakpoints": true
     }
   ]
 }

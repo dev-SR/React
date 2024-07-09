@@ -6,6 +6,16 @@ import Credentials from 'next-auth/providers/credentials';
 import { loginSchema } from './lib/schemas/auth';
 import { comparePassword } from './lib/hashing';
 import authConfig from './auth.config';
+import { sendVerificationEmail } from './components/email';
+
+export class MyAuthError extends AuthError {
+	my_message: string;
+	constructor(message: string) {
+		super(message, {});
+		this.my_message = message;
+		this.type = 'CredentialsSignin';
+	}
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
 	adapter: DrizzleAdapter(db),
@@ -24,13 +34,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 					});
 
 					if (!user) {
-						throw new AuthError('User not found');
+						throw new MyAuthError('Invalid credentials');
 					}
 
 					if (!(await comparePassword(password, String(user.password)))) {
-						throw new AuthError('Invalid credentials');
+						throw new MyAuthError('Invalid credentials');
 					}
-					// console.log(user);
+					if (!user.emailVerified) {
+						// send verification email
+						const { data, error } = await sendVerificationEmail(email);
+
+						if (error) {
+							throw new MyAuthError(
+								'Your account is not verified. We could not send verification email. Please try again later.'
+							);
+						}
+
+						throw new MyAuthError(
+							'Your account is not verified. Check your email for verification link.'
+						);
+					}
 
 					return user;
 				}

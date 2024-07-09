@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -17,20 +16,29 @@ import { Input } from '@/components/ui/input';
 import { RegisterSchema, registerSchema } from '@/lib/schemas/auth';
 import { PasswordInput } from '@/components/ui/password-input';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { registerAction } from '@/actions/auth/registerUser';
 import { useAction } from 'next-safe-action/hooks';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
+import ErrorAlert from '@/components/alert-message/error-alert';
+import WarningAlert from '@/components/alert-message/warning-alert';
 
 const RegisterUser = () => {
 	// 1. Define your form.
 	const form = useForm<RegisterSchema>({
-		resolver: zodResolver(registerSchema)
+		resolver: zodResolver(registerSchema),
+		defaultValues: {
+			// defaultValues is required for form.reset() to work
+			name: '',
+			email: '',
+			password: '',
+			confirmPassword: ''
+		}
 	});
 	const router = useRouter();
+	const [success, setSuccess] = useState('');
 
 	const { execute, isExecuting } = useAction(registerAction, {
 		onError: ({ error }) => {
@@ -50,9 +58,9 @@ const RegisterUser = () => {
 			}
 		},
 		onSuccess: (res) => {
+			setSuccess(res?.data?.message!);
 			form.reset();
-			toast.success(res?.data?.message);
-			router.replace('/auth/login');
+			toast.success('User created successfully');
 		}
 	});
 
@@ -74,14 +82,10 @@ const RegisterUser = () => {
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
 						{form.formState.errors.root?.serverError && (
-							<Alert variant='destructive'>
-								<AlertCircle className='h-4 w-4' />
-								<AlertTitle>Error</AlertTitle>
-								<AlertDescription>
-									{form.formState.errors.root?.serverError.message}
-								</AlertDescription>
-							</Alert>
+							<ErrorAlert message={form.formState.errors.root?.serverError.message!} />
 						)}
+
+						{success && <WarningAlert message={success} />}
 						<FormField
 							control={form.control}
 							name='name'

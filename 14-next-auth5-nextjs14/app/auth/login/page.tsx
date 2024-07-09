@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -22,13 +21,18 @@ import { loginAction } from '@/actions/auth/loginUser';
 import { useAction } from 'next-safe-action/hooks';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
+import ErrorAlert from '@/components/alert-message/error-alert';
 
 const LoginUser = () => {
 	// 1. Define your form.
 	const form = useForm<LoginSchema>({
-		resolver: zodResolver(loginSchema)
+		resolver: zodResolver(loginSchema),
+		defaultValues: {
+			// defaultValues is required for form.reset() to work
+			email: '',
+			password: ''
+		}
 	});
 
 	const router = useRouter();
@@ -51,6 +55,7 @@ const LoginUser = () => {
 			}
 		},
 		onSuccess: (res) => {
+			form.reset();
 			toast.success(res?.data?.message);
 			router.replace('/');
 			router.refresh();
@@ -74,13 +79,7 @@ const LoginUser = () => {
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
 						{form.formState.errors.root?.serverError && (
-							<Alert variant='destructive'>
-								<AlertCircle className='h-4 w-4' />
-								<AlertTitle>Error</AlertTitle>
-								<AlertDescription>
-									{form.formState.errors.root?.serverError.message}
-								</AlertDescription>
-							</Alert>
+							<ErrorAlert message={form.formState.errors.root?.serverError.message!} />
 						)}
 						<FormField
 							control={form.control}
