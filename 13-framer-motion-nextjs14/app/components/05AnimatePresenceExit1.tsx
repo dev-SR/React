@@ -10,9 +10,9 @@ const AnimatePresenceExit1 = () => {
 	};
 
 	return (
-		<div className='flex flex-col gap-2'>
-			<button onClick={handleHideMessage} className='text-nowrap px-4 py-2 rounded-md bg-blue-500'>
-				{isVisible ? 'Clear Success Message' : 'Cleared!'}
+		<div className='flex flex-col gap-2 items-center h-full justify-center'>
+			<button onClick={handleHideMessage} className='px-4 py-2 rounded-md bg-blue-500 w-40'>
+				<span className='text-nowrap'>{isVisible ? 'Clear Message' : 'Cleared!'}</span>
 			</button>
 			<AnimatePresence>
 				{isVisible && (

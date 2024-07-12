@@ -7,10 +7,11 @@ import AnimatePresenceExit2 from './components/06AnimatePresenceExit2';
 import Container from './components/Container';
 import Orchestration from './components/08Orchestration';
 import Variants from './components/07Variants';
+import AnimatePresenceExit1Layout from './components/05AnimatePresenceExit1Layout';
 
 export default function Home() {
 	return (
-		<div className='flex flex-col gap-2 items-center py-10'>
+		<div className='flex flex-col gap-2 items-center py-10 w-full'>
 			<h2 className='font-bold text-lg'>1. AnimateTo with transition</h2>
 			<div>
 				<Container>
@@ -30,17 +31,23 @@ export default function Home() {
 				</Container>
 			</div>
 			<h2 className='font-bold text-lg'>4. Hover, focus, tap interactivity</h2>
-			<div>
-				<Container>
-					<HoverTapFocus />
-				</Container>
-			</div>
+			<Container>
+				<HoverTapFocus />
+			</Container>
 			<h2 className='font-bold text-lg'>
 				5. Exit animation with <code>AnimatePresence</code>
 			</h2>
 			<div>
-				<Container>
+				<Container width={500} height={200}>
 					<AnimatePresenceExit1 />
+				</Container>
+			</div>
+			<h2 className='font-bold text-lg'>
+				5.1. <code>AnimatePresence</code> with <code>layout</code> for smooth layout changes
+			</h2>
+			<div>
+				<Container width={500} height={200}>
+					<AnimatePresenceExit1Layout />
 				</Container>
 			</div>
 			<h2 className='font-bold text-lg'>
