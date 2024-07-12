@@ -5,13 +5,15 @@ import HoverTapFocus from './components/04HoverTapFocus';
 import AnimatePresenceExit1 from './components/05AnimatePresenceExit1';
 import AnimatePresenceExit2 from './components/06AnimatePresenceExit2';
 import Container from './components/Container';
-import Orchestration from './components/08Orchestration';
-import Variants from './components/07Variants';
+import Orchestration from './components/09Orchestration';
+import VariantEx from './components/07Variants';
 import AnimatePresenceExit1Layout from './components/05AnimatePresenceExit1Layout';
+import StaggeringList from './components/08StaggeringList';
+import StaggeringListInView from './components/10StaggeringListInView';
 
 export default function Home() {
 	return (
-		<div className='flex flex-col gap-2 items-center py-10 w-full'>
+		<div className='flex flex-col gap-2 items-center pt-10 pb-20 w-full'>
 			<h2 className='font-bold text-lg'>1. AnimateTo with transition</h2>
 			<div>
 				<Container>
@@ -59,12 +61,26 @@ export default function Home() {
 			<h2 className='font-bold text-lg'>7. variants</h2>
 			<div>
 				<Container>
-					<Variants />
+					<VariantEx />
 				</Container>
 			</div>
-			<h2 className='font-bold text-lg'>8. Orchestrating with staggering animation</h2>
+			<h2 className='font-bold text-lg'>8. Staggering animation:list</h2>
+			<div>
+				<Container>
+					<StaggeringList />
+				</Container>
+			</div>
+			<h2 className='font-bold text-lg'>
+				9. Staggering animation: orchestrating with staggering animation when modal opens
+			</h2>
 			<div>
 				<Orchestration />
+			</div>
+			<h2 className='font-bold text-lg'>10. Staggering animation: stagger when in view</h2>
+			<div>
+				<Container width={300}>
+					<StaggeringListInView />
+				</Container>
 			</div>
 		</div>
 	);

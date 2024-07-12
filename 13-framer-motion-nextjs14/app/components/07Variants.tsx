@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-const variants = {
+import { AnimatePresence, motion, Variants } from 'framer-motion';
+const variants: Variants = {
 	from: {
 		opacity: 0,
 		y: 50
@@ -10,7 +10,7 @@ const variants = {
 	exit: { opacity: 0, x: 100 }
 };
 
-const Variants = () => {
+const VariantEx = () => {
 	const [isVisible, setIsVisible] = useState(true);
 
 	const handleHideMessage = () => {
@@ -40,4 +40,4 @@ const Variants = () => {
 	);
 };
 
-export default Variants;
+export default VariantEx;
