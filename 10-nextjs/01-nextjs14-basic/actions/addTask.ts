@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db/drizzle';
-import { Todo } from '@/db/schema';
+import { Todo } from '@/db/pg-schema';
 import { addTaskSchema, TAddTaskSchema } from '@/lib/formSchema';
 import { AC } from '@/lib/safe-action';
 import { ZodIssue } from 'zod';

@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { User } from './schema';
+import { User } from './pg-schema';
 import { db } from './drizzle';
 import { exit } from 'process';
 

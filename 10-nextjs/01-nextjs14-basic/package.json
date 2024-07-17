@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pg:push": "drizzle-kit push",
-    "pg:drop": "drizzle-kit drop",
-    "pg:studio": "drizzle-kit studio",
-    "pg:generate-migration": "drizzle-kit generate",
-    "pg:migrate": "drizzle-kit migrate",
-    "pg:seed": "npx tsx db/seed.ts"
+    "db:push": "drizzle-kit push",
+    "db:drop": "drizzle-kit drop",
+    "db:studio": "drizzle-kit studio",
+    "db:generate-migration": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "npx tsx db/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.7.0",
@@ -22,6 +22,7 @@
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@tanstack/react-table": "^8.19.2",
+    "better-sqlite3": "^11.1.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.31.2",
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

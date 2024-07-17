@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:01-nextjs14-basic}/sqlite.db",
+            "name": "dbme"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

@@ -1,4 +1,3 @@
-import { InferModel } from 'drizzle-orm';
 import { pgTable, pgEnum, varchar, uuid, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 // Define an enum for the status of the todo item

@@ -33,7 +33,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { TodoType } from '@/db/schema';
+import { TodoType } from '@/db/pg-schema';
 // import { formSchema } from './page';
 export const columns: ColumnDef<TodoType>[] = [
 	{
