@@ -1,20 +1,19 @@
 'use server';
 
-import { db } from '@/db/drizzle';
+import { db } from '@/db';
 import { Todo } from '@/db/pg-schema';
 import { addTaskSchema, TAddTaskSchema } from '@/lib/formSchema';
-import { AC } from '@/lib/safe-action';
-import { ZodIssue } from 'zod';
-
-export type ActionResult<T> =
-	| {
-			status: 'success';
-			data: T;
-	  }
-	| {
-			status: 'error';
-			error: string | ZodIssue[];
-	  };
+import { AC, ActionError } from '@/lib/safe-action';
+// import { ZodIssue } from 'zod';
+// export type ActionResult<T> =
+// 	| {
+// 			status: 'success';
+// 			data: T;
+// 	  }
+// 	| {
+// 			status: 'error';
+// 			error: string | ZodIssue[];
+// 	  };
 
 /* export async function createTask(data: TAddTaskSchema): Promise<ActionResult<TAddTaskSchema>> {
 	try {
@@ -62,9 +61,7 @@ export const createTask = AC.schema(addTaskSchema).action(async ({ parsedInput }
 	});
 
 	if (taskExists) {
-		throw new Error('Task already exists', {
-			cause: 'custom'
-		});
+		throw new ActionError('Task already exists');
 	}
 
 	const [task] = await db.insert(Todo).values(parsedInput).returning({

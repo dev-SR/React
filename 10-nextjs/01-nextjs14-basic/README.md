@@ -4,6 +4,8 @@
 - [Nextjs Basic](#nextjs-basic)
 	- [Next with shadcn](#next-with-shadcn)
 	- [Drizzle setup](#drizzle-setup)
+		- [Sqlite](#sqlite)
+		- [Postgresql](#postgresql)
 	- [Dynamic Route](#dynamic-route)
 	- [Loading ui and suspense](#loading-ui-and-suspense)
 	- [Server Action](#server-action)
@@ -24,6 +26,71 @@ pnpm dlx shadcn-ui@latest init
 
 ## Drizzle setup
 
+### Sqlite
+
+```bash
+pnpm add drizzle-orm better-sqlite3
+pnpm add -D drizzle-kit @types/better-sqlite3 @faker-js/faker
+```
+
+1. Create a db file `sqlite.db` at the root level
+2. Define drizzle config `drizzle.config.ts` at the root level. (config is required for database migration purposes, running commands like `push`, `generate`, `migrate` etc. and enable workings of drizzle studio )
+
+
+```bash
+import { defineConfig } from 'drizzle-kit';
+export default defineConfig({
+	schema: './db/sqlite-schema.ts',
+	out: './drizzle-sqlite',
+	dialect: 'sqlite',
+	dbCredentials: {
+		url: './sqlite.db'
+	}
+});
+```
+
+3. define schema `db\sqlite-schema.ts`:
+
+```typescript
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+export const users = sqliteTable('users', {
+	id: integer('id').primaryKey(),
+	firstName: text('first_name'),
+	lastName: text('last_name'),
+	age: integer('age')
+});
+
+export type User = InferSelectModel<typeof users>;
+export type InsertUser = InferInsertModel<typeof users>;
+```
+
+4. Define queryClient `db\index.ts`
+
+```typescript
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
+import * as schema from './sqlite-schema';
+
+const sqlite = new Database('sqlite.db');
+export const db = drizzle(sqlite, { schema });
+```
+
+5. Usage
+
+```tsx
+import { db } from '@/db';
+
+export default async function Home() {
+	const users = await db.query.User.findMany();
+	return <pre>{JSON.stringify(users, null, 2)}</pre>;
+}
+
+```
+
+### Postgresql
+
 Loading env for drizzle in next.js
 
 Install
@@ -40,9 +107,7 @@ import { loadEnvConfig } from '@next/env';
 loadEnvConfig(process.cwd());
 ```
 
-1. Defile drizzle config
-
-`drizzle.config.ts`
+1. Define drizzle config `drizzle.config.ts` at the root level. (config is required for database migration purposes, running commands like `push`, `generate`, `migrate` etc. and enable workings of drizzle studio )
 
 ```typescript
 import '@/lib/config';
@@ -57,7 +122,7 @@ export default defineConfig({
 		url: process.env.DATABASE_URL!
 	},
 	verbose: true,
-	strict: true
+	// strict: true
 });
 ```
 
@@ -79,7 +144,7 @@ export const User = pgTable('user', {
 });
 ```
 
-3. Define query client:
+3. Define query client: `db\index.ts`
 
 ```typescript
 import '@/lib/config';
@@ -97,12 +162,12 @@ export const db = drizzle(queryClient, { schema });
 ```json
 {
    "scripts": {
-        "pg:push": "drizzle-kit push",
-        "pg:drop": "drizzle-kit drop",
-        "pg:studio": "drizzle-kit studio",
-        "pg:generate-migration": "drizzle-kit generate",
-        "pg:migrate": "drizzle-kit migrate",
-		"pg:seed": "npx tsx db/seed.ts"
+        "db:push": "drizzle-kit push",
+        "db:drop": "drizzle-kit drop",
+        "db:studio": "drizzle-kit studio",
+        "db:generate-migration": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+		"db:seed": "npx tsx db/seed.ts"
   },
 }
 ```
@@ -140,7 +205,7 @@ main();
 Usage:
 
 ```tsx
-import { db } from '@/db/drizzle';
+import { db } from '@/db';
 
 export default async function Home() {
 	const users = await db.query.User.findMany();
@@ -407,21 +472,33 @@ define client in `lib\safe-action.ts`
 ```typescript
 import { createSafeActionClient } from 'next-safe-action';
 
+// Define a reusable custom error class
+export class ActionError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'MyActionError';
+		this.cause = 'MyActionError';
+	}
+}
+
 export const AC = createSafeActionClient({
 	// Can also be an async function.
 	handleServerErrorLog(originalError, utils) {
 		// And also log it to the console.
+		// console.log(originalError.cause);
+
 		console.error('Action error:', originalError.message);
 	},
 	// Can also be an async function.
 	handleReturnedServerError(e, utils) {
-		if (e.cause == 'custom') {
+		if (e instanceof ActionError) {
 			return e.message;
 		}
 
 		return 'Oh no, something went wrong!';
 	}
 });
+
 ```
 
 Changes in Action:
@@ -432,7 +509,7 @@ Changes in Action:
 import { db } from '@/db/drizzle';
 import { Todo } from '@/db/schema';
 import { addTaskSchema, TAddTaskSchema } from '@/lib/formSchema';
-import { AC } from '@/lib/safe-action';
+import { AC,ActionError } from '@/lib/safe-action';
 
 export const createTask = AC.schema(addTaskSchema).action(async ({ parsedInput }) => {
 	await new Promise((resolve) => setTimeout(resolve, 500));
@@ -442,9 +519,7 @@ export const createTask = AC.schema(addTaskSchema).action(async ({ parsedInput }
 	});
 
 	if (taskExists) {
-		throw new Error('Task already exists', {
-			cause: 'custom'
-		});
+		throw new ActionError('Task already exists');
 	}
 
 	const [task] = await db.insert(Todo).values(parsedInput).returning({
@@ -465,7 +540,7 @@ const ClientForm = () => {
 	const [open, setOpen] = useState<boolean>(false);
 	const form = useForm<TAddTaskSchema>({
 		// resolver: zodResolver(addTaskSchema), //client side form validation
-		mode: 'onTouched'
+		mode: 'onChange'
 	});
 	const router = useRouter();
 
@@ -487,10 +562,10 @@ const ClientForm = () => {
 			}
 		},
 		onSuccess: (res) => {
-			router.refresh();
 			toast.success(`Task: '${res?.data?.title}' added`);
 			setOpen(false);
 			form.reset();
+			router.refresh();
 		}
 	});
 	const onSubmit = async (values: TAddTaskSchema) => {

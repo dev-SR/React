@@ -1,14 +1,25 @@
 import { createSafeActionClient } from 'next-safe-action';
 
+// Define a reusable custom error class
+export class ActionError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'MyActionError';
+		this.cause = 'MyActionError';
+	}
+}
+
 export const AC = createSafeActionClient({
 	// Can also be an async function.
 	handleServerErrorLog(originalError, utils) {
 		// And also log it to the console.
+		// console.log(originalError.cause);
+
 		console.error('Action error:', originalError.message);
 	},
 	// Can also be an async function.
 	handleReturnedServerError(e, utils) {
-		if (e.cause == 'custom') {
+		if (e instanceof ActionError) {
 			return e.message;
 		}
 

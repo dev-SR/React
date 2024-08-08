@@ -51,7 +51,8 @@ export const columns: ColumnDef<TodoType>[] = [
 		header: 'Status',
 		size: 40,
 		cell: ({ row }) => {
-			const status = row.getValue('status');
+			// const status = row.getValue('status');
+			const status = row.original.status;
 			if (status === 'pending') {
 				return <Badge className='bg-red-500'>pending</Badge>;
 			} else if (status === 'in_progress') {
