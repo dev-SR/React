@@ -7,7 +7,13 @@
 		- [Sqlite](#sqlite)
 		- [Postgresql](#postgresql)
 	- [Dynamic Route](#dynamic-route)
-	- [Loading ui and suspense](#loading-ui-and-suspense)
+	- [Streaming with Suspense](#streaming-with-suspense)
+	- [Api Route Handlers](#api-route-handlers)
+		- [GET](#get)
+			- [Basic](#basic)
+			- [Dynamic Route Segments](#dynamic-route-segments)
+			- [URL Query Parameters](#url-query-parameters)
+		- [POST](#post)
 	- [Server Action](#server-action)
 		- [Server action inside client components](#server-action-inside-client-components)
 		- [Server action inside client components with - `next-safe-action`](#server-action-inside-client-components-with---next-safe-action)
@@ -243,20 +249,12 @@ export default function Product(params: ServerParamsProps) {
 }
 ```
 
-## Loading ui and suspense
+## Streaming with Suspense
 
-`Products.tsx`
+In addition to `loading.ts`, you can also manually create Suspense Boundaries for your own UI components.
 
-```tsx
-import { db } from '@/db/drizzle';
-const Products = async () => {
-	const products = await db.query.Product.findMany();
+`<Suspense>` works by wrapping a component that performs an asynchronous action (e.g. fetch data), showing fallback UI (e.g. skeleton, spinner) while it's happening, and then swapping in your component once the action completes.
 
-	return products.map((item) => (<div>Products.......</div>));
-};
-
-export default Products;
-```
 
 `page.ts`
 
@@ -271,7 +269,7 @@ export default async function Home() {
 	return (
 		<>
 			<h1>Products</h1>
-			<Suspense fallback={<div>Loading...</div>}>
+			<Suspense fallback={<div>Loading products...</div>}>
 				<Products />
 			</Suspense>
 		</>
@@ -280,7 +278,137 @@ export default async function Home() {
 ```
 
 
+`Products.tsx`
+
+```tsx
+import { db } from '@/db/drizzle';
+const Products = async () => {
+	const products = await db.query.Product.findMany();
+
+	return products.map((item) => (<div>Products.......</div>));
+};
+
+export default Products;
+```
+
 > Beware that the expensive computation mustn't be done in `page.ts` otherwise `Suspense` won't work. The work done should be made in the component that is given to the Suspense.
+
+
+## Api Route Handlers
+
+- [https://nextjs.org/docs/app/building-your-application/routing/route-handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+
+### GET
+
+
+#### Basic
+
+`app\api\test\route.ts` -> `http://localhost:3000/api/test`
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+	const token = request.headers.get('token');
+	// const token = request.cookies.get('token');
+
+	const user = {
+		name: 'Jhon',
+		role: 'Admin',
+		token
+	};
+	return NextResponse.json(user, {
+		status: 200,
+		headers: { 'Set-Cookie': `token=${token}; sameSite=strict; httpOnly=true; maxAge=60*60*24` }
+	});
+}
+
+```
+
+#### Dynamic Route Segments
+
+`app\api\test\[id]\route.ts` -> `http://localhost:3000/api/test/[id]`
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+	const id = params.id;
+	const user = { id, name: 'Jhon' };
+	return NextResponse.json(user);
+}
+```
+
+####  URL Query Parameters
+
+`app\api\test\route.ts`
+
+```typescript
+export async function GET(request: NextRequest) {
+	const searchParams = request.nextUrl.searchParams;
+	console.log(searchParams);
+
+	const query = searchParams.get('query');
+	const categories = searchParams.getAll('category'); // Get all values for 'category'
+	const prices = searchParams.getAll('price'); // Get all values for 'price'
+
+	return NextResponse.json({ query, categories, prices });
+}
+```
+
+Now if request is send to `http://localhost:3000/api/test?query=apple&category=electronics&category=smart%20phones&price=1000&price=2000`, the response will be:
+
+```json
+{
+  "query": "apple",
+  "categories": [
+    "electronics",
+    "smart phones"
+  ],
+  "prices": [
+    "1000",
+    "2000"
+  ]
+}
+```
+
+### POST
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { z, ZodError } from 'zod';
+
+const userSchema = z.object({
+	name: z.string().min(3),
+	email: z.string().email()
+});
+
+export async function POST(request: NextRequest) {
+	const body = await request.json();
+
+	try {
+		const parsedBody = userSchema.parse(body);
+		// Perform actions with the validated data
+		return NextResponse.json({ message: `User ${parsedBody.name} created successfully` });
+	} catch (error) {
+		if (error instanceof ZodError) {
+			// Handle Zod validation errors
+			return NextResponse.json(
+				{
+					errors: error.errors.map((e) => ({
+						path: e.path[0],
+						message: e.message
+					}))
+				},
+				{ status: 400 }
+			);
+		} else {
+			return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+		}
+	}
+}
+```
+
 
 
 ## Server Action
