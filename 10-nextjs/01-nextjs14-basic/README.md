@@ -3,6 +3,8 @@
 
 - [Nextjs Basic](#nextjs-basic)
 	- [Next with shadcn](#next-with-shadcn)
+	- [Prisma](#prisma)
+		- [setup prisma](#setup-prisma)
 	- [Drizzle setup](#drizzle-setup)
 		- [Sqlite](#sqlite)
 		- [Postgresql](#postgresql)
@@ -29,6 +31,67 @@ pnpm create next-app@latest --typescript --tailwind --eslint --app
 pnpm dlx shadcn-ui@latest init
 
 ```
+
+## Prisma
+
+### setup prisma
+
+First, we need to add Prisma to our project as a development dependency:
+
+```bash
+pnpm install prisma -D
+pnpm install @prisma/client
+```
+
+Next, we initialize Prisma:
+
+```bash
+npx prisma init
+```
+
+To actually create the tables in your database, you now can use the following command of the Prisma CLI:
+
+
+```bash
+npx prisma db push
+npx prisma studio
+```
+
+Before you can access your database from Next.js using Prisma, you first need to install Prisma Client in your app. You can install it via npm as follows:
+
+```bash
+pnpm install @prisma/client
+```
+
+Because Prisma Client is tailored to your own schema, you need to update it every time your Prisma schema file is changing by running the following command:
+
+```bash
+npx prisma generate
+```
+
+You'll use a single `PrismaClient` instance that you can import into any file where it's needed. The instance will be created in a prisma.ts file inside the `lib/` directory. Go ahead and create the missing directory and file:
+
+`lib\prisma.ts`
+
+```ts
+import { PrismaClient } from '@prisma/client';
+
+const prismaClientSingleton = () => {
+	return new PrismaClient();
+};
+
+declare const globalThis: {
+	prismaGlobal: ReturnType<typeof prismaClientSingleton>;
+} & typeof global;
+
+const db = globalThis.prismaGlobal ?? prismaClientSingleton();
+
+export default db;
+
+if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = db;
+````
+
+
 
 ## Drizzle setup
 
