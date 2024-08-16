@@ -40,7 +40,7 @@ First, we need to add Prisma to our project as a development dependency:
 
 ```bash
 pnpm install prisma -D
-pnpm install @prisma/client
+pnpm install @prisma/client@latest
 ```
 
 Next, we initialize Prisma:
